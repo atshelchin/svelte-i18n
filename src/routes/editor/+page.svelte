@@ -56,6 +56,43 @@
 	let showSuggestions = $state(false);
 	let selectedSuggestionIndex = $state(-1);
 
+	// Compute the download filename based on source pattern
+	let expectedDownloadFileName = $derived(
+		(() => {
+			if (!targetLocaleCode) return '';
+
+			if (sourceLangs.length > 0 && sourceLangs[0].fileName) {
+				let sourceFileName = sourceLangs[0].fileName;
+				// Remove any existing incomplete markers
+				sourceFileName = sourceFileName.replace(/_incomplete/g, '').replace(/incomplete_/g, '');
+				const sourceLocale = sourceLangs[0].locale;
+
+				// Try to replace locale in filename
+				if (sourceFileName.includes(sourceLocale)) {
+					return sourceFileName.replace(sourceLocale, targetLocaleCode);
+				} else {
+					// Try common patterns
+					const patterns = [
+						/\.([a-z]{2}(-[A-Z]{2})?)\.json$/i, // .en.json
+						/^([a-z]{2}(-[A-Z]{2})?)\.json$/i, // en.json
+						/_([a-z]{2}(-[A-Z]{2})?)\.json$/i, // _en.json
+						/-([a-z]{2}(-[A-Z]{2})?)\.json$/i // -en.json
+					];
+
+					for (const pattern of patterns) {
+						if (pattern.test(sourceFileName)) {
+							return sourceFileName.replace(pattern, (match, locale) => {
+								return match.replace(locale, targetLocaleCode);
+							});
+						}
+					}
+					return sourceFileName.replace('.json', `.${targetLocaleCode}.json`);
+				}
+			}
+			return `${targetLocaleCode}.json`;
+		})()
+	);
+
 	// UI state
 	let isLoading = $state(false);
 	let saveStatus = $state('');
@@ -220,12 +257,12 @@
 				}
 				const data = await response.json();
 
-				// Extract locale from URL if possible
+				// Extract locale and filename from URL
 				const urlParts = urls[i].split('/');
 				const fileName = urlParts[urlParts.length - 1];
 				const locale = fileName.replace('.json', '');
 
-				addSourceLanguage(data, locale, 'url', urls[i]);
+				addSourceLanguage(data, locale, 'url', urls[i], fileName);
 				successCount++;
 			} catch (error) {
 				console.error(`Failed to load ${urls[i]}:`, error);
@@ -1103,33 +1140,16 @@
 			exportData = exportTaskToFile(serializedTask);
 		}
 
-		// Generate filename based on source file pattern
-		let downloadFileName: string;
-		if (sourceLangs.length > 0 && sourceLangs[0].fileName) {
-			// Get the first source file name
-			let sourceFileName = sourceLangs[0].fileName;
-			
-			// Remove any existing incomplete markers from the source filename
-			sourceFileName = sourceFileName.replace(/_incomplete/g, '').replace(/incomplete_/g, '');
-			
-			// Extract locale pattern from filename (e.g., en, en-US, zh-CN)
-			const localePattern = /[a-z]{2}(-[A-Z]{2})?/g;
-			const sourceLocale = sourceLangs[0].locale;
+		// Use the computed filename (same logic as display)
+		let downloadFileName = expectedDownloadFileName;
 
-			// Replace the source locale with target locale in the filename
-			if (sourceFileName.includes(sourceLocale)) {
-				downloadFileName = sourceFileName.replace(sourceLocale, targetLocaleCode);
-			} else {
-				// If exact locale not found, try to replace any locale pattern
-				downloadFileName = sourceFileName.replace(localePattern, targetLocaleCode);
-			}
+		// Add incomplete suffix if needed
+		if (progress < 100 && downloadFileName) {
+			downloadFileName = downloadFileName.replace('.json', '_incomplete.json');
+		}
 
-			// Add incomplete prefix if needed
-			if (progress < 100) {
-				downloadFileName = downloadFileName.replace('.json', '_incomplete.json');
-			}
-		} else {
-			// Fallback to default naming if no source file or URL source
+		// Fallback if no filename computed
+		if (!downloadFileName) {
 			downloadFileName = `${targetLocaleCode}_${progress < 100 ? 'incomplete_' : ''}translations.json`;
 		}
 
@@ -1692,7 +1712,7 @@
 							disabled={!targetLocaleCode}
 						>
 							📥 {i18n.t('editor.download')}
-							{targetLocaleCode || i18n.t('editor.translation')}.json
+							{expectedDownloadFileName || i18n.t('editor.translation') + '.json'}
 						</button>
 					</div>
 					{#if saveStatus}
