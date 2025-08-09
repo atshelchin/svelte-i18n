@@ -100,7 +100,12 @@
 	aria-label="Translation History"
 	tabindex="-1"
 >
-	<div class="task-history-modal" role="document">
+	<div
+		class="task-history-modal"
+		role="document"
+		onclick={(e) => e.stopPropagation()}
+		onkeydown={(e) => e.stopPropagation()}
+	>
 		<div class="modal-header">
 			<h2>📚 {i18n.locale === 'zh' ? '翻译历史' : 'Translation History'}</h2>
 			<button class="btn-close" onclick={onClose}>×</button>
@@ -128,9 +133,16 @@
 						<div
 							class="task-card"
 							class:selected={selectedTask?.id === task.id}
-							onclick={() => (selectedTask = selectedTask?.id === task.id ? null : task)}
-							onkeydown={(e) =>
-								e.key === 'Enter' && (selectedTask = selectedTask?.id === task.id ? null : task)}
+							onclick={(e) => {
+								e.stopPropagation();
+								selectedTask = selectedTask?.id === task.id ? null : task;
+							}}
+							onkeydown={(e) => {
+								if (e.key === 'Enter') {
+									e.stopPropagation();
+									selectedTask = selectedTask?.id === task.id ? null : task;
+								}
+							}}
 							role="button"
 							tabindex="0"
 						>
