@@ -258,17 +258,17 @@
 				// Extract locale and filename from URL
 				const urlParts = urls[i].split('/');
 				const fileName = urlParts[urlParts.length - 1];
-				
+
 				// Extract locale from filename - try to find the actual locale code
 				let locale = fileName.replace('.json', '');
 				// Common patterns to extract locale code
 				const localePatterns = [
-					/\.([a-z]{2}(-[A-Z]{2})?)$/i,  // app.en or app.en-US
-					/^([a-z]{2}(-[A-Z]{2})?)$/i,    // en or en-US
-					/_([a-z]{2}(-[A-Z]{2})?)$/i,    // app_en or app_en-US
-					/-([a-z]{2}(-[A-Z]{2})?)$/i     // app-en or app-en-US
+					/\.([a-z]{2}(-[A-Z]{2})?)$/i, // app.en or app.en-US
+					/^([a-z]{2}(-[A-Z]{2})?)$/i, // en or en-US
+					/_([a-z]{2}(-[A-Z]{2})?)$/i, // app_en or app_en-US
+					/-([a-z]{2}(-[A-Z]{2})?)$/i // app-en or app-en-US
 				];
-				
+
 				for (const pattern of localePatterns) {
 					const match = locale.match(pattern);
 					if (match) {
@@ -346,12 +346,12 @@
 			let locale = file.name.replace('.json', '');
 			// Common patterns to extract locale code
 			const localePatterns = [
-				/\.([a-z]{2}(-[A-Z]{2})?)$/i,  // app.en or app.en-US
-				/^([a-z]{2}(-[A-Z]{2})?)$/i,    // en or en-US
-				/_([a-z]{2}(-[A-Z]{2})?)$/i,    // app_en or app_en-US
-				/-([a-z]{2}(-[A-Z]{2})?)$/i     // app-en or app-en-US
+				/\.([a-z]{2}(-[A-Z]{2})?)$/i, // app.en or app.en-US
+				/^([a-z]{2}(-[A-Z]{2})?)$/i, // en or en-US
+				/_([a-z]{2}(-[A-Z]{2})?)$/i, // app_en or app_en-US
+				/-([a-z]{2}(-[A-Z]{2})?)$/i // app-en or app-en-US
 			];
-			
+
 			for (const pattern of localePatterns) {
 				const match = locale.match(pattern);
 				if (match) {
