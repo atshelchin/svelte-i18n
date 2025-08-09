@@ -356,3 +356,9 @@ export function getI18n(): I18nStore {
 	}
 	return globalInstance;
 }
+
+// Test utility to reset global state
+export function resetI18nForTesting(): void {
+	globalInstance = null;
+	namespacedInstances.clear();
+}

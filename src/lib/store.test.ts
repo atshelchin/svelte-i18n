@@ -1,10 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { setupI18n } from './store.svelte.js';
+import { setupI18n, resetI18nForTesting } from './store.svelte.js';
 
 describe('I18n Store', () => {
 	beforeEach(() => {
 		// Reset global instance
 		vi.resetModules();
+		resetI18nForTesting();
 	});
 
 	describe('setupI18n', () => {
@@ -162,9 +163,12 @@ describe('I18n Store', () => {
 
 			expect(i18n.t('hello')).toBe('Hello');
 
-			i18n.setLocale('fr');
+			await i18n.setLocale('fr');
 			expect(i18n.locale).toBe('fr');
 			expect(i18n.t('hello')).toBe('Bonjour');
+
+			// Reset locale back to avoid affecting other tests
+			await i18n.setLocale('en');
 		});
 
 		it('should not switch to unloaded locale', async () => {
