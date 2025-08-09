@@ -102,11 +102,9 @@ jobs:
 
       - name: Build library
         run: |
-          # Build the library package
-          pnpm run package
-
-          # Build CLI tools
-          pnpm run build:cli || echo "CLI build warnings ignored"
+          # Build the library package using prepack script
+          # This includes svelte-package, CLI build, and publint validation
+          pnpm run prepack
 
       - name: Set version (manual trigger)
         if: github.event_name == 'workflow_dispatch'
