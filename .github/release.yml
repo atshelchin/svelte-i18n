@@ -1,0 +1,42 @@
+# GitHub Release Configuration
+# This configures how releases are displayed on GitHub
+
+changelog:
+  exclude:
+    labels:
+      - ignore-for-release
+    authors:
+      - dependabot
+  categories:
+    - title: 🚀 Features
+      labels:
+        - feature
+        - enhancement
+    - title: 🐛 Bug Fixes
+      labels:
+        - bug
+        - fix
+    - title: 📚 Documentation
+      labels:
+        - documentation
+        - docs
+    - title: 🧪 Tests
+      labels:
+        - test
+        - testing
+    - title: 🔧 Maintenance
+      labels:
+        - chore
+        - maintenance
+        - dependencies
+    - title: ⚡ Performance
+      labels:
+        - performance
+        - optimization
+    - title: 💥 Breaking Changes
+      labels:
+        - breaking-change
+        - breaking
+    - title: Other Changes
+      labels:
+        - '*'

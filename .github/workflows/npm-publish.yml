@@ -1,0 +1,170 @@
+name: Publish to NPM
+
+on:
+  push:
+    tags:
+      - 'v*.*.*' # Trigger on version tags like v1.0.0
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish (e.g., 1.0.0)'
+        required: true
+        type: string
+      tag:
+        description: 'NPM tag (latest, beta, next)'
+        required: true
+        default: 'latest'
+        type: choice
+        options:
+          - latest
+          - beta
+          - next
+          - alpha
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run linter
+        run: pnpm run lint
+
+      - name: Run type check
+        run: pnpm run check
+
+      - name: Run unit tests
+        run: pnpm run test:unit -- --run
+
+      - name: Run E2E tests
+        run: pnpm run test:e2e
+
+  build-and-publish:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # Needed for provenance
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build library
+        run: |
+          # Build the library package
+          pnpm run package
+
+          # Build CLI tools
+          pnpm run build:cli || echo "CLI build warnings ignored"
+
+      - name: Set version (manual trigger)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          npm version ${{ github.event.inputs.version }} --no-git-tag-version
+          echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_ENV
+          echo "NPM_TAG=${{ github.event.inputs.tag }}" >> $GITHUB_ENV
+
+      - name: Set version (tag trigger)
+        if: github.event_name == 'push'
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          # Determine NPM tag based on version
+          if [[ $VERSION == *"beta"* ]]; then
+            echo "NPM_TAG=beta" >> $GITHUB_ENV
+          elif [[ $VERSION == *"alpha"* ]]; then
+            echo "NPM_TAG=alpha" >> $GITHUB_ENV
+          elif [[ $VERSION == *"rc"* ]]; then
+            echo "NPM_TAG=next" >> $GITHUB_ENV
+          else
+            echo "NPM_TAG=latest" >> $GITHUB_ENV
+          fi
+
+      - name: Validate package
+        run: |
+          # Check package contents
+          npm pack --dry-run
+
+          # Validate package.json
+          npm run publint || true
+
+      - name: Publish to NPM
+        run: |
+          npm publish --tag ${{ env.NPM_TAG }} --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create GitHub Release
+        if: github.event_name == 'push'
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Release ${{ env.VERSION }}
+          body: |
+            ## 📦 Package: @shelchin/svelte-i18n@${{ env.VERSION }}
+
+            ### Installation
+            ```bash
+            npm install @shelchin/svelte-i18n@${{ env.VERSION }}
+            # or
+            pnpm add @shelchin/svelte-i18n@${{ env.VERSION }}
+            ```
+
+            ### NPM
+            https://www.npmjs.com/package/@shelchin/svelte-i18n/v/${{ env.VERSION }}
+
+            ### Documentation
+            https://shelchin.github.io/svelte-i18n/
+
+            ---
+
+            See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for details.
+          draft: false
+          prerelease: ${{ env.NPM_TAG != 'latest' }}
+
+  notify:
+    needs: build-and-publish
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Notify success
+        if: needs.build-and-publish.result == 'success'
+        run: |
+          echo "✅ Successfully published package to NPM!"
+          echo "Package: @shelchin/svelte-i18n@${{ env.VERSION }}"
+          echo "Tag: ${{ env.NPM_TAG }}"
+
+      - name: Notify failure
+        if: needs.build-and-publish.result == 'failure'
+        run: |
+          echo "❌ Failed to publish package to NPM"
+          exit 1

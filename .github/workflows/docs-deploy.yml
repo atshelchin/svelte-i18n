@@ -1,0 +1,105 @@
+name: Deploy Documentation to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - 'static/**'
+      - 'docs/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'svelte.config.js'
+      - 'vite.config.ts'
+      - '.github/workflows/docs-deploy.yml'
+  # Also trigger after successful NPM publish
+  workflow_run:
+    workflows: ['Publish to NPM']
+    types:
+      - completed
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: 'pages'
+  cancel-in-progress: false
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+    # Only run if triggered manually, by push, or after successful NPM publish
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build documentation site
+        run: |
+          echo "Building documentation site..."
+          pnpm vite build
+        env:
+          BASE_PATH: '/${{ github.event.repository.name }}'
+          PUBLIC_DOCS_MODE: 'true'
+
+      - name: Add package info to docs
+        run: |
+          # Get package version
+          VERSION=$(node -p "require('./package.json').version")
+
+          # Create version file for the docs
+          echo "{\"version\": \"$VERSION\", \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}" > build/version.json
+
+          # Add NPM badge HTML
+          cat > build/npm-info.html << EOF
+          <div style="text-align: center; padding: 20px;">
+            <a href="https://www.npmjs.com/package/@shelchin/svelte-i18n">
+              <img src="https://img.shields.io/npm/v/@shelchin/svelte-i18n.svg" alt="npm version">
+            </a>
+            <a href="https://www.npmjs.com/package/@shelchin/svelte-i18n">
+              <img src="https://img.shields.io/npm/dm/@shelchin/svelte-i18n.svg" alt="npm downloads">
+            </a>
+            <a href="https://github.com/${{ github.repository }}/blob/main/LICENSE">
+              <img src="https://img.shields.io/npm/l/@shelchin/svelte-i18n.svg" alt="license">
+            </a>
+          </div>
+          EOF
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./build
+
+  deploy-docs:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build-docs
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Output deployment URL
+        run: |
+          echo "📚 Documentation deployed to: ${{ steps.deployment.outputs.page_url }}"
+          echo "📦 NPM Package: https://www.npmjs.com/package/@shelchin/svelte-i18n"
