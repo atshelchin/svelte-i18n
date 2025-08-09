@@ -1,3 +1,4 @@
+import { SvelteMap } from 'svelte/reactivity';
 import type {
 	I18nConfig,
 	I18nInstance,
@@ -326,7 +327,7 @@ class I18nStore implements I18nInstance {
 }
 
 let globalInstance: I18nStore | null = null;
-const namespacedInstances = new Map<string, I18nStore>();
+const namespacedInstances = new SvelteMap<string, I18nStore>();
 
 export function setupI18n(config: I18nConfig): I18nStore {
 	// If this is a namespaced instance, create a separate instance for it
