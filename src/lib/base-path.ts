@@ -23,9 +23,10 @@ export function getAppBasePath(): string {
 	}
 
 	// 2. Check for custom base path global
-	if ((globalThis as any).__BASE_PATH) {
-		console.debug('[i18n] Base path from global:', (globalThis as any).__BASE_PATH);
-		return (globalThis as any).__BASE_PATH;
+	const globalWithBasePath = globalThis as typeof globalThis & { __BASE_PATH?: string };
+	if (globalWithBasePath.__BASE_PATH) {
+		console.debug('[i18n] Base path from global:', globalWithBasePath.__BASE_PATH);
+		return globalWithBasePath.__BASE_PATH;
 	}
 
 	// 3. Try to detect from <base> tag
