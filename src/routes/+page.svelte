@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { getI18n, LanguageSwitcher, ValidationPopup } from '$lib/index.js';
+	import { base } from '$app/paths';
 
 	const i18n = getI18n();
 
@@ -120,10 +121,10 @@ i18n.formatRelativeTime(-2, 'day');
 
 			<div class="hero-actions">
 				<LanguageSwitcher class="language-switcher" showLabel={true} />
-				<a href="/editor" class="btn-editor">
+				<a href="{base}/editor" class="btn-editor">
 					🌍 {i18n.t('editor.title')}
 				</a>
-				<a href="/typed-demo" class="btn-typed"> 🎯 Type-Safe Demo </a>
+				<a href="{base}/typed-demo" class="btn-typed"> 🎯 Type-Safe Demo </a>
 				<a href="https://github.com/atshelchin/svelte-i18n" class="btn-github">
 					{i18n.t('demo.github')}
 				</a>
@@ -339,8 +340,8 @@ i18n.formatRelativeTime(-2, 'day');
 			<p>{i18n.t('demo.madeWithLove')}</p>
 			<div class="footer-links">
 				<a href="https://github.com/atshelchin/svelte-i18n">{i18n.t('demo.github')}</a>
-				<a href="/docs">{i18n.t('demo.documentation')}</a>
-				<a href="/api">{i18n.t('demo.apiReference')}</a>
+				<a href="{base}/docs">{i18n.t('demo.documentation')}</a>
+				<a href="{base}/api">{i18n.t('demo.apiReference')}</a>
 			</div>
 		</footer>
 	{/if}

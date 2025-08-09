@@ -20,10 +20,12 @@ export function getAppBasePath(): string {
 		}
 
 		// Also check for SvelteKit base in config
-		// @ts-expect-error - SvelteKit runtime global
-		if (globalThis.__sveltekit?.env?.PUBLIC_BASE_PATH) {
-			console.debug('[i18n] Base path from env:', globalThis.__sveltekit.env.PUBLIC_BASE_PATH);
-			return globalThis.__sveltekit.env.PUBLIC_BASE_PATH;
+		const sveltekit = (globalThis as Record<string, unknown>).__sveltekit as
+			| { env?: { PUBLIC_BASE_PATH?: string } }
+			| undefined;
+		if (sveltekit?.env?.PUBLIC_BASE_PATH) {
+			console.debug('[i18n] Base path from env:', sveltekit.env.PUBLIC_BASE_PATH);
+			return sveltekit.env.PUBLIC_BASE_PATH;
 		}
 	} catch {
 		// Not in SvelteKit environment
