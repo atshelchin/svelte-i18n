@@ -1103,6 +1103,36 @@
 			exportData = exportTaskToFile(serializedTask);
 		}
 
+		// Generate filename based on source file pattern
+		let downloadFileName: string;
+		if (sourceLangs.length > 0 && sourceLangs[0].fileName) {
+			// Get the first source file name
+			let sourceFileName = sourceLangs[0].fileName;
+			
+			// Remove any existing incomplete markers from the source filename
+			sourceFileName = sourceFileName.replace(/_incomplete/g, '').replace(/incomplete_/g, '');
+			
+			// Extract locale pattern from filename (e.g., en, en-US, zh-CN)
+			const localePattern = /[a-z]{2}(-[A-Z]{2})?/g;
+			const sourceLocale = sourceLangs[0].locale;
+
+			// Replace the source locale with target locale in the filename
+			if (sourceFileName.includes(sourceLocale)) {
+				downloadFileName = sourceFileName.replace(sourceLocale, targetLocaleCode);
+			} else {
+				// If exact locale not found, try to replace any locale pattern
+				downloadFileName = sourceFileName.replace(localePattern, targetLocaleCode);
+			}
+
+			// Add incomplete prefix if needed
+			if (progress < 100) {
+				downloadFileName = downloadFileName.replace('.json', '_incomplete.json');
+			}
+		} else {
+			// Fallback to default naming if no source file or URL source
+			downloadFileName = `${targetLocaleCode}_${progress < 100 ? 'incomplete_' : ''}translations.json`;
+		}
+
 		// Create download
 		const blob = new Blob([JSON.stringify(exportData, null, 2)], {
 			type: 'application/json'
@@ -1110,7 +1140,7 @@
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement('a');
 		a.href = url;
-		a.download = `${targetLocaleCode}_${progress < 100 ? 'incomplete_' : ''}${new Date().getTime()}.json`;
+		a.download = downloadFileName;
 		a.click();
 		URL.revokeObjectURL(url);
 

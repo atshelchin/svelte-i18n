@@ -31,9 +31,10 @@ export async function autoLoadLanguages(
 		// First, try to load the index file that lists available languages
 		const indexUrl = `${translationsPath}/${indexFile}`;
 		// Ensure URL is absolute from the root
-		const absoluteIndexUrl = typeof window !== 'undefined' && !indexUrl.startsWith('http')
-			? new URL(indexUrl, window.location.origin).href
-			: indexUrl;
+		const absoluteIndexUrl =
+			typeof window !== 'undefined' && !indexUrl.startsWith('http')
+				? new URL(indexUrl, window.location.origin).href
+				: indexUrl;
 		const indexResponse = await fetch(absoluteIndexUrl);
 
 		let availableLanguages: string[];
@@ -60,9 +61,10 @@ export async function autoLoadLanguages(
 				// Ensure URL is absolute from the root
 				const url = `${translationsPath}/${locale}.json`;
 				// If we're in the browser and the URL doesn't start with http, make it absolute
-				const absoluteUrl = typeof window !== 'undefined' && !url.startsWith('http')
-					? new URL(url, window.location.origin).href
-					: url;
+				const absoluteUrl =
+					typeof window !== 'undefined' && !url.startsWith('http')
+						? new URL(url, window.location.origin).href
+						: url;
 				await i18n.loadLanguage(locale, absoluteUrl);
 				onLoaded(locale);
 			} catch (error) {
