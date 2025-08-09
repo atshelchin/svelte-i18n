@@ -30,7 +30,8 @@
 			"Bash(grep:*)",
 			"Bash(pnpm lint:*)",
 			"Bash(git add:*)",
-			"Bash(pnpm dev:*)"
+			"Bash(pnpm dev:*)",
+			"Bash(pnpm test:*)"
 		],
 		"deny": []
 	}

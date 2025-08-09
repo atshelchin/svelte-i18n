@@ -148,8 +148,21 @@ export async function autoDiscoverTranslations(
 	// Get base path for the application
 	const basePath = getAppBasePath();
 
+	// Build the base URL for translations
+	let defaultBaseUrl = '/translations';
+	if (basePath) {
+		defaultBaseUrl = `${basePath}/translations`;
+	} else if (typeof window !== 'undefined') {
+		// Additional check for GitHub Pages specifically
+		const pathname = window.location.pathname;
+		// If we're on GitHub Pages (*.github.io) and have a path like /svelte-i18n/...
+		if (window.location.hostname.endsWith('.github.io') && pathname.startsWith('/svelte-i18n')) {
+			defaultBaseUrl = '/svelte-i18n/translations';
+		}
+	}
+
 	const {
-		baseUrl = basePath ? `${basePath}/translations` : '/translations',
+		baseUrl = defaultBaseUrl,
 		enabled = true,
 		patterns = DEFAULT_PATTERNS,
 		debug = import.meta.env?.DEV ?? false,

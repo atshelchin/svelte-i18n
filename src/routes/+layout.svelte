@@ -28,8 +28,9 @@
 		// Only load languages if they haven't been loaded yet
 		if (!languagesLoaded) {
 			// Automatically load all available languages
+			// Note: autoLoadLanguages will automatically detect the base path
 			await autoLoadLanguages(i18n, {
-				translationsPath: '/translations',
+				// translationsPath is automatically determined from base path
 				defaultLocale: i18n.locale, // Use the initial locale (from localStorage or browser)
 				onLoaded: (locale) => console.log(`✓ Loaded ${locale}`),
 				onError: (locale, error) => console.error(`✗ Failed to load ${locale}:`, error)

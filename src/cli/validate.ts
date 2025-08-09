@@ -233,7 +233,8 @@ export function validate(options: ValidateOptions): boolean {
 }
 
 // CLI interface
-if (require.main === module) {
+// Check if this file is being run directly (ES module style)
+if (import.meta.url === `file://${process.argv[1]}`) {
 	const args = process.argv.slice(2);
 
 	if (args.length < 1) {
