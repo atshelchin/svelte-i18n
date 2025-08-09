@@ -53,7 +53,7 @@ export function getAppBasePath(): string {
 		}
 	}
 
-	// 4. Auto-detect from URL for GitHub Pages and similar deployments
+	// 4. Auto-detect from URL for GitHub Pages ONLY
 	const pathname = window.location.pathname;
 	const hostname = window.location.hostname;
 
@@ -68,19 +68,8 @@ export function getAppBasePath(): string {
 		}
 	}
 
-	// Check for other subdirectory deployments
-	if (pathname !== '/' && !pathname.startsWith('/translations/')) {
-		const segments = pathname.split('/').filter(Boolean);
-		// If the first segment looks like a project name (no dots, not a file)
-		if (segments.length > 0) {
-			const firstSegment = segments[0];
-			if (firstSegment && !firstSegment.includes('.') && firstSegment.length > 2) {
-				const basePath = `/${firstSegment}`;
-				console.debug('[i18n] Base path detected from URL:', basePath);
-				return basePath;
-			}
-		}
-	}
+	// For all other deployments, don't auto-detect base path from URL
+	// Let SvelteKit or explicit configuration handle it
 
 	console.debug('[i18n] No base path detected, using root');
 	return '';
