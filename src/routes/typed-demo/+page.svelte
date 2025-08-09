@@ -330,7 +330,7 @@ i18n.t('nav.home', { extra: 'param' });`}</code
 		<section class="demo-section">
 			<h2>🎨 Pre-rendered Examples</h2>
 			<div class="examples-grid">
-				{#each Object.entries(examples) as [name, value]}
+				{#each Object.entries(examples) as [name, value] (name)}
 					<div class="example-card">
 						<code class="example-key">{name}</code>
 						<div class="example-value">{value}</div>

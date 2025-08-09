@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { getI18n } from '../store.svelte.js';
+	import type { I18nInstance } from '../types.js';
 	import { getValidationPopupI18n } from './validation-popup-i18n.js';
 	import { onMount } from 'svelte';
 
@@ -15,7 +16,7 @@
 	const errorCount = $derived(Object.values(errors).reduce((sum, errs) => sum + errs.length, 0));
 
 	// Namespaced i18n for this component
-	let popupI18n = $state<any | null>(null);
+	let popupI18n = $state<I18nInstance | null>(null);
 	let popupLocale = $state('en');
 
 	let isOpen = $state(false);
@@ -203,9 +204,8 @@
 	$effect(() => {
 		if (popupI18n && i18n.locale !== popupLocale) {
 			// Auto-discovery happens automatically in setLocale
-			popupI18n.setLocale(i18n.locale).then(() => {
-				popupLocale = i18n.locale;
-			});
+			void popupI18n.setLocale(i18n.locale);
+			popupLocale = i18n.locale;
 		}
 	});
 </script>

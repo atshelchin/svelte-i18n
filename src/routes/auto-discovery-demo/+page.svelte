@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { setupI18n } from '$lib';
+	import { setupI18n } from '$lib/index.js';
 
 	// Example 1: Package with auto-discovery
 	const packageI18n = setupI18n({
@@ -26,7 +26,15 @@
 
 	let currentLocale = $state('en');
 	let discoveryLog = $state<string[]>([]);
-	let availablePackages = $state<any[]>([]);
+	interface PackageInfo {
+		name: string;
+		namespace: string;
+		locales: string[];
+		discovered: boolean;
+		instance?: typeof packageI18n;
+		description?: string;
+	}
+	let availablePackages = $state<PackageInfo[]>([]);
 
 	onMount(async () => {
 		// Load some default translations
@@ -57,18 +65,24 @@
 			{
 				name: 'example-package',
 				namespace: 'example-package',
+				locales: ['en', 'zh'],
+				discovered: false,
 				instance: packageI18n,
 				description: 'Demo package with auto-discovery'
 			},
 			{
 				name: 'ui-components',
 				namespace: 'ui-components',
+				locales: ['en', 'zh'],
+				discovered: false,
 				instance: componentI18n,
 				description: 'UI component library'
 			},
 			{
 				name: 'validation-popup',
 				namespace: 'svelte-i18n-validation',
+				locales: ['en', 'zh', 'fr'],
+				discovered: true,
 				description: 'ValidationPopup component (built-in)'
 			}
 		];
@@ -92,7 +106,10 @@
 		await componentI18n.setLocale(locale);
 	}
 
-	function getTranslationExample(pkg: any) {
+	interface PackageWithInstance extends PackageInfo {
+		instance?: typeof packageI18n;
+	}
+	function getTranslationExample(pkg: PackageWithInstance) {
 		if (!pkg.instance) return 'N/A';
 
 		try {
@@ -163,7 +180,7 @@ my-package.ja.json`}</code
 		<div class="packages-list">
 			<h3>Registered Packages</h3>
 			<div class="package-cards">
-				{#each availablePackages as pkg}
+				{#each availablePackages as pkg (pkg.namespace)}
 					<div class="package-card">
 						<div class="package-header">
 							<h4>{pkg.name}</h4>
@@ -193,7 +210,7 @@ my-package.ja.json`}</code
 				{#if discoveryLog.length === 0}
 					<p class="log-empty">Change locale to see discovery attempts...</p>
 				{:else}
-					{#each discoveryLog as log}
+					{#each discoveryLog as log, i (i)}
 						<div class="log-entry">{log}</div>
 					{/each}
 				{/if}

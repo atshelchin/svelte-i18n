@@ -1,5 +1,5 @@
 import { setupI18n } from '../store.svelte.js';
-import type { I18nInstance } from '../types.js';
+import type { I18nInstance, TranslationFile } from '../types.js';
 import validationPopupEn from './translations/validation-popup-en.json' with { type: 'json' };
 import validationPopupZh from './translations/validation-popup-zh.json' with { type: 'json' };
 
@@ -43,7 +43,7 @@ export async function getValidationPopupI18n(): Promise<I18nInstance> {
  */
 export async function loadValidationPopupLanguage(
 	locale: string,
-	translations: any
+	translations: TranslationFile
 ): Promise<void> {
 	const i18n = await getValidationPopupI18n();
 	await i18n.loadLanguage(locale, translations);

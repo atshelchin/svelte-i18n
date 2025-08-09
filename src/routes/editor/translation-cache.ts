@@ -138,7 +138,7 @@ function makeSerializable(obj: unknown, path = ''): unknown {
 		}
 		// Convert Maps to plain objects
 		if (obj instanceof Map) {
-			const result: unknown = {};
+			const result: Record<string, unknown> = {};
 			obj.forEach((value, key) => {
 				if (typeof key === 'string') {
 					result[key] = makeSerializable(value, `${path}.${key}`);
@@ -149,9 +149,9 @@ function makeSerializable(obj: unknown, path = ''): unknown {
 	}
 
 	// Handle plain objects
-	const result: unknown = {};
+	const result: Record<string, unknown> = {};
 	for (const key in obj) {
-		const value = obj[key];
+		const value = (obj as Record<string, unknown>)[key];
 		// Skip functions and undefined values
 		if (typeof value === 'function' || value === undefined) continue;
 		// Skip Symbol properties

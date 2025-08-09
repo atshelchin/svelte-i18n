@@ -24,7 +24,8 @@
       "Bash(npx tsc:*)",
       "Bash(cp:*)",
       "Bash(chmod:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(pnpm check:*)"
     ],
     "deny": []
   }

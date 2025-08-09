@@ -1,7 +1,9 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import { SvelteSet, SvelteMap } from 'svelte/reactivity';
+	import { base } from '$app/paths';
 	import { getI18n } from '$lib/index.js';
+	import type { LanguageMeta } from '$lib/types.js';
 	import { fuzzySearchLanguages, type LanguageInfo } from '$lib/languages.js';
 	import TaskHistory from './TaskHistory.svelte';
 	import {
@@ -77,7 +79,7 @@
 	let aiEnabled = $state(false);
 
 	// Editor navigation
-	let expandedSections = new SvelteSet<string>();
+	let expandedSections = $state(new SvelteSet<string>());
 	let searchQuery = $state('');
 
 	// Progress tracking
@@ -515,7 +517,7 @@
 			};
 
 			// Only update if metadata actually changed
-			const currentMeta = targetTranslations._meta as any;
+			const currentMeta = targetTranslations._meta as LanguageMeta;
 			if (
 				currentMeta.code !== newMeta.code ||
 				currentMeta.name !== newMeta.name ||
@@ -713,7 +715,7 @@
 
 		async function processTranslations() {
 			const queue = [...translationTasks];
-			const inProgress = new Map<number, Promise<void>>();
+			const inProgress = new SvelteMap<number, Promise<void>>();
 			let lastApiCall = 0;
 
 			while (queue.length > 0 || inProgress.size > 0) {
@@ -785,7 +787,7 @@
 			expandedSections.add(section);
 		}
 		// Trigger reactivity by reassigning
-		expandedSections = new SvelteSet(expandedSections);
+		expandedSections = expandedSections;
 	}
 
 	function renderTranslationFields(
@@ -1091,7 +1093,7 @@
 			currentTask.metadata.untranslatedKeys = getUntranslatedKeys();
 		}
 
-		let exportData: any;
+		let exportData: Record<string, unknown>;
 
 		// If translation is complete (100%), export clean JSON without cache
 		if (progress >= 100) {
@@ -1284,7 +1286,7 @@
 			<button class="btn-history" onclick={() => (showTaskHistory = true)}>
 				📚 {i18n.locale === 'zh' ? '历史' : 'History'}
 			</button>
-			<a href="/" class="btn-back">← {i18n.t('editor.backToHome')}</a>
+			<a href="{base}/" class="btn-back">← {i18n.t('editor.backToHome')}</a>
 		</div>
 	</header>
 
@@ -1327,6 +1329,8 @@
 				<div
 					class="upload-area"
 					class:drag-active={dragActive}
+					role="region"
+					aria-label="File upload area"
 					ondragover={(e) => {
 						e.preventDefault();
 						dragActive = true;
@@ -1359,7 +1363,7 @@
 							bind:value={urlInput}
 							class="url-textarea"
 							rows="3"
-						/>
+						></textarea>
 						<button
 							class="btn-load-url"
 							onclick={() => loadFromUrls(urlInput)}
@@ -1745,7 +1749,7 @@
 											placeholder={i18n.t('editor.enterTranslation')}
 											class="target-input"
 											class:has-value={item.targetValue}
-										/>
+										></textarea>
 									</div>
 								</div>
 							</div>
@@ -1814,7 +1818,7 @@
 																class="target-input"
 																class:has-value={child.targetValue &&
 																	!child.targetValue.startsWith('[TODO')}
-															/>
+															></textarea>
 														</div>
 													</div>
 												</div>
@@ -1892,7 +1896,7 @@
 																					class="target-input"
 																					class:has-value={subChild.targetValue &&
 																						!subChild.targetValue.startsWith('[TODO')}
-																				/>
+																				></textarea>
 																			</div>
 																		</div>
 																	</div>

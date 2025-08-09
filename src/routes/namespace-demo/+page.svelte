@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { setupI18n } from '$lib';
-	import { ValidationPopup } from '$lib';
+	import { setupI18n } from '$lib/index.js';
+	import { ValidationPopup } from '$lib/index.js';
 	import { loadValidationPopupLanguage } from '$lib/components/validation-popup-i18n.js';
 
 	// Main application i18n instance

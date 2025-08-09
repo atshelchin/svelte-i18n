@@ -6,7 +6,7 @@
  * applications to provide translations without modifying source code.
  */
 
-import type { I18nConfig, TranslationFile } from './types.js';
+import type { I18nConfig, TranslationFile, TranslationSchema } from './types.js';
 
 export interface AutoDiscoveryOptions {
 	/**
@@ -111,9 +111,7 @@ async function tryLoadTranslation(
 			return data as TranslationFile;
 		}
 	} catch {
-		if (debug) {
-			console.debug(`Failed to load ${url}:`, error);
-		}
+		// Silently ignore errors in discovery
 	}
 	return null;
 }
@@ -261,8 +259,16 @@ export function withAutoDiscovery(
 /**
  * Hook to automatically discover and load translations when locale changes
  */
+interface I18nWithDiscovery {
+	locale: string;
+	locales: string[];
+	getNamespace?: () => string | undefined;
+	config?: { namespace?: string };
+	loadLanguage?: (locale: string, translations: TranslationFile) => Promise<void>;
+}
+
 export function createAutoDiscoveryEffect(
-	getI18n: () => any,
+	getI18n: () => I18nWithDiscovery,
 	options?: AutoDiscoveryOptions
 ): () => void {
 	let lastLocale: string | null = null;

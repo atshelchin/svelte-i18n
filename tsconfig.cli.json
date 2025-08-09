@@ -3,8 +3,8 @@
 	"compilerOptions": {
 		"module": "ESNext",
 		"target": "es2020",
-		"outDir": "./dist/cli",
-		"rootDir": "./src/cli",
+		"outDir": "./dist",
+		"rootDir": "./src",
 		"declaration": false,
 		"removeComments": true,
 		"esModuleInterop": true,
@@ -15,6 +15,6 @@
 		"resolveJsonModule": true,
 		"allowSyntheticDefaultImports": true
 	},
-	"include": ["src/cli/**/*"],
+	"include": ["src/cli/**/*", "src/lib/types.ts", "src/lib/utils.ts"],
 	"exclude": ["node_modules", "dist"]
 }

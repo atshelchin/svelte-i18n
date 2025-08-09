@@ -28,7 +28,7 @@ export type GetKeyParams<
 	K extends string
 > = K extends keyof ExtractParams<T>
 	? ExtractParams<T>[K] extends string
-		? Record<string, any>
+		? InterpolationParams
 		: never
 	: never;
 
@@ -69,7 +69,7 @@ export function createTypedI18n<TSchema extends TranslationSchema>(
 	const typedI18n = i18n as TypedI18nInstance<TSchema>;
 
 	// Extract all keys from the schema
-	const extractAllKeys = (obj: any, prefix = ''): string[] => {
+	const extractAllKeys = (obj: Record<string, unknown>, prefix = ''): string[] => {
 		const keys: string[] = [];
 
 		for (const key in obj) {
@@ -79,7 +79,7 @@ export function createTypedI18n<TSchema extends TranslationSchema>(
 			keys.push(fullKey);
 
 			if (typeof obj[key] === 'object' && obj[key] !== null) {
-				keys.push(...extractAllKeys(obj[key], fullKey));
+				keys.push(...extractAllKeys(obj[key] as Record<string, unknown>, fullKey));
 			}
 		}
 
@@ -89,21 +89,20 @@ export function createTypedI18n<TSchema extends TranslationSchema>(
 	// Add getKeys method
 	typedI18n.getKeys = () => {
 		if (schema) {
-			return extractAllKeys(schema) as typeof typedI18n extends TypedI18nInstance<any, infer K>
+			return extractAllKeys(schema) as typeof typedI18n extends TypedI18nInstance<TSchema, infer K>
 				? K[]
 				: never[];
 		}
 		// Fallback to extracting from loaded translations
-		const currentTranslations = (i18n as { translations?: Record<string, unknown> }).translations?.[i18n.locale];
+		const currentTranslations = (i18n as { translations?: Record<string, unknown> }).translations?.[
+			i18n.locale
+		];
 		if (currentTranslations) {
-			return extractAllKeys(currentTranslations) as typeof typedI18n extends TypedI18nInstance<
-				any,
-				infer K
-			>
-				? K[]
-				: never[];
+			return extractAllKeys(
+				currentTranslations as Record<string, unknown>
+			) as typeof typedI18n extends TypedI18nInstance<TSchema, infer K> ? K[] : never[];
 		}
-		return [] as typeof typedI18n extends TypedI18nInstance<any, infer K> ? K[] : never[];
+		return [] as typeof typedI18n extends TypedI18nInstance<TSchema, infer K> ? K[] : never[];
 	};
 
 	// Add hasKey method
