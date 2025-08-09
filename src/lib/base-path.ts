@@ -9,7 +9,7 @@ export function getAppBasePath(): string {
 	}
 
 	// Client-side: multiple detection strategies
-	
+
 	// 1. Try SvelteKit's app.paths.base
 	try {
 		// @ts-expect-error - SvelteKit runtime global
@@ -46,7 +46,7 @@ export function getAppBasePath(): string {
 	// 4. Auto-detect from URL for GitHub Pages and similar deployments
 	const pathname = window.location.pathname;
 	const hostname = window.location.hostname;
-	
+
 	// Check if we're on GitHub Pages (*.github.io)
 	if (hostname.endsWith('.github.io')) {
 		// Extract the repository name from the path
@@ -57,7 +57,7 @@ export function getAppBasePath(): string {
 			return basePath;
 		}
 	}
-	
+
 	// Check for other subdirectory deployments
 	if (pathname !== '/' && !pathname.startsWith('/translations/')) {
 		const segments = pathname.split('/').filter(Boolean);

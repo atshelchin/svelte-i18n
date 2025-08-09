@@ -26,6 +26,7 @@ export {
 
 // Utility exports
 export { validateSchema, detectBrowserLanguage, mergeTranslations } from './utils.js';
+export { getAppBasePath, buildAssetUrl } from './base-path.js';
 
 // Auto-discovery exports
 export {
