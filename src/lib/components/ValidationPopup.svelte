@@ -191,6 +191,11 @@
 			// The i18n instance will auto-discover translations when setting locale
 			await popupI18n.setLocale(i18n.locale);
 			popupLocale = i18n.locale;
+
+			// Debug: Check if translations are working
+			if (import.meta.env.DEV) {
+				console.log('ValidationPopup i18n test:', popupI18n.t('validationPopup.header.title'));
+			}
 		}
 
 		if (hasErrors) {

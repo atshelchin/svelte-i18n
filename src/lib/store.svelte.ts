@@ -223,7 +223,6 @@ class I18nStore implements I18nInstance {
 	}
 
 	validateTranslations(locale: string, schema?: TranslationSchema): boolean {
-		console.log({ schema });
 		const translations = this.translations[locale];
 		if (!translations) {
 			console.error(`No translations loaded for locale ${locale}`);
@@ -235,7 +234,6 @@ class I18nStore implements I18nInstance {
 			console.error('No schema available for validation');
 			return false;
 		}
-		console.log({ baseSchema });
 
 		const errors = validateSchema(translations, baseSchema);
 		if (errors.length > 0) {
@@ -328,9 +326,21 @@ class I18nStore implements I18nInstance {
 }
 
 let globalInstance: I18nStore | null = null;
+const namespacedInstances = new Map<string, I18nStore>();
 
 export function setupI18n(config: I18nConfig): I18nStore {
-	// If a global instance already exists, return it instead of creating a new one
+	// If this is a namespaced instance, create a separate instance for it
+	if (config.namespace) {
+		const existing = namespacedInstances.get(config.namespace);
+		if (existing) {
+			return existing;
+		}
+		const instance = new I18nStore(config);
+		namespacedInstances.set(config.namespace, instance);
+		return instance;
+	}
+
+	// For the global instance, reuse if it already exists
 	// This prevents losing translations during client-side navigation
 	if (globalInstance) {
 		return globalInstance;

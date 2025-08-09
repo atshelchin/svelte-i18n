@@ -45,6 +45,8 @@ export async function getValidationPopupI18n(): Promise<I18nInstance> {
 
 		if (import.meta.env?.DEV) {
 			console.info('ValidationPopup i18n initialized with built-in translations.');
+			console.info('Loaded locales:', validationPopupI18n.locales);
+			console.info('Current locale:', validationPopupI18n.locale);
 			console.info(
 				'User can override by placing files in static/translations/validation-popup.{locale}.json'
 			);
