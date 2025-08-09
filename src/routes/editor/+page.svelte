@@ -57,41 +57,39 @@
 	let selectedSuggestionIndex = $state(-1);
 
 	// Compute the download filename based on source pattern
-	let expectedDownloadFileName = $derived(
-		(() => {
-			if (!targetLocaleCode) return '';
+	let expectedDownloadFileName = $derived.by(() => {
+		if (!targetLocaleCode) return '';
 
-			if (sourceLangs.length > 0 && sourceLangs[0].fileName) {
-				let sourceFileName = sourceLangs[0].fileName;
-				// Remove any existing incomplete markers
-				sourceFileName = sourceFileName.replace(/_incomplete/g, '').replace(/incomplete_/g, '');
-				const sourceLocale = sourceLangs[0].locale;
+		if (sourceLangs.length > 0 && sourceLangs[0].fileName) {
+			let sourceFileName = sourceLangs[0].fileName;
+			// Remove any existing incomplete markers
+			sourceFileName = sourceFileName.replace(/_incomplete/g, '').replace(/incomplete_/g, '');
+			const sourceLocale = sourceLangs[0].locale;
 
-				// Try to replace locale in filename
-				if (sourceFileName.includes(sourceLocale)) {
-					return sourceFileName.replace(sourceLocale, targetLocaleCode);
-				} else {
-					// Try common patterns
-					const patterns = [
-						/\.([a-z]{2}(-[A-Z]{2})?)\.json$/i, // .en.json
-						/^([a-z]{2}(-[A-Z]{2})?)\.json$/i, // en.json
-						/_([a-z]{2}(-[A-Z]{2})?)\.json$/i, // _en.json
-						/-([a-z]{2}(-[A-Z]{2})?)\.json$/i // -en.json
-					];
+			// Try to replace locale in filename
+			if (sourceFileName.includes(sourceLocale)) {
+				return sourceFileName.replace(sourceLocale, targetLocaleCode);
+			} else {
+				// Try common patterns
+				const patterns = [
+					/\.([a-z]{2}(-[A-Z]{2})?)\.json$/i, // .en.json
+					/^([a-z]{2}(-[A-Z]{2})?)\.json$/i, // en.json
+					/_([a-z]{2}(-[A-Z]{2})?)\.json$/i, // _en.json
+					/-([a-z]{2}(-[A-Z]{2})?)\.json$/i // -en.json
+				];
 
-					for (const pattern of patterns) {
-						if (pattern.test(sourceFileName)) {
-							return sourceFileName.replace(pattern, (match, locale) => {
-								return match.replace(locale, targetLocaleCode);
-							});
-						}
+				for (const pattern of patterns) {
+					if (pattern.test(sourceFileName)) {
+						return sourceFileName.replace(pattern, (match, locale) => {
+							return match.replace(locale, targetLocaleCode);
+						});
 					}
-					return sourceFileName.replace('.json', `.${targetLocaleCode}.json`);
 				}
+				return sourceFileName.replace('.json', `.${targetLocaleCode}.json`);
 			}
-			return `${targetLocaleCode}.json`;
-		})()
-	);
+		}
+		return `${targetLocaleCode}.json`;
+	});
 
 	// UI state
 	let isLoading = $state(false);
@@ -260,7 +258,24 @@
 				// Extract locale and filename from URL
 				const urlParts = urls[i].split('/');
 				const fileName = urlParts[urlParts.length - 1];
-				const locale = fileName.replace('.json', '');
+				
+				// Extract locale from filename - try to find the actual locale code
+				let locale = fileName.replace('.json', '');
+				// Common patterns to extract locale code
+				const localePatterns = [
+					/\.([a-z]{2}(-[A-Z]{2})?)$/i,  // app.en or app.en-US
+					/^([a-z]{2}(-[A-Z]{2})?)$/i,    // en or en-US
+					/_([a-z]{2}(-[A-Z]{2})?)$/i,    // app_en or app_en-US
+					/-([a-z]{2}(-[A-Z]{2})?)$/i     // app-en or app-en-US
+				];
+				
+				for (const pattern of localePatterns) {
+					const match = locale.match(pattern);
+					if (match) {
+						locale = match[1];
+						break;
+					}
+				}
 
 				addSourceLanguage(data, locale, 'url', urls[i], fileName);
 				successCount++;
@@ -327,8 +342,23 @@
 			const data = JSON.parse(text);
 
 			// Otherwise, treat as normal source file
-			// Extract locale from filename
-			const locale = file.name.replace('.json', '');
+			// Extract locale from filename - try to find the actual locale code
+			let locale = file.name.replace('.json', '');
+			// Common patterns to extract locale code
+			const localePatterns = [
+				/\.([a-z]{2}(-[A-Z]{2})?)$/i,  // app.en or app.en-US
+				/^([a-z]{2}(-[A-Z]{2})?)$/i,    // en or en-US
+				/_([a-z]{2}(-[A-Z]{2})?)$/i,    // app_en or app_en-US
+				/-([a-z]{2}(-[A-Z]{2})?)$/i     // app-en or app-en-US
+			];
+			
+			for (const pattern of localePatterns) {
+				const match = locale.match(pattern);
+				if (match) {
+					locale = match[1];
+					break;
+				}
+			}
 
 			addSourceLanguage(data, locale, 'file', undefined, file.name);
 			showAddSource = false; // Hide add source UI after successful load
