@@ -1,74 +1,74 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-    <title>Base Path Test</title>
-</head>
-<body>
-    <h1>Testing Base Path Detection</h1>
-    <div id="results"></div>
-    
-    <script>
-        // Simulate different environments
-        const tests = [
-            {
-                name: "GitHub Pages (svelte-i18n)",
-                pathname: "/svelte-i18n/",
-                expected: "/svelte-i18n"
-            },
-            {
-                name: "GitHub Pages (svelte-i18n) with page",
-                pathname: "/svelte-i18n/editor",
-                expected: "/svelte-i18n"
-            },
-            {
-                name: "Root deployment",
-                pathname: "/",
-                expected: ""
-            },
-            {
-                name: "Root with page",
-                pathname: "/editor",
-                expected: ""
-            },
-            {
-                name: "Subdirectory deployment",
-                pathname: "/myapp/",
-                expected: "/myapp"
-            },
-            {
-                name: "Subdirectory with page",
-                pathname: "/myapp/editor",
-                expected: "/myapp"
-            }
-        ];
-        
-        function getBasePath(pathname) {
-            // Simulate the logic from our code
-            const match = pathname.match(/^(\/[^\/]+)\//);
-            if (match && !pathname.startsWith('/translations/')) {
-                return match[1];
-            }
-            return '';
-        }
-        
-        const results = document.getElementById('results');
-        tests.forEach(test => {
-            const actual = getBasePath(test.pathname);
-            const passed = actual === test.expected;
-            const div = document.createElement('div');
-            div.style.padding = '10px';
-            div.style.margin = '5px';
-            div.style.backgroundColor = passed ? '#d4edda' : '#f8d7da';
-            div.style.border = passed ? '1px solid #c3e6cb' : '1px solid #f5c6cb';
-            div.innerHTML = `
+	<head>
+		<title>Base Path Test</title>
+	</head>
+	<body>
+		<h1>Testing Base Path Detection</h1>
+		<div id="results"></div>
+
+		<script>
+			// Simulate different environments
+			const tests = [
+				{
+					name: 'GitHub Pages (svelte-i18n)',
+					pathname: '/svelte-i18n/',
+					expected: '/svelte-i18n'
+				},
+				{
+					name: 'GitHub Pages (svelte-i18n) with page',
+					pathname: '/svelte-i18n/editor',
+					expected: '/svelte-i18n'
+				},
+				{
+					name: 'Root deployment',
+					pathname: '/',
+					expected: ''
+				},
+				{
+					name: 'Root with page',
+					pathname: '/editor',
+					expected: ''
+				},
+				{
+					name: 'Subdirectory deployment',
+					pathname: '/myapp/',
+					expected: '/myapp'
+				},
+				{
+					name: 'Subdirectory with page',
+					pathname: '/myapp/editor',
+					expected: '/myapp'
+				}
+			];
+
+			function getBasePath(pathname) {
+				// Simulate the logic from our code
+				const match = pathname.match(/^(\/[^\/]+)\//);
+				if (match && !pathname.startsWith('/translations/')) {
+					return match[1];
+				}
+				return '';
+			}
+
+			const results = document.getElementById('results');
+			tests.forEach((test) => {
+				const actual = getBasePath(test.pathname);
+				const passed = actual === test.expected;
+				const div = document.createElement('div');
+				div.style.padding = '10px';
+				div.style.margin = '5px';
+				div.style.backgroundColor = passed ? '#d4edda' : '#f8d7da';
+				div.style.border = passed ? '1px solid #c3e6cb' : '1px solid #f5c6cb';
+				div.innerHTML = `
                 <strong>${test.name}</strong><br>
                 Pathname: ${test.pathname}<br>
                 Expected: "${test.expected}"<br>
                 Actual: "${actual}"<br>
                 Status: ${passed ? '✅ PASS' : '❌ FAIL'}
             `;
-            results.appendChild(div);
-        });
-    </script>
-</body>
+				results.appendChild(div);
+			});
+		</script>
+	</body>
 </html>

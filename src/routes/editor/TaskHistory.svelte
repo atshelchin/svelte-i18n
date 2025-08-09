@@ -91,7 +91,15 @@
 	}
 </script>
 
-<div class="task-history-overlay" onclick={onClose} onkeydown={(e) => e.key === 'Escape' && onClose()} role="dialog" aria-modal="true" aria-label="Translation History" tabindex="-1">
+<div
+	class="task-history-overlay"
+	onclick={onClose}
+	onkeydown={(e) => e.key === 'Escape' && onClose()}
+	role="dialog"
+	aria-modal="true"
+	aria-label="Translation History"
+	tabindex="-1"
+>
 	<div class="task-history-modal" role="document">
 		<div class="modal-header">
 			<h2>📚 {i18n.locale === 'zh' ? '翻译历史' : 'Translation History'}</h2>
@@ -121,7 +129,8 @@
 							class="task-card"
 							class:selected={selectedTask?.id === task.id}
 							onclick={() => (selectedTask = selectedTask?.id === task.id ? null : task)}
-							onkeydown={(e) => e.key === 'Enter' && (selectedTask = selectedTask?.id === task.id ? null : task)}
+							onkeydown={(e) =>
+								e.key === 'Enter' && (selectedTask = selectedTask?.id === task.id ? null : task)}
 							role="button"
 							tabindex="0"
 						>

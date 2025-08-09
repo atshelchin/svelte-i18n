@@ -30,9 +30,25 @@ export async function getValidationPopupI18n(): Promise<I18nInstance> {
 			}
 		});
 
-		// Load the built-in translations
+		// Strategy:
+		// 1. First load built-in translations as the base
+		// 2. Auto-discovery will attempt to load user overrides from static
+		// 3. User translations will merge with and override built-in ones
+
+		// Load the built-in translations first (these are bundled with the package)
 		await validationPopupI18n.loadLanguage('en', validationPopupEn);
 		await validationPopupI18n.loadLanguage('zh', validationPopupZh);
+
+		// Auto-discovery will run automatically when locale changes
+		// If user has placed custom translations in static/translations/,
+		// they will be loaded and merged, overriding the built-in ones
+
+		if (import.meta.env?.DEV) {
+			console.info('ValidationPopup i18n initialized with built-in translations.');
+			console.info(
+				'User can override by placing files in static/translations/validation-popup.{locale}.json'
+			);
+		}
 	}
 
 	return validationPopupI18n;

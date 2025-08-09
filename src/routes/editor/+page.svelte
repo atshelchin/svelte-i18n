@@ -79,7 +79,7 @@
 	let aiEnabled = $state(false);
 
 	// Editor navigation
-	let expandedSections = $state(new SvelteSet<string>());
+	const expandedSections = new SvelteSet<string>();
 	let searchQuery = $state('');
 
 	// Progress tracking
@@ -786,8 +786,6 @@
 		} else {
 			expandedSections.add(section);
 		}
-		// Trigger reactivity by reassigning
-		expandedSections = expandedSections;
 	}
 
 	function renderTranslationFields(
@@ -1027,7 +1025,8 @@
 		// Restore session data
 		if (task.sessionData) {
 			activeSourceTab = task.sessionData.activeSourceTab || 0;
-			expandedSections = new SvelteSet(task.sessionData.expandedSections || []);
+			expandedSections.clear();
+			(task.sessionData.expandedSections || []).forEach((s) => expandedSections.add(s));
 			searchQuery = task.sessionData.searchQuery || '';
 		}
 
@@ -1739,10 +1738,9 @@
 										{/each}
 									</div>
 									<div class="field-target">
-										<div class="field-label"
-											>{targetLocaleName || i18n.t('editor.target')} ({targetLocaleCode ||
-												'new'})</div
-										>
+										<div class="field-label">
+											{targetLocaleName || i18n.t('editor.target')} ({targetLocaleCode || 'new'})
+										</div>
 										<textarea
 											value={item.targetValue}
 											oninput={(e) => updateTranslation(item.path, e.currentTarget.value)}
@@ -2096,7 +2094,6 @@
 		transition: all 0.3s;
 		cursor: pointer;
 	}
-
 
 	.resume-icon {
 		font-size: 4rem;
@@ -2984,7 +2981,6 @@
 			z-index: 100;
 			transition: left 0.3s;
 		}
-
 
 		.field-sources {
 			flex-direction: column;

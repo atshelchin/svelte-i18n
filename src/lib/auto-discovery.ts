@@ -13,21 +13,21 @@ function getBasePath(): string {
 	if (typeof window !== 'undefined') {
 		// Try to get base from SvelteKit
 		try {
-			// @ts-ignore - Dynamic import to avoid build issues
+			// @ts-expect-error - Dynamic import to avoid build issues
 			const paths = globalThis.__sveltekit_paths;
 			if (paths?.base) return paths.base;
 		} catch {
 			// Ignore if not in SvelteKit environment
 		}
-		
+
 		// Check for custom base path
-		const customBase = (globalThis as any).__app_base;
+		const customBase = (globalThis as Record<string, unknown>).__app_base as string | undefined;
 		if (customBase) return customBase;
-		
+
 		// Try to detect from current URL path
 		const pathname = window.location.pathname;
 		// If we're on GitHub Pages or similar, detect the base from URL
-		const match = pathname.match(/^(\/[^\/]+)\//);
+		const match = pathname.match(/^(\/[^/]+)\//);
 		if (match && !pathname.startsWith('/translations/')) {
 			return match[1];
 		}
@@ -173,7 +173,7 @@ export async function autoDiscoverTranslations(
 
 	// Get base path for the application
 	const basePath = getBasePath();
-	
+
 	const {
 		baseUrl = basePath ? `${basePath}/translations` : '/translations',
 		enabled = true,

@@ -1,34 +1,35 @@
 {
-  "permissions": {
-    "allow": [
-      "Bash(npm run dev:*)",
-      "Bash(npm run check:*)",
-      "Bash(npm install:*)",
-      "Bash(npm run build:*)",
-      "Bash(pnpm run lint:*)",
-      "Bash(pnpm run:*)",
-      "Bash(pnpm exec:*)",
-      "Bash(sed:*)",
-      "Bash(grep:*)",
-      "Bash(pnpm add:*)",
-      "Bash(npm run lint)",
-      "Bash(npm run format:*)",
-      "Bash(npx eslint:*)",
-      "Bash(mv:*)",
-      "Bash(rm:*)",
-      "Bash(mkdir:*)",
-      "Bash(pnpm lint:*)",
-      "Bash(rm:*)",
-      "Bash(npx prettier:*)",
-      "Bash(pnpm check:*)",
-      "Bash(npx tsc:*)",
-      "Bash(cp:*)",
-      "Bash(chmod:*)",
-      "Bash(git add:*)",
-      "Bash(pnpm check:*)",
-      "Bash(pnpm test:unit:*)",
-      "Bash(grep:*)"
-    ],
-    "deny": []
-  }
+	"permissions": {
+		"allow": [
+			"Bash(npm run dev:*)",
+			"Bash(npm run check:*)",
+			"Bash(npm install:*)",
+			"Bash(npm run build:*)",
+			"Bash(pnpm run lint:*)",
+			"Bash(pnpm run:*)",
+			"Bash(pnpm exec:*)",
+			"Bash(sed:*)",
+			"Bash(grep:*)",
+			"Bash(pnpm add:*)",
+			"Bash(npm run lint)",
+			"Bash(npm run format:*)",
+			"Bash(npx eslint:*)",
+			"Bash(mv:*)",
+			"Bash(rm:*)",
+			"Bash(mkdir:*)",
+			"Bash(pnpm lint:*)",
+			"Bash(rm:*)",
+			"Bash(npx prettier:*)",
+			"Bash(pnpm check:*)",
+			"Bash(npx tsc:*)",
+			"Bash(cp:*)",
+			"Bash(chmod:*)",
+			"Bash(git add:*)",
+			"Bash(pnpm check:*)",
+			"Bash(pnpm test:unit:*)",
+			"Bash(grep:*)",
+			"Bash(pnpm lint:*)"
+		],
+		"deny": []
+	}
 }

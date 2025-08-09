@@ -11,7 +11,7 @@ describe('/+page.svelte', () => {
 			defaultLocale: 'en',
 			fallbackLocale: 'en'
 		});
-		
+
 		// Load some basic translations
 		await i18n.loadLanguage('en', {
 			demo: {
@@ -19,7 +19,7 @@ describe('/+page.svelte', () => {
 			}
 		});
 	});
-	
+
 	it('should render h1', async () => {
 		render(Page);
 

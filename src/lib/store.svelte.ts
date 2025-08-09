@@ -107,11 +107,15 @@ class I18nStore implements I18nInstance {
 
 		// Check if translations exist for current locale first
 		const currentTranslations = this.translations[this.currentLocale];
-		let value = currentTranslations ? getNestedValue(currentTranslations, actualKey) as string | null : null;
+		let value = currentTranslations
+			? (getNestedValue(currentTranslations, actualKey) as string | null)
+			: null;
 
 		if ((value === null || value === undefined) && this.config.fallbackLocale) {
 			const fallbackTranslations = this.translations[this.config.fallbackLocale];
-			value = fallbackTranslations ? getNestedValue(fallbackTranslations, actualKey) as string | null : null;
+			value = fallbackTranslations
+				? (getNestedValue(fallbackTranslations, actualKey) as string | null)
+				: null;
 		}
 
 		if (value === null || value === undefined) {

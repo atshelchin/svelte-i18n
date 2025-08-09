@@ -144,14 +144,14 @@ describe('i18n Store', () => {
 			});
 
 			await namespacedI18n.loadLanguage('en', enTranslations);
-			
+
 			// Set locale explicitly to ensure it's correct
 			await namespacedI18n.setLocale('en');
-			
+
 			// Verify translations are loaded
 			expect(namespacedI18n.locales).toContain('en');
 			expect(namespacedI18n.locale).toBe('en');
-			
+
 			// Namespace doesn't affect how translations work - it's for separation between packages
 			// The namespace is used for auto-discovery and preventing conflicts
 			expect(namespacedI18n.t('welcome', { name: 'World' })).toBe('Welcome World!');
