@@ -91,8 +91,8 @@
 	}
 </script>
 
-<div class="task-history-overlay" onclick={onClose}>
-	<div class="task-history-modal" onclick={(e) => e.stopPropagation()}>
+<div class="task-history-overlay" onclick={onClose} onkeydown={(e) => e.key === 'Escape' && onClose()} role="dialog" aria-modal="true" aria-label="Translation History" tabindex="-1">
+	<div class="task-history-modal" role="document">
 		<div class="modal-header">
 			<h2>📚 {i18n.locale === 'zh' ? '翻译历史' : 'Translation History'}</h2>
 			<button class="btn-close" onclick={onClose}>×</button>
@@ -117,10 +117,11 @@
 			{:else}
 				<div class="task-list">
 					{#each tasks as task (task.id)}
-						<div
+						<button
 							class="task-card"
 							class:selected={selectedTask?.id === task.id}
 							onclick={() => (selectedTask = selectedTask?.id === task.id ? null : task)}
+							type="button"
 						>
 							<div class="task-header">
 								<div class="task-info">
@@ -211,7 +212,7 @@
 									</div>
 								</div>
 							{/if}
-						</div>
+						</button>
 					{/each}
 				</div>
 			{/if}
@@ -367,6 +368,9 @@
 		padding: 1rem;
 		cursor: pointer;
 		transition: all 0.3s;
+		width: 100%;
+		text-align: left;
+		font: inherit;
 	}
 
 	.task-card:hover {

@@ -1726,12 +1726,12 @@
 									<div class="field-sources">
 										{#each sourceLangs as source, idx (source.id)}
 											<div class="field-source" class:active={idx === activeSourceTab}>
-												<label>
+												<div class="field-label">
 													{source.meta?.name || source.locale}
 													{#if source.meta?.flag}
 														{source.meta.flag}
 													{/if}
-												</label>
+												</div>
 												<div class="source-text">
 													{getNestedValue(source.translations, item.pathString) || ''}
 												</div>
@@ -1739,9 +1739,9 @@
 										{/each}
 									</div>
 									<div class="field-target">
-										<label
+										<div class="field-label"
 											>{targetLocaleName || i18n.t('editor.target')} ({targetLocaleCode ||
-												'new'})</label
+												'new'})</div
 										>
 										<textarea
 											value={item.targetValue}
@@ -2097,10 +2097,6 @@
 		cursor: pointer;
 	}
 
-	.resume-area {
-		/* border-color: #667eea; */
-		/* background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05)); */
-	}
 
 	.resume-icon {
 		font-size: 4rem;
@@ -2811,8 +2807,8 @@
 		opacity: 1;
 	}
 
-	.field-source label,
-	.field-target label {
+	.field-source .field-label,
+	.field-target .field-label {
 		color: #666;
 		font-size: 0.75rem;
 		text-transform: uppercase;
@@ -2989,9 +2985,6 @@
 			transition: left 0.3s;
 		}
 
-		.editor-sidebar.open {
-			left: 0;
-		}
 
 		.field-sources {
 			flex-direction: column;
