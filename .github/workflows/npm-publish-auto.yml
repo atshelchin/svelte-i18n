@@ -1,0 +1,196 @@
+name: Auto Publish to NPM
+
+on:
+  push:
+    branches:
+      - main  # Publishes dev versions
+      - prod  # Publishes stable versions
+    paths:
+      - 'package.json'  # Only trigger when package.json changes
+      - 'src/**'
+      - '!**.md'        # Ignore markdown files
+
+jobs:
+  check-version:
+    runs-on: ubuntu-latest
+    outputs:
+      should-publish: ${{ steps.check.outputs.should-publish }}
+      version: ${{ steps.version.outputs.version }}
+      npm-tag: ${{ steps.version.outputs.npm-tag }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # Need previous commit to compare
+
+      - name: Get version from package.json
+        id: version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          
+          # Determine NPM tag based on branch and version
+          if [[ "${{ github.ref }}" == "refs/heads/prod" ]]; then
+            # prod branch - publish as stable
+            if [[ $VERSION == *"-"* ]]; then
+              echo "❌ Error: prod branch should not have pre-release versions"
+              exit 1
+            fi
+            echo "npm-tag=latest" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            # main branch - publish as dev
+            if [[ $VERSION != *"-dev"* ]]; then
+              echo "⚠️ Warning: main branch version should include -dev suffix"
+            fi
+            echo "npm-tag=dev" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check if version changed
+        id: check
+        run: |
+          # Check if package.json version changed in this commit
+          git diff HEAD~1 HEAD -- package.json | grep '"version"' > /dev/null 2>&1
+          if [ $? -eq 0 ]; then
+            echo "Version changed, will publish"
+            echo "should-publish=true" >> $GITHUB_OUTPUT
+          else
+            echo "Version unchanged, skipping publish"
+            echo "should-publish=false" >> $GITHUB_OUTPUT
+          fi
+
+  test:
+    needs: check-version
+    if: needs.check-version.outputs.should-publish == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run linter
+        run: pnpm run lint
+
+      - name: Run type check
+        run: pnpm run check
+
+      - name: Run tests
+        run: pnpm run test:unit -- --run
+
+  publish:
+    needs: [check-version, test]
+    if: needs.check-version.outputs.should-publish == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # For creating tags
+      id-token: write  # For NPM provenance
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build library
+        run: |
+          # Build the library package using prepack script
+          # This includes svelte-package, CLI build, and publint validation
+          pnpm run prepack
+
+      - name: Check if version exists on NPM
+        id: npm-check
+        run: |
+          VERSION=${{ needs.check-version.outputs.version }}
+          # Check if this exact version already exists
+          if npm view @shelchin/svelte-i18n@$VERSION version 2>/dev/null; then
+            echo "❌ Version $VERSION already exists on NPM"
+            exit 1
+          fi
+          echo "✅ Version $VERSION is new, proceeding with publish"
+
+      - name: Publish to NPM
+        run: |
+          npm publish --tag ${{ needs.check-version.outputs.npm-tag }} --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create Git Tag
+        run: |
+          VERSION=${{ needs.check-version.outputs.version }}
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Create and push tag
+          git tag -a "v$VERSION" -m "Release v$VERSION from ${{ github.ref_name }} branch"
+          git push origin "v$VERSION"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ needs.check-version.outputs.version }}
+          name: Release ${{ needs.check-version.outputs.version }}
+          body: |
+            ## 📦 @shelchin/svelte-i18n@${{ needs.check-version.outputs.version }}
+
+            ### Branch: `${{ github.ref_name }}`
+            ### NPM Tag: `${{ needs.check-version.outputs.npm-tag }}`
+
+            ### Installation
+            ```bash
+            # Install specific version
+            npm install @shelchin/svelte-i18n@${{ needs.check-version.outputs.version }}
+            
+            # Or install by tag
+            npm install @shelchin/svelte-i18n@${{ needs.check-version.outputs.npm-tag }}
+            ```
+
+            ### NPM Package
+            https://www.npmjs.com/package/@shelchin/svelte-i18n/v/${{ needs.check-version.outputs.version }}
+
+            ---
+            **Commit:** ${{ github.sha }}
+          draft: false
+          prerelease: ${{ needs.check-version.outputs.npm-tag != 'latest' }}
+
+  notify:
+    needs: [check-version, publish]
+    if: always() && needs.check-version.outputs.should-publish == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify success
+        if: needs.publish.result == 'success'
+        run: |
+          echo "✅ Successfully published @shelchin/svelte-i18n@${{ needs.check-version.outputs.version }}"
+          echo "📦 NPM Tag: ${{ needs.check-version.outputs.npm-tag }}"
+          echo "🏷️ Git Tag: v${{ needs.check-version.outputs.version }}"
+          echo "🌳 Branch: ${{ github.ref_name }}"
+
+      - name: Notify failure
+        if: needs.publish.result == 'failure'
+        run: |
+          echo "❌ Failed to publish @shelchin/svelte-i18n@${{ needs.check-version.outputs.version }}"
+          exit 1
