@@ -26,24 +26,24 @@ jobs:
       - name: Get version from package.json
         id: version
         run: |
-          VERSION=$(node -p "require('./package.json').version")
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          BASE_VERSION=$(node -p "require('./package.json').version")
           
-          # Determine NPM tag based on branch and version
+          # Clean version (remove any existing suffixes)
+          CLEAN_VERSION=${BASE_VERSION%%-*}
+          
+          # Determine final version and NPM tag based on branch
           if [[ "${{ github.ref }}" == "refs/heads/prod" ]]; then
-            # prod branch - publish as stable
-            if [[ $VERSION == *"-"* ]]; then
-              echo "❌ Error: prod branch should not have pre-release versions"
-              exit 1
-            fi
+            # prod branch - use clean version, publish as stable
+            VERSION=$CLEAN_VERSION
             echo "npm-tag=latest" >> $GITHUB_OUTPUT
           elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            # main branch - publish as dev
-            if [[ $VERSION != *"-dev"* ]]; then
-              echo "⚠️ Warning: main branch version should include -dev suffix"
-            fi
+            # main branch - add -dev suffix, publish as dev
+            VERSION="${CLEAN_VERSION}-dev"
             echo "npm-tag=dev" >> $GITHUB_OUTPUT
           fi
+          
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "📦 Will publish version: $VERSION"
 
       - name: Check if version changed
         id: check
@@ -138,34 +138,31 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Create Git Tag
+      - name: Create Git Tag (prod branch only)
+        if: github.ref == 'refs/heads/prod'
         run: |
           VERSION=${{ needs.check-version.outputs.version }}
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
           # Create and push tag
-          git tag -a "v$VERSION" -m "Release v$VERSION from ${{ github.ref_name }} branch"
+          git tag -a "v$VERSION" -m "Release v$VERSION"
           git push origin "v$VERSION"
 
-      - name: Create GitHub Release
+      - name: Create GitHub Release (prod branch only)
+        if: github.ref == 'refs/heads/prod'
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ needs.check-version.outputs.version }}
           name: Release ${{ needs.check-version.outputs.version }}
           body: |
-            ## 📦 @shelchin/svelte-i18n@${{ needs.check-version.outputs.version }}
-
-            ### Branch: `${{ github.ref_name }}`
-            ### NPM Tag: `${{ needs.check-version.outputs.npm-tag }}`
+            ## 🎉 Official Release: @shelchin/svelte-i18n@${{ needs.check-version.outputs.version }}
 
             ### Installation
             ```bash
-            # Install specific version
+            npm install @shelchin/svelte-i18n@latest
+            # or
             npm install @shelchin/svelte-i18n@${{ needs.check-version.outputs.version }}
-            
-            # Or install by tag
-            npm install @shelchin/svelte-i18n@${{ needs.check-version.outputs.npm-tag }}
             ```
 
             ### NPM Package
@@ -174,7 +171,7 @@ jobs:
             ---
             **Commit:** ${{ github.sha }}
           draft: false
-          prerelease: ${{ needs.check-version.outputs.npm-tag != 'latest' }}
+          prerelease: false
 
   notify:
     needs: [check-version, publish]

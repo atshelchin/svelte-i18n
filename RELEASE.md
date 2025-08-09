@@ -4,36 +4,38 @@ This project uses automated branch-based releases:
 
 ## Branches
 
-- **`main`** - Development branch, publishes with `dev` tag
-- **`prod`** - Production branch, publishes with `latest` tag
+- **`main`** - Development branch, automatically adds `-dev` suffix, publishes with `dev` tag
+- **`prod`** - Production branch, uses clean version, publishes with `latest` tag
 
-## Version Format
+## Version Management
 
-- **Development**: `X.Y.Z-dev` or `X.Y.Z-dev.N` (e.g., `0.0.1-dev`, `1.0.0-dev.2`)
-- **Production**: `X.Y.Z` (e.g., `1.0.0`, `2.1.3`)
+**You only need to maintain the base version in `package.json` (e.g., `0.0.1`)**
+
+The workflow automatically:
+- Adds `-dev` suffix when publishing from `main` branch
+- Uses clean version when publishing from `prod` branch
 
 ## Release Workflow
 
 ### For Development Releases (main branch)
 
-1. Update version in `package.json` to a dev version:
+1. Update version in `package.json`:
    ```json
-   "version": "0.0.2-dev"
+   "version": "0.0.2"
    ```
 
 2. Commit and push to `main`:
    ```bash
    git add package.json
-   git commit -m "chore: bump version to 0.0.2-dev"
+   git commit -m "chore: bump version to 0.0.2"
    git push origin main
    ```
 
 3. GitHub Actions will automatically:
    - Run tests
    - Build the package
-   - Publish to NPM with `dev` tag
-   - Create a git tag `v0.0.2-dev`
-   - Create a GitHub release
+   - Publish to NPM as `0.0.2-dev` with `dev` tag
+   - **No git tag created for dev releases**
 
 ### For Production Releases (prod branch)
 
@@ -43,22 +45,15 @@ This project uses automated branch-based releases:
    git merge main
    ```
 
-2. Update version in `package.json` to stable version (remove `-dev`):
-   ```json
-   "version": "0.0.2"
-   ```
-
-3. Commit and push to `prod`:
+2. Push to `prod` (version in package.json stays clean, e.g., `0.0.2`):
    ```bash
-   git add package.json
-   git commit -m "chore: release version 0.0.2"
    git push origin prod
    ```
 
-4. GitHub Actions will automatically:
+3. GitHub Actions will automatically:
    - Run tests
    - Build the package
-   - Publish to NPM with `latest` tag
+   - Publish to NPM as `0.0.2` with `latest` tag
    - Create a git tag `v0.0.2`
    - Create a GitHub release
 
