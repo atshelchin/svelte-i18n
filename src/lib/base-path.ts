@@ -18,7 +18,7 @@ export function getAppBasePath(): string {
 			console.debug('[i18n] Base path from SvelteKit:', app.paths.base);
 			return app.paths.base;
 		}
-		
+
 		// Also check for SvelteKit base in config
 		// @ts-expect-error - SvelteKit runtime global
 		if (globalThis.__sveltekit?.env?.PUBLIC_BASE_PATH) {
