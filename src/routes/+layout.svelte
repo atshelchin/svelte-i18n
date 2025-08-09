@@ -5,7 +5,7 @@
 
 	let { children } = $props();
 
-	// Initialize i18n
+	// Initialize i18n (will reuse existing instance if already created)
 	const i18n = setupI18n({
 		defaultLocale: 'en',
 		fallbackLocale: 'en',
@@ -21,23 +21,26 @@
 		}
 	});
 
-	// Track if languages are loaded
-	// let languagesLoaded = $state(false);
+	// Track if languages are already loaded
+	let languagesLoaded = $state(i18n.locales.length > 0);
 
 	onMount(async () => {
-		// Automatically load all available languages
-		await autoLoadLanguages(i18n, {
-			translationsPath: '/translations',
-			defaultLocale: i18n.locale, // Use the initial locale (from localStorage or browser)
-			onLoaded: (locale) => console.log(`✓ Loaded ${locale}`),
-			onError: (locale, error) => console.error(`✗ Failed to load ${locale}:`, error)
-		});
+		// Only load languages if they haven't been loaded yet
+		if (!languagesLoaded) {
+			// Automatically load all available languages
+			await autoLoadLanguages(i18n, {
+				translationsPath: '/translations',
+				defaultLocale: i18n.locale, // Use the initial locale (from localStorage or browser)
+				onLoaded: (locale) => console.log(`✓ Loaded ${locale}`),
+				onError: (locale, error) => console.error(`✗ Failed to load ${locale}:`, error)
+			});
 
-		// languagesLoaded = true;
+			languagesLoaded = true;
 
-		// If the saved/detected locale wasn't loaded, fallback to default
-		if (!i18n.locales.includes(i18n.locale)) {
-			i18n.setLocale(i18n.locales[0] || 'en');
+			// If the saved/detected locale wasn't loaded, fallback to default
+			if (!i18n.locales.includes(i18n.locale)) {
+				i18n.setLocale(i18n.locales[0] || 'en');
+			}
 		}
 	});
 </script>

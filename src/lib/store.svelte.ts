@@ -330,6 +330,11 @@ class I18nStore implements I18nInstance {
 let globalInstance: I18nStore | null = null;
 
 export function setupI18n(config: I18nConfig): I18nStore {
+	// If a global instance already exists, return it instead of creating a new one
+	// This prevents losing translations during client-side navigation
+	if (globalInstance) {
+		return globalInstance;
+	}
 	globalInstance = new I18nStore(config);
 	return globalInstance;
 }
