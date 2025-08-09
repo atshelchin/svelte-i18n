@@ -105,17 +105,16 @@ class I18nStore implements I18nInstance {
 			// Otherwise, treat it as a local key
 		}
 
-		let value = getNestedValue(this.translations[this.currentLocale], actualKey) as
-			| string
-			| undefined;
+		// Check if translations exist for current locale first
+		const currentTranslations = this.translations[this.currentLocale];
+		let value = currentTranslations ? getNestedValue(currentTranslations, actualKey) as string | null : null;
 
-		if (value === undefined && this.config.fallbackLocale) {
-			value = getNestedValue(this.translations[this.config.fallbackLocale], actualKey) as
-				| string
-				| undefined;
+		if ((value === null || value === undefined) && this.config.fallbackLocale) {
+			const fallbackTranslations = this.translations[this.config.fallbackLocale];
+			value = fallbackTranslations ? getNestedValue(fallbackTranslations, actualKey) as string | null : null;
 		}
 
-		if (value === undefined) {
+		if (value === null || value === undefined) {
 			if (this.config.missingKeyHandler) {
 				return this.config.missingKeyHandler(key, this.currentLocale);
 			}

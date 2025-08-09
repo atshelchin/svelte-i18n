@@ -1,7 +1,8 @@
 import type { TranslationSchema, InterpolationParams, I18nConfig } from './types.js';
 
 export function getNestedValue(obj: unknown, path: string): unknown {
-	return path.split('.').reduce((current, key) => (current as Record<string, unknown>)?.[key], obj);
+	const result = path.split('.').reduce((current, key) => (current as Record<string, unknown>)?.[key], obj);
+	return result === undefined ? null : result;
 }
 
 export function interpolate(
@@ -78,13 +79,21 @@ export function validateSchema(
 }
 
 export function detectBrowserLanguage(): string | null {
-	if (typeof window === 'undefined') return null;
+	if (typeof window === 'undefined' && typeof global === 'undefined') return null;
 
-	const nav = window.navigator as Navigator & {
+	const nav = (typeof window !== 'undefined' ? window.navigator : (global as any)?.navigator) as Navigator & {
 		userLanguage?: string;
 		browserLanguage?: string;
 		systemLanguage?: string;
 	};
+	
+	if (!nav) return null;
+	
+	// Check navigator.languages first (preferred)
+	if (nav.languages && nav.languages.length > 0) {
+		return nav.languages[0].split('-')[0];
+	}
+	
 	const language = nav.language || nav.userLanguage || nav.browserLanguage || nav.systemLanguage;
 
 	if (language) {

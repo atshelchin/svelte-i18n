@@ -25,7 +25,9 @@
       "Bash(cp:*)",
       "Bash(chmod:*)",
       "Bash(git add:*)",
-      "Bash(pnpm check:*)"
+      "Bash(pnpm check:*)",
+      "Bash(pnpm test:unit:*)",
+      "Bash(grep:*)"
     ],
     "deny": []
   }

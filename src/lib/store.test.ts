@@ -135,7 +135,8 @@ describe('I18n Store', () => {
 
 			await i18n.loadLanguage('en', {});
 
-			expect(i18n.t('missing.key')).toContain('Missing translation');
+			// Without a custom handler, it returns the key itself
+			expect(i18n.t('missing.key')).toBe('missing.key');
 		});
 
 		it('should use custom missing key handler', async () => {

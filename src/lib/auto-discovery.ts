@@ -8,6 +8,33 @@
 
 import type { I18nConfig, TranslationFile, TranslationSchema } from './types.js';
 
+// Helper to get base path for static assets
+function getBasePath(): string {
+	if (typeof window !== 'undefined') {
+		// Try to get base from SvelteKit
+		try {
+			// @ts-ignore - Dynamic import to avoid build issues
+			const paths = globalThis.__sveltekit_paths;
+			if (paths?.base) return paths.base;
+		} catch {
+			// Ignore if not in SvelteKit environment
+		}
+		
+		// Check for custom base path
+		const customBase = (globalThis as any).__app_base;
+		if (customBase) return customBase;
+		
+		// Try to detect from current URL path
+		const pathname = window.location.pathname;
+		// If we're on GitHub Pages or similar, detect the base from URL
+		const match = pathname.match(/^(\/[^\/]+)\//);
+		if (match && !pathname.startsWith('/translations/')) {
+			return match[1];
+		}
+	}
+	return '';
+}
+
 export interface AutoDiscoveryOptions {
 	/**
 	 * Base URL where translation files are located
@@ -144,8 +171,11 @@ export async function autoDiscoverTranslations(
 		return null;
 	}
 
+	// Get base path for the application
+	const basePath = getBasePath();
+	
 	const {
-		baseUrl = '/translations',
+		baseUrl = basePath ? `${basePath}/translations` : '/translations',
 		enabled = true,
 		patterns = DEFAULT_PATTERNS,
 		debug = import.meta.env?.DEV ?? false,

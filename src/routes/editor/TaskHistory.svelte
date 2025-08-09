@@ -117,11 +117,13 @@
 			{:else}
 				<div class="task-list">
 					{#each tasks as task (task.id)}
-						<button
+						<div
 							class="task-card"
 							class:selected={selectedTask?.id === task.id}
 							onclick={() => (selectedTask = selectedTask?.id === task.id ? null : task)}
-							type="button"
+							onkeydown={(e) => e.key === 'Enter' && (selectedTask = selectedTask?.id === task.id ? null : task)}
+							role="button"
+							tabindex="0"
 						>
 							<div class="task-header">
 								<div class="task-info">
@@ -212,7 +214,7 @@
 									</div>
 								</div>
 							{/if}
-						</button>
+						</div>
 					{/each}
 				</div>
 			{/if}
