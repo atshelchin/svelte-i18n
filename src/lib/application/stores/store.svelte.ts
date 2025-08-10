@@ -47,7 +47,7 @@ class ValidationPopupController {
 
 const validationPopupController = new ValidationPopupController();
 
-class I18nStore implements I18nInstance {
+export class I18nStore implements I18nInstance {
 	private config: I18nConfig;
 	private translations = $state<Record<string, TranslationSchema>>({});
 	private languageMeta = $state<Record<string, LanguageMeta>>({});

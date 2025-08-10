@@ -67,13 +67,6 @@ export { default as ValidationPopup } from './presentation/components/Validation
 export { default as TypeSafetyDemo } from './presentation/components/TypeSafetyDemo.svelte';
 export { default as CodeExample } from './presentation/components/CodeExample.svelte';
 
-// Built-in translations exports
-export {
-	builtInTranslations,
-	getBuiltInLocales,
-	getBuiltInTranslation
-} from './assets/translations/index.js';
-
 // Built-in loader exports
 export {
 	registerBuiltInTranslations,
@@ -81,3 +74,13 @@ export {
 	registerPackageTranslations,
 	type TranslationRegistry
 } from './infrastructure/loaders/built-in.js';
+
+// Translation utility exports
+export {
+	getAvailableLocales,
+	getTranslation,
+	getMergedTranslations,
+	isLocaleAvailable,
+	getNamespaces,
+	getNamespaceLocales
+} from './infrastructure/loaders/translation-utils.js';

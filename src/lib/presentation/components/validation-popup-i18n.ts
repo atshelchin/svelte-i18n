@@ -1,6 +1,14 @@
 import { setupI18n } from '../../application/stores/store.svelte.js';
 import type { I18nInstance, TranslationFile } from '../../domain/models/types.js';
-import { builtInTranslations } from '../../assets/translations/index.js';
+import { registerPackageTranslations } from '../../infrastructure/loaders/built-in.js';
+
+// Import package translations directly
+import en from '../../../translations/@shelchin/svelte-i18n/en.json' with { type: 'json' };
+import zh from '../../../translations/@shelchin/svelte-i18n/zh.json' with { type: 'json' };
+import ja from '../../../translations/@shelchin/svelte-i18n/ja.json' with { type: 'json' };
+import fr from '../../../translations/@shelchin/svelte-i18n/fr.json' with { type: 'json' };
+
+const packageTranslations = { en, zh, ja, fr };
 
 let validationPopupI18n: I18nInstance | null = null;
 
@@ -33,8 +41,11 @@ export async function getValidationPopupI18n(): Promise<I18nInstance> {
 		// 2. Auto-discovery will attempt to load user overrides from static
 		// 3. User translations will merge with and override built-in ones
 
+		// Register package translations globally
+		registerPackageTranslations('@shelchin/svelte-i18n', packageTranslations);
+		
 		// Load the built-in translations first (these are bundled with the package)
-		for (const [locale, translations] of Object.entries(builtInTranslations)) {
+		for (const [locale, translations] of Object.entries(packageTranslations)) {
 			await validationPopupI18n.loadLanguage(locale, translations as TranslationFile);
 		}
 

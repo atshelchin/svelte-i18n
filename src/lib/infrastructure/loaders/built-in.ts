@@ -3,7 +3,7 @@
  * Loads translations that are bundled with the application
  */
 
-import type { I18nStore } from '../../application/stores/store.svelte.js';
+import type { I18nInstance } from '../../domain/models/types.js';
 
 // Type for translation registry
 export interface TranslationRegistry {
@@ -27,7 +27,7 @@ export function registerBuiltInTranslations(translations: TranslationRegistry) {
  * Load built-in translations into the store
  */
 export async function loadBuiltInTranslations(
-	store: I18nStore,
+	store: I18nInstance,
 	options?: {
 		onLoaded?: (locale: string) => void;
 		onError?: (locale: string, error: Error) => void;
@@ -68,7 +68,7 @@ export async function loadBuiltInTranslations(
 			
 			// Add to store if we have translations
 			if (Object.keys(merged).length > 0) {
-				await store.addTranslations(locale, merged);
+				await store.loadLanguage(locale, merged);
 				options?.onLoaded?.(locale);
 			}
 		} catch (error) {

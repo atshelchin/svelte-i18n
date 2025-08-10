@@ -7,8 +7,8 @@ describe('Auto-discovery with scoped packages', () => {
 
 	beforeEach(() => {
 		mockFetch.mockClear();
-		// @ts-expect-error - Mocking window for testing
 		global.window = {
+			// @ts-expect-error - Partial mock of Location for testing
 			location: {
 				origin: 'http://localhost:3000',
 				hostname: 'localhost',
