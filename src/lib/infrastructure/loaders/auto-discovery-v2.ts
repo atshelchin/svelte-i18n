@@ -212,7 +212,7 @@ export async function autoDiscoverTranslations(
 					const fetchPromise = (async () => {
 						const absoluteUrl =
 							typeof window !== 'undefined' && !filePath.startsWith('http')
-								? new URL(filePath, window.location.origin).href
+								? new URL(filePath, window.location.href).href
 								: filePath;
 
 						const response = await fetch(absoluteUrl);
