@@ -73,3 +73,11 @@ export {
 	getBuiltInLocales,
 	getBuiltInTranslation
 } from './assets/translations/index.js';
+
+// Built-in loader exports
+export {
+	registerBuiltInTranslations,
+	loadBuiltInTranslations,
+	registerPackageTranslations,
+	type TranslationRegistry
+} from './infrastructure/loaders/built-in.js';

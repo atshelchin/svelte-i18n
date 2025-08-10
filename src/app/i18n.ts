@@ -1,4 +1,9 @@
 import { setupI18n } from '$lib/index.js';
+import { registerBuiltInTranslations, loadBuiltInTranslations } from '$lib/infrastructure/loaders/built-in.js';
+import { builtInTranslations } from '../translations/index.js';
+
+// Register all built-in translations
+registerBuiltInTranslations(builtInTranslations);
 
 // Initialize i18n (will reuse existing instance if already created)
 export const i18n = setupI18n({
@@ -15,3 +20,8 @@ export const i18n = setupI18n({
 		currency: { style: 'currency', currency: 'USD' }
 	}
 });
+
+// Load built-in translations on initialization
+if (typeof window !== 'undefined') {
+	loadBuiltInTranslations(i18n).catch(console.error);
+}

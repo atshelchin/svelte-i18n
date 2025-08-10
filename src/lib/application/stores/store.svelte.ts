@@ -20,6 +20,7 @@ import {
 	autoLoadLanguages,
 	type AutoLoadOptions
 } from '../../infrastructure/loaders/auto-loader.js';
+import { loadBuiltInTranslations } from '../../infrastructure/loaders/built-in.js';
 import { saveLocale, getInitialLocale } from '../../infrastructure/persistence/persistence.js';
 import {
 	formatNumber as fmtNumber,
@@ -345,16 +346,29 @@ class I18nStore implements I18nInstance {
 			return;
 		}
 
-		// Use current locale as default locale
-		const loadOptions: AutoLoadOptions = {
-			defaultLocale: this.currentLocale,
-			onLoaded: (locale) => console.log(`✓ Loaded ${locale}`),
-			onError: (locale, error) => console.error(`✗ Failed to load ${locale}:`, error),
-			...options
-		};
+		try {
+			// First try to load built-in translations
+			await loadBuiltInTranslations(this, {
+				onLoaded: (locale) => console.log(`✓ Loaded built-in ${locale}`),
+				onError: (locale, error) => console.warn(`No built-in translations for ${locale}`)
+			});
+		} catch (error) {
+			console.warn('Failed to load built-in translations:', error);
+		}
 
-		// Load all available languages
-		await autoLoadLanguages(this, loadOptions);
+		// If no translations were loaded, try HTTP loading as fallback
+		if (this.locales.length === 0) {
+			// Use current locale as default locale
+			const loadOptions: AutoLoadOptions = {
+				defaultLocale: this.currentLocale,
+				onLoaded: (locale) => console.log(`✓ Loaded ${locale} from HTTP`),
+				onError: (locale, error) => console.error(`✗ Failed to load ${locale}:`, error),
+				...options
+			};
+
+			// Load all available languages via HTTP
+			await autoLoadLanguages(this, loadOptions);
+		}
 
 		// If the saved/detected locale wasn't loaded, fallback to first available locale
 		if (!this.locales.includes(this.currentLocale)) {
