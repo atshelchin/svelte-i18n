@@ -53,11 +53,12 @@ export async function autoLoadLanguages(
 			const index = await indexResponse.json();
 			availableLanguages = index.availableLanguages || [];
 		} else {
-			// Fallback: try common language codes
+			// No index file means no additional languages to discover
+			// Built-in languages are already loaded
 			if (import.meta.env?.DEV) {
-				console.debug('No index file found, trying common language codes');
+				console.debug('No index.json found - skipping auto-discovery');
 			}
-			availableLanguages = ['en', 'zh', 'es', 'fr', 'de', 'ja', 'ko', 'pt', 'ru', 'ar'];
+			return; // Exit early - no additional languages to load
 		}
 
 		// Load default locale first if specified
@@ -67,8 +68,16 @@ export async function autoLoadLanguages(
 			availableLanguages.unshift(defaultLocale);
 		}
 
-		// Load all available languages
+		// Load all available languages (skip already loaded ones)
 		const loadPromises = availableLanguages.map(async (locale) => {
+			// Skip if this locale is already loaded
+			if (i18n.locales.includes(locale)) {
+				if (import.meta.env?.DEV) {
+					console.debug(`Skipping ${locale} - already loaded`);
+				}
+				return;
+			}
+			
 			try {
 				// Ensure URL is absolute from the root
 				const url = `${translationsPath}/${locale}.json`;

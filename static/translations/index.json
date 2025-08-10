@@ -1,16 +1,6 @@
 {
   "availableLanguages": [
-    "en",
-    "zh",
-    "zh-TW",
-    "es",
-    "fr",
-    "de",
-    "ja",
-    "ko",
-    "ru",
-    "ar",
-    "pt",
-    "hi"
-  ]
+    "pt"
+  ],
+  "_comment": "This file lists additional languages available via auto-discovery. Built-in languages (en, zh, ja, fr, etc.) are already loaded and don't need to be listed here."
 }
