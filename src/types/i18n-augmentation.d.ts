@@ -1,11 +1,20 @@
 /**
- * Module augmentation for svelte-i18n library
- * This file overrides the default types with app-specific types
+ * Module augmentation for type-safe i18n
  * Auto-generated - DO NOT EDIT MANUALLY
+ *
+ * Note: For better type safety, consider using createTypedI18n instead:
+ * import { createTypedI18n } from '@shelchin/svelte-i18n';
+ * export const { getI18n, setupI18n } = createTypedI18n<I18nPath>();
  */
 
 import type { I18nPath } from './app-i18n-generated';
-import type { I18nConfig } from '$lib/domain/models/types';
+import type {
+	I18nConfig,
+	LanguageMeta,
+	InterpolationParams,
+	TranslationSchema,
+	TranslationFile
+} from '$lib';
 
 declare module '$lib' {
 	export interface I18nInstance {
@@ -13,11 +22,14 @@ declare module '$lib' {
 		locales: string[];
 		isLoading: boolean;
 		errors: Record<string, string[]>;
-		meta: Record<string, any>;
-		t(key: I18nPath, params?: Record<string, any>): string;
+		meta: Record<string, LanguageMeta>;
+		t(key: I18nPath, params?: InterpolationParams): string;
 		setLocale(locale: string): Promise<void>;
-		loadLanguage(locale: string, source?: string | any | any): Promise<void>;
-		validateTranslations(locale: string, schema?: any): boolean;
+		loadLanguage(
+			locale: string,
+			source?: string | TranslationSchema | TranslationFile
+		): Promise<void>;
+		validateTranslations(locale: string, schema?: TranslationSchema): boolean;
 		formatDate(date: Date | number | string, preset?: string): string;
 		formatTime(date: Date | number | string, preset?: string): string;
 		formatNumber(num: number, preset?: string): string;

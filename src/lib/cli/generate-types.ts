@@ -6,6 +6,7 @@
  */
 
 import { readFileSync, writeFileSync, readdirSync, existsSync, mkdirSync } from 'fs';
+import * as fs from 'fs';
 import path from 'path';
 import { discoverStaticPackages, getPackageSchemaSource } from './package-discovery.js';
 
@@ -426,28 +427,46 @@ export const I18N_PATHS = ${JSON.stringify(paths, null, '\t')} as const;
 	console.log(`   ✅ Generated ${paths.length} type-safe translation paths`);
 	console.log(`   ✅ Written to ${path.relative(process.cwd(), source.outputPath)}`);
 
-	// Generate module augmentation file for app types
+	// Generate module augmentation - detect if we're in development or using npm package
 	if (source.name === 'app') {
+		// Check if we're in the svelte-i18n development project or an external project
+		const isInternalDev =
+			process.cwd().includes('svelte-i18n') && fs.existsSync(path.join(process.cwd(), 'src/lib'));
+
+		// Determine the module to augment
+		const moduleToAugment = isInternalDev ? '$lib' : '@shelchin/svelte-i18n';
+		// Always import types from the main export, not internal paths
+		const importFrom = isInternalDev ? '$lib' : '@shelchin/svelte-i18n';
+
 		const augmentationContent = `/**
- * Module augmentation for svelte-i18n library
- * This file overrides the default types with app-specific types
+ * Module augmentation for type-safe i18n
  * Auto-generated - DO NOT EDIT MANUALLY
+ * 
+ * Note: For better type safety, consider using createTypedI18n instead:
+ * import { createTypedI18n } from '@shelchin/svelte-i18n';
+ * export const { getI18n, setupI18n } = createTypedI18n<I18nPath>();
  */
 
 import type { I18nPath } from './app-i18n-generated';
-import type { I18nConfig } from '$lib/domain/models/types';
+import type { 
+	I18nConfig,
+	LanguageMeta,
+	InterpolationParams,
+	TranslationSchema,
+	TranslationFile
+} from '${importFrom}';
 
-declare module '$lib' {
+declare module '${moduleToAugment}' {
 	export interface I18nInstance {
 		locale: string;
 		locales: string[];
 		isLoading: boolean;
 		errors: Record<string, string[]>;
-		meta: Record<string, any>;
-		t(key: I18nPath, params?: Record<string, any>): string;
+		meta: Record<string, LanguageMeta>;
+		t(key: I18nPath, params?: InterpolationParams): string;
 		setLocale(locale: string): Promise<void>;
-		loadLanguage(locale: string, source?: string | any | any): Promise<void>;
-		validateTranslations(locale: string, schema?: any): boolean;
+		loadLanguage(locale: string, source?: string | TranslationSchema | TranslationFile): Promise<void>;
+		validateTranslations(locale: string, schema?: TranslationSchema): boolean;
 		formatDate(date: Date | number | string, preset?: string): string;
 		formatTime(date: Date | number | string, preset?: string): string;
 		formatNumber(num: number, preset?: string): string;
@@ -471,8 +490,21 @@ export {};
 		const augmentationPath = path.join(outputDir, 'i18n-augmentation.d.ts');
 		writeFileSync(augmentationPath, augmentationContent, 'utf-8');
 		console.log(
-			`   ✅ Generated module augmentation at ${path.relative(process.cwd(), augmentationPath)}`
+			`   ✅ Generated module augmentation (${moduleToAugment}) at ${path.relative(process.cwd(), augmentationPath)}`
 		);
+
+		if (!isInternalDev) {
+			// For external users, also show how to use createTypedI18n
+			console.log(`
+   ℹ️  For better type safety, consider using createTypedI18n instead:
+   
+   // src/lib/i18n.ts
+   import { createTypedI18n } from '@shelchin/svelte-i18n';
+   import type { I18nPath } from './types/i18n-generated';
+   
+   export const { getI18n, setupI18n } = createTypedI18n<I18nPath>();
+			`);
+		}
 	}
 
 	return true;

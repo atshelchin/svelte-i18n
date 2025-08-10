@@ -3,7 +3,7 @@
  * DO NOT EDIT MANUALLY
  *
  * Generated from: src/translations/app/en.json
- * Generated at: 2025-08-10T08:14:38.884Z
+ * Generated at: 2025-08-10T13:11:45.760Z
  */
 
 // Helper type for parameters
@@ -11,7 +11,6 @@ type ParamsKey<T> = { key: string; params: T };
 
 // Main translation structure
 export interface I18nKeys {
-	sb: string;
 	welcome: ParamsKey<{ name: string | number }>;
 	greeting: string;
 	nav: {
@@ -202,7 +201,6 @@ export interface I18nKeys {
 
 // All translation paths
 export type I18nPath =
-	| 'sb'
 	| 'welcome'
 	| 'greeting'
 	| 'nav'
@@ -411,7 +409,6 @@ export function createTypedI18n(
 
 // Export all paths for runtime validation
 export const I18N_PATHS = [
-	'sb',
 	'welcome',
 	'greeting',
 	'nav',
