@@ -1,17 +1,12 @@
 {
-  "availableLanguages": [
-    "en",
-    "zh",
-    "zh-TW",
-    "ja",
-    "fr",
-    "de",
-    "es",
-    "ru",
-    "ar",
-    "hi",
-    "ko",
-    "pt"
-  ],
-  "_comment": "This file declares ALL languages supported by this site. It has the highest priority. Languages listed here will be loaded from: 1) Built-in translations (if available), 2) static/translations/{locale}.json (if not built-in)"
+    "autoDiscovery": {
+        "app": [
+            "pt"
+        ],
+        "packages": {
+            "@shelchin/svelte-i18n": [
+                "fr"
+            ]
+        }
+    }
 }

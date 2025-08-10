@@ -26,7 +26,6 @@ import appZhTW from './app/zh-TW.json' with { type: 'json' };
 import pkgEn from './@shelchin/svelte-i18n/en.json' with { type: 'json' };
 import pkgZh from './@shelchin/svelte-i18n/zh.json' with { type: 'json' };
 import pkgJa from './@shelchin/svelte-i18n/ja.json' with { type: 'json' };
-import pkgFr from './@shelchin/svelte-i18n/fr.json' with { type: 'json' };
 
 // ============================================
 // Organize translations by namespace
@@ -51,8 +50,7 @@ const builtInTranslations = {
 	'@shelchin/svelte-i18n': {
 		en: pkgEn,
 		zh: pkgZh,
-		ja: pkgJa,
-		fr: pkgFr
+		ja: pkgJa
 	}
 };
 

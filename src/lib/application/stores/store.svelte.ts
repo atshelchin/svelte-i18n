@@ -15,11 +15,12 @@ import {
 	detectBrowserLanguage as detectLang,
 	mergeTranslations
 } from '../../domain/services/utils.js';
-import { autoDiscoverTranslations } from '../../infrastructure/loaders/auto-discovery.js';
+import { autoDiscoverTranslations as autoDiscoverOld } from '../../infrastructure/loaders/auto-discovery.js';
 import {
 	autoLoadLanguages,
 	type AutoLoadOptions
 } from '../../infrastructure/loaders/auto-loader.js';
+import { autoDiscoverTranslations as autoDiscoverV2 } from '../../infrastructure/loaders/auto-discovery-v2.js';
 import { loadBuiltInTranslations } from '../../infrastructure/loaders/built-in.js';
 import { saveLocale, getInitialLocale } from '../../infrastructure/persistence/persistence.js';
 import {
@@ -86,7 +87,7 @@ export class I18nStore implements I18nInstance {
 				const options =
 					typeof this.config.autoDiscovery === 'object' ? this.config.autoDiscovery : {};
 
-				const translations = await autoDiscoverTranslations(this.config.namespace, locale, options);
+				const translations = await autoDiscoverOld(this.config.namespace, locale, options);
 
 				if (translations) {
 					await this.loadLanguage(locale, translations);
@@ -304,11 +305,7 @@ export class I18nStore implements I18nInstance {
 			const locales = options.locales || ['en', 'zh', 'es', 'fr', 'de', 'ja', 'ko'];
 			for (const locale of locales) {
 				try {
-					const translations = await autoDiscoverTranslations(
-						this.config.namespace,
-						locale,
-						options
-					);
+					const translations = await autoDiscoverOld(this.config.namespace, locale, options);
 					if (translations) {
 						await this.loadLanguage(locale, translations);
 					}
@@ -356,27 +353,27 @@ export class I18nStore implements I18nInstance {
 			console.warn('Failed to load built-in translations:', error);
 		}
 
-		// Step 2: Try auto-discovery for additional translations
-		// This allows users to add new languages without recompiling
-		if (this.config.autoDiscovery !== false) {
-			try {
-				const loadOptions: AutoLoadOptions = {
-					defaultLocale: this.currentLocale,
-					onLoaded: (locale) => console.log(`✓ Auto-discovered ${locale}`),
-					onError: (locale, error) => {
-						// Silent fail for auto-discovery - it's optional
-						if (options?.onError) {
-							options.onError(locale, error);
-						}
-					},
-					...options
-				};
-				
-				// Attempt to discover additional translations
-				await autoLoadLanguages(this, loadOptions);
-			} catch (error) {
-				// Auto-discovery is optional, so we don't fail hard
-				console.debug('Auto-discovery skipped:', error);
+		// Step 2: Try new auto-discovery system (based on index.json configuration)
+		// This is supplementary - only works if index.json exists
+		try {
+			await autoDiscoverV2(this, {
+				namespace: this.config.namespace,
+				onLoaded: (target, locale) => {
+					if (import.meta.env?.DEV && import.meta.env?.VITE_I18N_DEBUG === 'true') {
+						console.log(`✓ Auto-discovered ${locale} for ${target}`);
+					}
+				},
+				onError: (target, locale, error) => {
+					// Silent by default, only log in debug mode
+					if (import.meta.env?.DEV && import.meta.env?.VITE_I18N_DEBUG === 'true') {
+						console.debug(`Failed to auto-discover ${locale} for ${target}:`, error);
+					}
+				}
+			});
+		} catch (error) {
+			// Auto-discovery is optional, silent fail
+			if (import.meta.env?.DEV && import.meta.env?.VITE_I18N_DEBUG === 'true') {
+				console.debug('Auto-discovery error:', error);
 			}
 		}
 

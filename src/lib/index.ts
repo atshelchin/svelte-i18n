@@ -46,6 +46,19 @@ export {
 	type AutoDiscoveryOptions
 } from './infrastructure/loaders/auto-discovery.js';
 
+// New auto-discovery system
+export {
+	autoDiscoverTranslations as autoDiscoverV2,
+	type AutoDiscoveryConfig,
+	type AutoDiscoveryOptions as AutoDiscoveryOptionsV2
+} from './infrastructure/loaders/auto-discovery-v2.js';
+
+// App language helpers
+export {
+	getAppSupportedLanguages,
+	isAppLanguageSupported
+} from './infrastructure/loaders/app-languages.js';
+
 export { fuzzySearchLanguages, type LanguageInfo } from './infrastructure/loaders/languages.js';
 
 // Formatter exports

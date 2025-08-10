@@ -2,13 +2,13 @@ import { setupI18n } from '../../application/stores/store.svelte.js';
 import type { I18nInstance, TranslationFile } from '../../domain/models/types.js';
 import { registerPackageTranslations } from '../../infrastructure/loaders/built-in.js';
 
-// Import package translations directly
+// Import package translations directly (only built-in ones)
 import en from '../../../translations/@shelchin/svelte-i18n/en.json' with { type: 'json' };
 import zh from '../../../translations/@shelchin/svelte-i18n/zh.json' with { type: 'json' };
 import ja from '../../../translations/@shelchin/svelte-i18n/ja.json' with { type: 'json' };
-import fr from '../../../translations/@shelchin/svelte-i18n/fr.json' with { type: 'json' };
+// Note: fr.json is configured for auto-discovery in index.json, not built-in
 
-const packageTranslations = { en, zh, ja, fr };
+const packageTranslations = { en, zh, ja };
 
 let validationPopupI18n: I18nInstance | null = null;
 
@@ -28,7 +28,7 @@ export async function getValidationPopupI18n(): Promise<I18nInstance> {
 				baseUrl: '/translations',
 				patterns: [
 					'{namespace}/{locale}.json', // @shelchin/svelte-i18n/en.json
-					'{namespace}.{locale}.json'  // @shelchin/svelte-i18n.en.json
+					'{namespace}.{locale}.json' // @shelchin/svelte-i18n.en.json
 				],
 				debug: import.meta.env?.DEV && import.meta.env?.VITE_I18N_DEBUG === 'true'
 				// Only show debug logs in dev mode when VITE_I18N_DEBUG=true
@@ -50,7 +50,9 @@ export async function getValidationPopupI18n(): Promise<I18nInstance> {
 			console.info('ValidationPopup i18n initialized with built-in translations.');
 			console.info('Loaded locales:', validationPopupI18n.locales);
 			console.info('Current locale:', validationPopupI18n.locale);
-			console.info('Users can add translations in /translations/@shelchin/svelte-i18n/{locale}.json');
+			console.info(
+				'Users can add translations in /translations/@shelchin/svelte-i18n/{locale}.json'
+			);
 		}
 	}
 

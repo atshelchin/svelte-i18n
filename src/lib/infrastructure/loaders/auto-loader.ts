@@ -9,6 +9,18 @@ export interface AutoLoadOptions {
 	onLoaded?: (locale: string) => void;
 }
 
+interface AutoDiscoveryConfig {
+	enabled: boolean;
+	app?: {
+		languages: string[];
+	};
+	packages?: {
+		[packageName: string]: {
+			languages: string[];
+		};
+	};
+}
+
 /**
  * Automatically discovers and loads all available language files
  */
@@ -53,7 +65,7 @@ export async function autoLoadLanguages(
 			// index.json found - use it as the authoritative list
 			const index = await indexResponse.json();
 			availableLanguages = index.availableLanguages || [];
-			
+
 			if (import.meta.env?.DEV) {
 				console.debug(`index.json declares supported languages: ${availableLanguages.join(', ')}`);
 			}
@@ -83,7 +95,7 @@ export async function autoLoadLanguages(
 				}
 				return;
 			}
-			
+
 			try {
 				// Try to load from static/translations/{locale}.json
 				const url = `${translationsPath}/${locale}.json`;
@@ -91,7 +103,7 @@ export async function autoLoadLanguages(
 					typeof window !== 'undefined' && !url.startsWith('http')
 						? new URL(url, window.location.origin).href
 						: url;
-				
+
 				const response = await fetch(absoluteUrl);
 				if (response.ok) {
 					const translations = await response.json();
