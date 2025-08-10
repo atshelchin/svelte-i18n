@@ -26,8 +26,8 @@ let indexConfigCache: { autoDiscovery?: AutoDiscoveryConfig } | null = null;
 let indexConfigPromise: Promise<{ autoDiscovery?: AutoDiscoveryConfig } | null> | null = null;
 
 // Cache for loaded translations to avoid duplicate fetches
-const translationCache = new Map<string, any>();
-const translationPromises = new Map<string, Promise<any>>();
+const translationCache = new Map<string, Record<string, unknown>>();
+const translationPromises = new Map<string, Promise<Record<string, unknown> | null>>();
 
 /**
  * Get the cached auto-discovery configuration

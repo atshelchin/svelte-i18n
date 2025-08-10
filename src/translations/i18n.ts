@@ -3,7 +3,7 @@
  * This file handles all translation imports and i18n setup
  */
 
-import { setupI18n, registerBuiltInTranslations, loadBuiltInTranslations } from '$lib/index.js';
+import { setupI18n, registerBuiltInTranslations } from '$lib/index.js';
 
 // ============================================
 // Import all translation JSON files

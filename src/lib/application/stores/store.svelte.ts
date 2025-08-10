@@ -309,7 +309,7 @@ export class I18nStore implements I18nInstance {
 		try {
 			await loadBuiltInTranslations(this, {
 				onLoaded: (locale) => console.log(`✓ Loaded built-in ${locale}`),
-				onError: (locale, error) => console.warn(`No built-in translations for ${locale}`)
+				onError: (locale) => console.warn(`No built-in translations for ${locale}`)
 			});
 		} catch (error) {
 			console.warn('Failed to load built-in translations:', error);

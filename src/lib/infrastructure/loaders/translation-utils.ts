@@ -25,7 +25,7 @@ export function getTranslation(
 	registry: TranslationRegistry,
 	namespace: string,
 	locale: string
-): Record<string, any> | undefined {
+): Record<string, unknown> | undefined {
 	return registry[namespace]?.[locale];
 }
 
@@ -35,8 +35,8 @@ export function getTranslation(
 export function getMergedTranslations(
 	registry: TranslationRegistry,
 	locale: string
-): Record<string, any> {
-	const merged: Record<string, any> = {};
+): Record<string, unknown> {
+	const merged: Record<string, unknown> = {};
 
 	// First add app translations (no prefix)
 	const appTranslation = registry.app?.[locale];

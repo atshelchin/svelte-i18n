@@ -8,7 +8,7 @@ import type { I18nInstance } from '../../domain/models/types.js';
 // Type for translation registry
 export interface TranslationRegistry {
 	[namespace: string]: {
-		[locale: string]: Record<string, any>;
+		[locale: string]: Record<string, unknown>;
 	};
 }
 
@@ -56,7 +56,7 @@ export async function loadBuiltInTranslations(
 	// Load translations for each locale
 	for (const locale of loadedLocales) {
 		try {
-			let translations: Record<string, any> = {};
+			let translations: Record<string, unknown> = {};
 
 			if (!storeNamespace || storeNamespace === 'app') {
 				// App instance: load app translations
@@ -90,7 +90,7 @@ export async function loadBuiltInTranslations(
  */
 export function registerPackageTranslations(
 	packageName: string,
-	translations: Record<string, Record<string, any>>
+	translations: Record<string, Record<string, unknown>>
 ) {
 	if (!globalRegistry[packageName]) {
 		globalRegistry[packageName] = {};
