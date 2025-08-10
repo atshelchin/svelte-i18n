@@ -24,7 +24,7 @@
 > - Some features are experimental
 > - Bugs and breaking changes are expected
 >
-> **For production applications, please wait for the stable v2.0.0 release.**
+> **For production applications, please wait for the stable v1.0.0 release.**
 >
 > Feel free to experiment, provide feedback, and contribute! Follow our progress in [Issues](https://github.com/shelchin/svelte-i18n/issues).
 
