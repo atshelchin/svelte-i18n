@@ -33,6 +33,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          # For workflow_run events, checkout the branch that triggered the CI
+          ref: ${{ github.event.workflow_run.head_branch || github.ref }}
           fetch-depth: 2 # Need previous commit to compare
 
       - name: Get version from package.json
@@ -47,15 +49,24 @@ jobs:
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             VERSION=$CLEAN_VERSION
             echo "npm-tag=${{ github.event.inputs.npm-tag }}" >> $GITHUB_OUTPUT
-          # Automatic trigger from CI
-          elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            # main branch - add -dev suffix, publish as dev
-            VERSION="${CLEAN_VERSION}-dev"
-            echo "npm-tag=dev" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.ref }}" == "refs/heads/prod" ]]; then
-            # prod branch - use clean version, publish as stable
-            VERSION=$CLEAN_VERSION
-            echo "npm-tag=latest" >> $GITHUB_OUTPUT
+          # Automatic trigger from CI workflow
+          else
+            # Get the branch that triggered the CI workflow
+            TRIGGER_BRANCH="${{ github.event.workflow_run.head_branch }}"
+            echo "CI was triggered from branch: $TRIGGER_BRANCH"
+            
+            if [[ "$TRIGGER_BRANCH" == "main" ]]; then
+              # main branch - add -dev suffix, publish as dev
+              VERSION="${CLEAN_VERSION}-dev"
+              echo "npm-tag=dev" >> $GITHUB_OUTPUT
+            elif [[ "$TRIGGER_BRANCH" == "prod" ]]; then
+              # prod branch - use clean version, publish as stable
+              VERSION=$CLEAN_VERSION
+              echo "npm-tag=latest" >> $GITHUB_OUTPUT
+            else
+              echo "Unknown branch: $TRIGGER_BRANCH"
+              exit 1
+            fi
           fi
 
           echo "version=$VERSION" >> $GITHUB_OUTPUT
@@ -103,6 +114,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # For workflow_run events, checkout the branch that triggered the CI
+          ref: ${{ github.event.workflow_run.head_branch || github.ref }}
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
