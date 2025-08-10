@@ -1,14 +1,27 @@
-// Core exports
-export { setupI18n, getI18n } from './application/stores/store.svelte.js';
-export {
-	saveLocale,
-	loadSavedLocale,
-	clearSavedLocale,
-	getInitialLocale
-} from './infrastructure/persistence/persistence.js';
+/**
+ * Main export file for svelte-i18n with type safety
+ * When the app generates types, this will provide full type safety
+ */
+
+// Import the core functionality
+import {
+	getI18n as getOriginalI18n,
+	setupI18n as setupOriginalI18n
+} from './application/stores/store.svelte.js';
+
+// Types are used below
+
+// Direct re-export without modification
+// Type safety will be provided by d.ts files in the app
+export const getI18n = getOriginalI18n;
+export const setupI18n = setupOriginalI18n;
+
+// Re-export the interface for extension
+export type { I18nInstance } from './domain/models/types.js';
+
+// Re-export other types
 export type {
 	I18nConfig,
-	I18nInstance,
 	TranslationSchema,
 	TranslationFile,
 	LanguageMeta,
@@ -18,15 +31,13 @@ export type {
 	ExtractKeys
 } from './domain/models/types.js';
 
-// Type-safe exports
+// Other exports
 export {
-	createTypedI18n,
-	createTypedI18nFromGenerated,
-	type TypedI18nInstance,
-	type ExtractParams,
-	type GetKeyParams,
-	type GeneratedTranslationTypes
-} from './application/services/typed-i18n.js';
+	saveLocale,
+	loadSavedLocale,
+	clearSavedLocale,
+	getInitialLocale
+} from './infrastructure/persistence/persistence.js';
 
 // Utility exports
 export {
@@ -95,3 +106,15 @@ export {
 	getNamespaces,
 	getNamespaceLocales
 } from './infrastructure/loaders/translation-utils.js';
+
+// Typed wrapper exports
+export {
+	createTypedWrapper,
+	validateTranslationKey,
+	getTranslationKey,
+	type TypedTranslate,
+	type TypedI18nInstance
+} from './application/services/typed-wrapper.js';
+
+// Type-safe factory for creating typed i18n instances
+export { createTypedI18n } from './typed-export.js';

@@ -1,0 +1,21 @@
+/**
+ * Ambient type declarations for i18n type safety
+ * This file should be imported by the application after generating types
+ */
+
+/// <reference path="./types/app-i18n-generated.ts" />
+
+import type { I18nPath } from './types/app-i18n-generated';
+
+// Override the global module augmentation
+declare module '$lib' {
+	interface I18nInstance {
+		t(key: I18nPath, params?: Record<string, any>): string;
+	}
+}
+
+declare module '$lib/index' {
+	interface I18nInstance {
+		t(key: I18nPath, params?: Record<string, any>): string;
+	}
+}

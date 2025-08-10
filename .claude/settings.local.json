@@ -32,7 +32,9 @@
 			"Bash(git add:*)",
 			"Bash(pnpm dev:*)",
 			"Bash(pnpm test:*)",
-			"Bash(npm run test:unit:*)"
+			"Bash(npm run test:unit:*)",
+			"Bash(npx tsx:*)",
+			"Bash(npm run prepack:*)"
 		],
 		"deny": []
 	}

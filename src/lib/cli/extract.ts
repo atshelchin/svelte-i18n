@@ -23,21 +23,34 @@ function extractKeysFromFile(filePath: string): Set<string> {
 	const content = readFileSync(filePath, 'utf-8');
 
 	// Match patterns like:
-	// t('key')
-	// t("key")
 	// i18n.t('key')
 	// i18n.t("key")
 	// $t('key')
+	// t('key') - but only when it's likely a translation function
+	// <Trans key="key">
+
+	// More precise patterns to avoid false positives
 	const patterns = [
-		/(?:i18n\.)?t\(['"]([^'"]+)['"]/g,
-		/\$t\(['"]([^'"]+)['"]/g,
-		/<Trans\s+key=['"]([^'"]+)['"]/g
+		// i18n.t() or any variable ending with i18n.t()
+		/\bi18n\.t\s*\(\s*['"]([^'"]+)['"]/g,
+		// $t() in Svelte files
+		/\$t\s*\(\s*['"]([^'"]+)['"]/g,
+		// Standalone t() but not import/export statements
+		/(?<!export\s+)(?<!import\s+)(?<!\w)t\s*\(\s*['"]([^'"]+)['"]/g,
+		// Trans component
+		/<Trans\s+key\s*=\s*['"]([^'"]+)['"]/g,
+		// getI18n().t()
+		/getI18n\(\)\.t\s*\(\s*['"]([^'"]+)['"]/g
 	];
 
 	patterns.forEach((pattern) => {
 		let match;
 		while ((match = pattern.exec(content)) !== null) {
-			keys.add(match[1]);
+			const key = match[1];
+			// Filter out obvious non-translation keys (file paths, URLs, etc.)
+			if (!key.includes('/') && !key.includes('\\') && !key.startsWith('http')) {
+				keys.add(key);
+			}
 		}
 	});
 
@@ -96,6 +109,12 @@ function buildTranslationObject(keys: Set<string>): TranslationObject {
 			} else {
 				// Intermediate part - create nested object
 				if (!current[part]) {
+					current[part] = {};
+				} else if (typeof current[part] === 'string') {
+					// If current[part] is a string (from a previous key), convert to object
+					console.warn(
+						`⚠️  Key conflict: "${key}" conflicts with existing key. Converting to nested structure.`
+					);
 					current[part] = {};
 				}
 				current = current[part] as TranslationObject;

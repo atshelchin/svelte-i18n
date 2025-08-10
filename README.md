@@ -239,16 +239,79 @@ await autoLoadLanguages(i18n);
 
 ## 🎮 CLI Tools
 
+Three powerful CLI tools to streamline your i18n workflow:
+
+### 1. Extract Translation Keys
+
+Scan your codebase and extract all translation keys to create a template:
+
 ```bash
-# Extract all translation keys from your code
-npx svelte-i18n extract ./src ./translations/template.json
+# Extract keys from source code
+npm run cli:extract ./src ./translations/template.json
 
-# Validate translations for completeness
-npx svelte-i18n validate ./translations --strict
-
-# Generate TypeScript definitions
-npx svelte-i18n generate-types ./translations/en.json ./src/i18n.d.ts
+# This will find patterns like:
+# - i18n.t('demo.title')
+# - $t('welcome')
+# - getI18n().t('messages.error')
+# - <Trans key="about.description">
 ```
+
+**Output:** A JSON template with all discovered keys set to `[TODO: Add translation]`
+
+### 2. Validate Translations
+
+Ensure all translation files have consistent structure and no missing keys:
+
+```bash
+# Validate with default settings (src/translations directory)
+npm run cli:validate
+
+# Validate a specific directory
+npm run cli:validate -- --dir ./static/translations
+
+# Use strict validation with custom base locale
+npm run cli:validate -- --dir ./src/translations/app --base en --strict
+
+# Show help
+npm run cli:validate -- --help
+```
+
+**Checks:**
+- Missing translation keys
+- Type mismatches between languages
+- Extra keys (warnings)
+- Structural consistency
+
+### 3. Generate TypeScript Types
+
+Auto-generate type-safe definitions from your translation files:
+
+```bash
+# Generate all types (library + app) with validation
+npm run cli:generate-types
+
+# Generate only app types
+npm run cli:generate-types -- --mode app
+
+# Generate only library types
+npm run cli:generate-types -- --mode library
+
+# Skip validation for faster generation
+npm run cli:generate-types -- --no-validate
+
+# Show help
+npm run cli:generate-types -- --help
+```
+
+**Output:**
+- Library types: `src/lib/types/library-i18n-generated.ts`
+- App types: `src/types/app-i18n-generated.ts`
+
+**Benefits:**
+- Full IntelliSense support
+- Compile-time error checking
+- Auto-completion for all translation keys
+- Type-safe parameters for interpolated values
 
 ---
 

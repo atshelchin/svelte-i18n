@@ -237,25 +237,41 @@ export function validate(options: ValidateOptions): boolean {
 if (import.meta.url === `file://${process.argv[1]}`) {
 	const args = process.argv.slice(2);
 
-	if (args.length < 1) {
-		console.error('Usage: validate <translationsDir> [options]');
-		console.error('Options:');
-		console.error('  --base <locale>  Base locale for comparison (default: en)');
-		console.error('  --strict         Enable strict validation');
-		console.error('Example: validate ./static/translations --base en --strict');
-		process.exit(1);
-	}
+	// Filter out any "--" separators from pnpm/npm
+	const filteredArgs = args.filter((arg) => arg !== '--');
 
-	const translationsDir = args[0];
+	// Parse arguments
+	let translationsDir = './src/translations';
 	let baseLocale = 'en';
 	let strict = false;
 
-	for (let i = 1; i < args.length; i++) {
-		if (args[i] === '--base' && args[i + 1]) {
-			baseLocale = args[i + 1];
+	for (let i = 0; i < filteredArgs.length; i++) {
+		if (filteredArgs[i] === '--dir' && filteredArgs[i + 1]) {
+			translationsDir = filteredArgs[i + 1];
 			i++;
-		} else if (args[i] === '--strict') {
+		} else if (filteredArgs[i] === '--base' && filteredArgs[i + 1]) {
+			baseLocale = filteredArgs[i + 1];
+			i++;
+		} else if (filteredArgs[i] === '--strict') {
 			strict = true;
+		} else if (filteredArgs[i] === '--help') {
+			console.log('Usage: validate [options]');
+			console.log('Options:');
+			console.log(
+				'  --dir <path>     Directory containing translation files (default: ./src/translations)'
+			);
+			console.log('  --base <locale>  Base locale for comparison (default: en)');
+			console.log('  --strict         Enable strict validation');
+			console.log('  --help           Show this help message');
+			console.log('');
+			console.log('Examples:');
+			console.log('  npm run cli:validate');
+			console.log('  npm run cli:validate -- --dir ./static/translations');
+			console.log('  npm run cli:validate -- --dir ./src/translations --base en --strict');
+			process.exit(0);
+		} else if (!filteredArgs[i].startsWith('--')) {
+			// If it's not a flag, assume it's the directory (for backward compatibility)
+			translationsDir = filteredArgs[i];
 		}
 	}
 

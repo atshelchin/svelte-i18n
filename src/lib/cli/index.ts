@@ -22,13 +22,20 @@ Commands:
   validate <translationsDir> [--base <locale>] [--strict]
     Validate translation files for consistency
     
-  generate-types <translationFile> <outFile> [--namespace <name>] [--module <name>]
+  generate-types [options]
     Generate TypeScript type definitions from translations
+    Options:
+      -d, --dir <path>       Translations directory (default: src/translations/app)
+      -o, --out <path>       Output TypeScript file (default: src/lib/types/i18n-generated.ts)
+      -l, --locale <code>    Default locale (default: en)
+      --no-validate          Skip validation of other language files
 
 Examples:
   svelte-i18n extract ./src ./translations/template.json
   svelte-i18n validate ./static/translations --strict
-  svelte-i18n generate-types ./translations/en.json ./src/i18n.d.ts
+  svelte-i18n generate-types
+  svelte-i18n generate-types --dir ./translations --out ./types/i18n.ts
+  svelte-i18n generate-types --locale zh --no-validate
 
 For more information, visit:
   https://github.com/atshelchin/svelte-i18n
@@ -74,29 +81,41 @@ switch (command) {
 	}
 
 	case 'generate-types': {
-		if (args.length < 2) {
-			console.error('Usage: svelte-i18n generate-types <translationFile> <outFile> [options]');
-			process.exit(1);
-		}
 		const genOptions: {
-			translationFile: string;
-			outFile: string;
-			namespace?: string;
-			moduleName?: string;
-		} = {
-			translationFile: args[0],
-			outFile: args[1]
-		};
-		for (let i = 2; i < args.length; i++) {
-			if (args[i] === '--namespace' && args[i + 1]) {
-				genOptions.namespace = args[i + 1];
-				i++;
-			} else if (args[i] === '--module' && args[i + 1]) {
-				genOptions.moduleName = args[i + 1];
-				i++;
+			translationsDir?: string;
+			outFile?: string;
+			defaultLocale?: string;
+			validate?: boolean;
+		} = {};
+
+		for (let i = 0; i < args.length; i++) {
+			switch (args[i]) {
+				case '--dir':
+				case '-d':
+					genOptions.translationsDir = args[++i];
+					break;
+				case '--out':
+				case '-o':
+					genOptions.outFile = args[++i];
+					break;
+				case '--locale':
+				case '-l':
+					genOptions.defaultLocale = args[++i];
+					break;
+				case '--no-validate':
+					genOptions.validate = false;
+					break;
 			}
 		}
-		generateTypes(genOptions);
+
+		generateTypes(genOptions)
+			.then((success) => {
+				process.exit(success ? 0 : 1);
+			})
+			.catch((error) => {
+				console.error('Error:', error);
+				process.exit(1);
+			});
 		break;
 	}
 

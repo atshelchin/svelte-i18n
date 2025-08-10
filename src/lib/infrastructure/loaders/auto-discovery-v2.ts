@@ -157,7 +157,8 @@ export async function autoDiscoverTranslations(
 					if (translationCache.has(cacheKey)) {
 						const cachedTranslations = translationCache.get(cacheKey);
 						const isOverride = i18n.locales.includes(locale);
-						await i18n.loadLanguage(locale, cachedTranslations);
+						// eslint-disable-next-line @typescript-eslint/no-explicit-any
+						await i18n.loadLanguage(locale, cachedTranslations as any);
 						onLoaded(target.type, locale);
 						if (import.meta.env?.DEV && import.meta.env?.VITE_I18N_DEBUG === 'true') {
 							if (isOverride) {
@@ -177,7 +178,8 @@ export async function autoDiscoverTranslations(
 						const translations = await existingPromise;
 						if (translations) {
 							const isOverride = i18n.locales.includes(locale);
-							await i18n.loadLanguage(locale, translations);
+							// eslint-disable-next-line @typescript-eslint/no-explicit-any
+							await i18n.loadLanguage(locale, translations as any);
 							onLoaded(target.type, locale);
 							if (import.meta.env?.DEV && import.meta.env?.VITE_I18N_DEBUG === 'true') {
 								if (isOverride) {
@@ -223,7 +225,8 @@ export async function autoDiscoverTranslations(
 					const translations = await fetchPromise;
 					if (translations) {
 						const isOverride = i18n.locales.includes(locale);
-						await i18n.loadLanguage(locale, translations);
+						// eslint-disable-next-line @typescript-eslint/no-explicit-any
+						await i18n.loadLanguage(locale, translations as any);
 						onLoaded(target.type, locale);
 
 						if (import.meta.env?.DEV && import.meta.env?.VITE_I18N_DEBUG === 'true') {

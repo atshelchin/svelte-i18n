@@ -2,12 +2,9 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { SvelteSet, SvelteMap } from 'svelte/reactivity';
 	import { base } from '$app/paths';
-	import {
-		getI18n,
-		fuzzySearchLanguages,
-		type LanguageInfo,
-		type LanguageMeta
-	} from '$lib/index.js';
+	import { fuzzySearchLanguages, type LanguageInfo, type LanguageMeta } from '$lib/index.js';
+
+	import { getI18n } from '../../translations/i18n.js';
 	import TaskHistory from './TaskHistory.svelte';
 	import {
 		type TranslationTask,

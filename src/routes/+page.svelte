@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { getI18n, LanguageSwitcher, ValidationPopup } from '$lib/index.js';
+	import { getI18n } from '../translations/i18n.js';
+	import { LanguageSwitcher, ValidationPopup } from '$lib/index.js';
 	import { base } from '$app/paths';
 
 	const i18n = getI18n();
@@ -124,7 +125,7 @@ i18n.formatRelativeTime(-2, 'day');
 				<a href="{base}/editor" class="btn-editor">
 					🌍 {i18n.t('editor.title')}
 				</a>
-				<a href="{base}/typed-demo" class="btn-typed"> 🎯 Type-Safe Demo </a>
+
 				<a href="https://github.com/atshelchin/svelte-i18n" class="btn-github">
 					{i18n.t('demo.github')}
 				</a>
@@ -151,39 +152,39 @@ i18n.formatRelativeTime(-2, 'day');
 
 			<div class="features-grid">
 				<div class="feature-card">
+					<div class="feature-icon">🔍</div>
+					<h3>{i18n.t('demo.autoDiscovery')}</h3>
+					<p>{i18n.t('demo.autoDiscoveryDesc')}</p>
+				</div>
+
+				<div class="feature-card">
 					<div class="feature-icon">🎯</div>
 					<h3>{i18n.t('demo.typeSafety')}</h3>
-					<p>{i18n.t('demo.fullTypeScript')}</p>
+					<p>{i18n.t('demo.typeSafetyDesc')}</p>
+				</div>
+
+				<div class="feature-card">
+					<div class="feature-icon">🌐</div>
+					<h3>{i18n.t('demo.ssrSupport')}</h3>
+					<p>{i18n.t('demo.ssrSupportDesc')}</p>
+				</div>
+
+				<div class="feature-card">
+					<div class="feature-icon">✏️</div>
+					<h3>{i18n.t('demo.translationEditor')}</h3>
+					<p>{i18n.t('demo.translationEditorDesc')}</p>
+				</div>
+
+				<div class="feature-card">
+					<div class="feature-icon">🚀</div>
+					<h3>{i18n.t('demo.easyToUse')}</h3>
+					<p>{i18n.t('demo.easyToUseDesc')}</p>
 				</div>
 
 				<div class="feature-card">
 					<div class="feature-icon">⚡</div>
 					<h3>{i18n.t('demo.svelte5Runes')}</h3>
-					<p>{i18n.t('demo.builtWithRunes')}</p>
-				</div>
-
-				<div class="feature-card">
-					<div class="feature-icon">🌍</div>
-					<h3>{i18n.t('demo.locales100Plus')}</h3>
-					<p>{i18n.t('demo.supportAllLanguages')}</p>
-				</div>
-
-				<div class="feature-card">
-					<div class="feature-icon">🔒</div>
-					<h3>{i18n.t('demo.namespaceIsolation')}</h3>
-					<p>{i18n.t('demo.isolateTranslations')}</p>
-				</div>
-
-				<div class="feature-card">
-					<div class="feature-icon">✅</div>
-					<h3>{i18n.t('demo.runtimeValidation')}</h3>
-					<p>{i18n.t('demo.automaticDetection')}</p>
-				</div>
-
-				<div class="feature-card">
-					<div class="feature-icon">🚀</div>
-					<h3>{i18n.t('demo.lazyLoading')}</h3>
-					<p>{i18n.t('demo.loadOnDemand')}</p>
+					<p>{i18n.t('demo.svelte5RunesDesc')}</p>
 				</div>
 			</div>
 		</section>
@@ -340,8 +341,6 @@ i18n.formatRelativeTime(-2, 'day');
 			<p>{i18n.t('demo.madeWithLove')}</p>
 			<div class="footer-links">
 				<a href="https://github.com/atshelchin/svelte-i18n">{i18n.t('demo.github')}</a>
-				<a href="{base}/docs">{i18n.t('demo.documentation')}</a>
-				<a href="{base}/api">{i18n.t('demo.apiReference')}</a>
 			</div>
 		</footer>
 	{/if}
@@ -426,21 +425,6 @@ i18n.formatRelativeTime(-2, 'day');
 	.btn-editor:hover {
 		transform: translateY(-2px);
 		box-shadow: 0 10px 20px rgba(255, 107, 107, 0.3);
-	}
-
-	.btn-typed {
-		background: linear-gradient(135deg, #667eea, #764ba2);
-		color: white;
-		padding: 0.75rem 1.5rem;
-		border-radius: 8px;
-		text-decoration: none;
-		font-weight: 600;
-		transition: all 0.3s;
-	}
-
-	.btn-typed:hover {
-		transform: translateY(-2px);
-		box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
 	}
 
 	.btn-github {

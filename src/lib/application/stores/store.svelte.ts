@@ -83,6 +83,7 @@ export class I18nStore implements I18nInstance {
 		}
 	}
 
+	// @ts-expect-error - Type will be narrowed by app's generated types
 	t = (key: string, params?: InterpolationParams): string => {
 		// Handle namespaced keys
 		let actualKey = key;
@@ -183,10 +184,12 @@ export class I18nStore implements I18nInstance {
 				const errors = validateSchema(translations, this.translations[this.config.defaultLocale]);
 				if (errors.length > 0) {
 					this.validationErrors[locale] = errors;
-					console.error(`❌ Translation validation failed for locale "${locale}":`, errors);
+					if (import.meta.env?.DEV && import.meta.env?.VITE_I18N_DEBUG === 'true') {
+						console.error(`❌ Translation validation failed for locale "${locale}":`, errors);
+					}
 
 					// Show user-friendly error in development
-					if (import.meta.env.DEV) {
+					if (import.meta.env.DEV && import.meta.env?.VITE_I18N_DEBUG === 'true') {
 						console.group(`Missing/Invalid translations in ${locale}:`);
 						errors.forEach((error) => console.error(`  • ${error}`));
 						console.groupEnd();
