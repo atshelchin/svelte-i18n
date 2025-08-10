@@ -38,7 +38,7 @@ export async function autoLoadLanguages(
 	} = options;
 
 	try {
-		// First, try to load the index file that lists available languages
+		// index.json has the highest priority - it defines which languages the site supports
 		const indexUrl = `${translationsPath}/${indexFile}`;
 		// Ensure URL is absolute from the root
 		const absoluteIndexUrl =
@@ -50,15 +50,20 @@ export async function autoLoadLanguages(
 		let availableLanguages: string[];
 
 		if (indexResponse.ok) {
+			// index.json found - use it as the authoritative list
 			const index = await indexResponse.json();
 			availableLanguages = index.availableLanguages || [];
-		} else {
-			// No index file means no additional languages to discover
-			// Built-in languages are already loaded
+			
 			if (import.meta.env?.DEV) {
-				console.debug('No index.json found - skipping auto-discovery');
+				console.debug(`index.json declares supported languages: ${availableLanguages.join(', ')}`);
 			}
-			return; // Exit early - no additional languages to load
+		} else {
+			// No index.json - no additional languages to load from static/translations
+			// Only built-in languages are available
+			if (import.meta.env?.DEV) {
+				console.debug('No index.json found - only built-in languages available');
+			}
+			return; // Exit early
 		}
 
 		// Load default locale first if specified
@@ -68,26 +73,39 @@ export async function autoLoadLanguages(
 			availableLanguages.unshift(defaultLocale);
 		}
 
-		// Load all available languages (skip already loaded ones)
+		// Load languages that are declared in index.json but not yet loaded
+		// This handles languages from static/translations that aren't built-in
 		const loadPromises = availableLanguages.map(async (locale) => {
-			// Skip if this locale is already loaded
+			// Skip if this locale is already loaded (e.g., from built-in translations)
 			if (i18n.locales.includes(locale)) {
-				if (import.meta.env?.DEV) {
-					console.debug(`Skipping ${locale} - already loaded`);
+				if (import.meta.env?.DEV && import.meta.env?.VITE_I18N_DEBUG === 'true') {
+					console.debug(`${locale} - already loaded (built-in)`);
 				}
 				return;
 			}
 			
 			try {
-				// Ensure URL is absolute from the root
+				// Try to load from static/translations/{locale}.json
 				const url = `${translationsPath}/${locale}.json`;
-				// If we're in the browser and the URL doesn't start with http, make it absolute
 				const absoluteUrl =
 					typeof window !== 'undefined' && !url.startsWith('http')
 						? new URL(url, window.location.origin).href
 						: url;
-				await i18n.loadLanguage(locale, absoluteUrl);
-				onLoaded(locale);
+				
+				const response = await fetch(absoluteUrl);
+				if (response.ok) {
+					const translations = await response.json();
+					await i18n.loadLanguage(locale, translations);
+					onLoaded(locale);
+				} else if (response.status === 404) {
+					// 404 means this language is declared but has no translation file
+					// This is OK - maybe it will be added later
+					if (import.meta.env?.DEV && import.meta.env?.VITE_I18N_DEBUG === 'true') {
+						console.debug(`${locale} - declared but no translation file found (404)`);
+					}
+				} else {
+					throw new Error(`HTTP ${response.status}`);
+				}
 			} catch (error) {
 				onError(locale, error as Error);
 			}
