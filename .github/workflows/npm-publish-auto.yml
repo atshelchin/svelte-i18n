@@ -30,12 +30,26 @@ jobs:
       version: ${{ steps.version.outputs.version }}
       npm-tag: ${{ steps.version.outputs.npm-tag }}
     steps:
+      - name: Debug workflow context
+        run: |
+          echo "Event name: ${{ github.event_name }}"
+          echo "GitHub ref: ${{ github.ref }}"
+          echo "Workflow run head branch: ${{ github.event.workflow_run.head_branch }}"
+          echo "Workflow run head sha: ${{ github.event.workflow_run.head_sha }}"
+          echo "Will checkout: ${{ github.event.workflow_run.head_branch || github.ref }}"
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
           # For workflow_run events, checkout the branch that triggered the CI
           ref: ${{ github.event.workflow_run.head_branch || github.ref }}
           fetch-depth: 2 # Need previous commit to compare
+
+      - name: Verify checkout
+        run: |
+          echo "Current branch: $(git branch --show-current)"
+          echo "Current commit: $(git rev-parse HEAD)"
+          echo "Package.json version: $(node -p "require('./package.json').version")"
 
       - name: Get version from package.json
         id: version
