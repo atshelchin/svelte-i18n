@@ -346,14 +346,38 @@ export class I18nStore implements I18nInstance {
 			return;
 		}
 
+		// Step 1: Load built-in translations (no network requests)
 		try {
-			// Load built-in translations (no HTTP fallback)
 			await loadBuiltInTranslations(this, {
 				onLoaded: (locale) => console.log(`✓ Loaded built-in ${locale}`),
 				onError: (locale, error) => console.warn(`No built-in translations for ${locale}`)
 			});
 		} catch (error) {
 			console.warn('Failed to load built-in translations:', error);
+		}
+
+		// Step 2: Try auto-discovery for additional translations
+		// This allows users to add new languages without recompiling
+		if (this.config.autoDiscovery !== false) {
+			try {
+				const loadOptions: AutoLoadOptions = {
+					defaultLocale: this.currentLocale,
+					onLoaded: (locale) => console.log(`✓ Auto-discovered ${locale}`),
+					onError: (locale, error) => {
+						// Silent fail for auto-discovery - it's optional
+						if (options?.onError) {
+							options.onError(locale, error);
+						}
+					},
+					...options
+				};
+				
+				// Attempt to discover additional translations
+				await autoLoadLanguages(this, loadOptions);
+			} catch (error) {
+				// Auto-discovery is optional, so we don't fail hard
+				console.debug('Auto-discovery skipped:', error);
+			}
 		}
 
 		// If the saved/detected locale wasn't loaded, fallback to first available locale

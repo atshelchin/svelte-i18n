@@ -18,13 +18,20 @@ let validationPopupI18n: I18nInstance | null = null;
  */
 export async function getValidationPopupI18n(): Promise<I18nInstance> {
 	if (!validationPopupI18n) {
-		// Create a namespaced i18n instance WITHOUT auto-discovery
-		// All translations are built-in and bundled with the package
+		// Create a namespaced i18n instance with optional auto-discovery
+		// Built-in translations are loaded first, then auto-discovery can add more
 		validationPopupI18n = setupI18n({
 			defaultLocale: 'en',
 			fallbackLocale: 'en',
 			namespace: '@shelchin/svelte-i18n', // Use scoped package name
-			// NO autoDiscovery - all translations are built-in
+			autoDiscovery: {
+				baseUrl: '/translations',
+				patterns: [
+					'{namespace}/{locale}.json', // @shelchin/svelte-i18n/en.json
+					'{namespace}.{locale}.json'  // @shelchin/svelte-i18n.en.json
+				],
+				debug: false // Only log in development
+			}
 		});
 
 		// Register package translations globally for other systems to use
@@ -35,10 +42,14 @@ export async function getValidationPopupI18n(): Promise<I18nInstance> {
 			await validationPopupI18n.loadLanguage(locale, translations as TranslationFile);
 		}
 
+		// Auto-discovery will run automatically when locale changes
+		// This allows users to add new translations without recompiling
+
 		if (import.meta.env?.DEV) {
 			console.info('ValidationPopup i18n initialized with built-in translations.');
 			console.info('Loaded locales:', validationPopupI18n.locales);
 			console.info('Current locale:', validationPopupI18n.locale);
+			console.info('Users can add translations in /translations/@shelchin/svelte-i18n/{locale}.json');
 		}
 	}
 
