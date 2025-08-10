@@ -28,12 +28,7 @@
 		"test:e2e": "playwright test",
 		"cli:extract": "node dist/cli/extract.js",
 		"cli:validate": "node dist/cli/validate.js",
-		"cli:generate-types": "node dist/cli/generate-types.js",
-		"build:docs": "vite build",
-		"build:package": "./scripts/build-package.sh",
-		"release:patch": "npm version patch && git push origin main && git push origin --tags",
-		"release:minor": "npm version minor && git push origin main && git push origin --tags",
-		"release:major": "npm version major && git push origin main && git push origin --tags"
+		"cli:generate-types": "node dist/cli/generate-types.js"
 	},
 	"bin": {
 		"svelte-i18n": "./dist/cli/index.js"
