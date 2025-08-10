@@ -23,8 +23,18 @@ export async function autoLoadLanguages(
 		translationsPath = basePath ? `${basePath}/translations` : '/translations',
 		indexFile = 'index.json',
 		defaultLocale,
-		onError = (locale, err) => console.error(`Failed to load ${locale}:`, err),
-		onLoaded = (locale) => console.log(`Loaded language: ${locale}`)
+		onError = (locale, err) => {
+			// Only log errors in development or for server errors
+			if (import.meta.env?.DEV) {
+				console.error(`Failed to load ${locale}:`, err);
+			}
+		},
+		onLoaded = (locale) => {
+			// Only log in development
+			if (import.meta.env?.DEV) {
+				console.log(`Loaded language: ${locale}`);
+			}
+		}
 	} = options;
 
 	try {
@@ -44,7 +54,9 @@ export async function autoLoadLanguages(
 			availableLanguages = index.availableLanguages || [];
 		} else {
 			// Fallback: try common language codes
-			console.warn('No index file found, trying common language codes');
+			if (import.meta.env?.DEV) {
+				console.debug('No index file found, trying common language codes');
+			}
 			availableLanguages = ['en', 'zh', 'es', 'fr', 'de', 'ja', 'ko', 'pt', 'ru', 'ar'];
 		}
 

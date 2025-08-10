@@ -30,7 +30,8 @@ export async function getValidationPopupI18n(): Promise<I18nInstance> {
 					'{namespace}/{locale}.json', // @shelchin/svelte-i18n/en.json
 					'{namespace}.{locale}.json'  // @shelchin/svelte-i18n.en.json
 				],
-				debug: false // Only log in development
+				debug: import.meta.env?.DEV && import.meta.env?.VITE_I18N_DEBUG === 'true'
+				// Only show debug logs in dev mode when VITE_I18N_DEBUG=true
 			}
 		});
 

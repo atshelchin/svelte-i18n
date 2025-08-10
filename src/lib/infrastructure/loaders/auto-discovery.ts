@@ -117,9 +117,22 @@ async function tryLoadTranslation(
 				console.info(`✅ Loaded translations from ${url}`);
 			}
 			return data as TranslationFile;
+		} else if (response.status === 404) {
+			// 404 is expected during discovery - only log in debug mode
+			if (debug) {
+				console.debug(`Translation file not found: ${url}`);
+			}
+		} else {
+			// Other errors might be important
+			if (debug || response.status >= 500) {
+				console.warn(`Failed to load translations from ${url}: ${response.status}`);
+			}
 		}
-	} catch {
-		// Silently ignore errors in discovery
+	} catch (error) {
+		// Network errors - only log in debug mode
+		if (debug) {
+			console.debug(`Failed to fetch ${url}:`, error);
+		}
 	}
 	return null;
 }

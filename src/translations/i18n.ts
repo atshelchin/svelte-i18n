@@ -16,7 +16,6 @@ import appJa from './app/ja.json' with { type: 'json' };
 import appFr from './app/fr.json' with { type: 'json' };
 import appDe from './app/de.json' with { type: 'json' };
 import appEs from './app/es.json' with { type: 'json' };
-import appPt from './app/pt.json' with { type: 'json' };
 import appRu from './app/ru.json' with { type: 'json' };
 import appAr from './app/ar.json' with { type: 'json' };
 import appHi from './app/hi.json' with { type: 'json' };
@@ -42,7 +41,6 @@ const builtInTranslations = {
 		fr: appFr,
 		de: appDe,
 		es: appEs,
-		pt: appPt,
 		ru: appRu,
 		ar: appAr,
 		hi: appHi,
