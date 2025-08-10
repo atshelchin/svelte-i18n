@@ -32,7 +32,6 @@
 	onMount(async () => {
 		// Load auto-discovered translations
 		// Pass the server locale to maintain it
-		console.log('layout', { locale: data.locale });
 		await i18n.clientLoad({ initialLocale: data.locale });
 	});
 </script>

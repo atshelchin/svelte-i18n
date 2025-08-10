@@ -74,7 +74,6 @@ export async function loadBuiltInTranslations(
 
 			// Add to store if we have translations
 			if (Object.keys(translations).length > 0) {
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				await store.loadLanguage(locale, translations as any);
 				options?.onLoaded?.(locale);
 			}

@@ -111,14 +111,20 @@ export async function autoDiscoverTranslations(
 			console.warn('Auto-discovery: No configuration found in index.json');
 			return;
 		}
-		
-		console.log('Auto-discovery config loaded:', config.autoDiscovery);
+
+		if (DEV) {
+			console.log('Auto-discovery config loaded:', config.autoDiscovery);
+		}
 
 		// Step 3: Determine what to discover
 		const discoveryTargets: Array<{ type: string; languages: string[] }> = [];
 
 		// If this is for a specific package namespace
 		if (namespace && config.autoDiscovery.packages?.[namespace]) {
+			console.log(
+				`Auto-discovery: Found package namespace "${namespace}" with languages:`,
+				config.autoDiscovery.packages[namespace]
+			);
 			discoveryTargets.push({
 				type: namespace,
 				languages: config.autoDiscovery.packages[namespace]
@@ -126,10 +132,21 @@ export async function autoDiscoverTranslations(
 		}
 		// If this is for the main app (no namespace)
 		else if (!namespace && config.autoDiscovery.app) {
+			console.log(
+				'Auto-discovery: Found app translations with languages:',
+				config.autoDiscovery.app
+			);
 			discoveryTargets.push({
 				type: 'app',
 				languages: config.autoDiscovery.app
 			});
+		} else {
+			console.log(
+				'Auto-discovery: No matching targets found. Namespace:',
+				namespace,
+				'Has app config:',
+				!!config.autoDiscovery.app
+			);
 		}
 
 		// Step 4: Load discovered translations
@@ -156,7 +173,6 @@ export async function autoDiscoverTranslations(
 					if (translationCache.has(cacheKey)) {
 						const cachedTranslations = translationCache.get(cacheKey);
 						const isOverride = i18n.locales.includes(locale);
-						// eslint-disable-next-line @typescript-eslint/no-explicit-any
 						await i18n.loadLanguage(locale, cachedTranslations as any);
 						onLoaded(target.type, locale);
 						if (DEV) {
@@ -177,7 +193,6 @@ export async function autoDiscoverTranslations(
 						const translations = await existingPromise;
 						if (translations) {
 							const isOverride = i18n.locales.includes(locale);
-							// eslint-disable-next-line @typescript-eslint/no-explicit-any
 							await i18n.loadLanguage(locale, translations as any);
 							onLoaded(target.type, locale);
 							if (DEV) {
@@ -224,7 +239,6 @@ export async function autoDiscoverTranslations(
 					const translations = await fetchPromise;
 					if (translations) {
 						const isOverride = i18n.locales.includes(locale);
-						// eslint-disable-next-line @typescript-eslint/no-explicit-any
 						await i18n.loadLanguage(locale, translations as any);
 						onLoaded(target.type, locale);
 

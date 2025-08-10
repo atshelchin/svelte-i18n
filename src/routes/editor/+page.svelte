@@ -859,7 +859,6 @@
 		sourceObj: Record<string, unknown>,
 		targetObj: Record<string, unknown>,
 		path: string[] = []
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	): any[] {
 		const items = [];
 
@@ -931,7 +930,6 @@
 	}
 
 	// Count fields in a section recursively
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	function countFieldsInSection(items: any[]): number {
 		let count = 0;
 		for (const item of items) {
@@ -945,7 +943,6 @@
 	}
 
 	// Count translated fields in a section
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	function countTranslatedFieldsInSection(items: any[]): number {
 		let count = 0;
 		for (const item of items) {
@@ -962,7 +959,6 @@
 	}
 
 	// Calculate section progress
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	function calculateSectionProgress(items: any[]): number {
 		const total = countFieldsInSection(items);
 		const translated = countTranslatedFieldsInSection(items);

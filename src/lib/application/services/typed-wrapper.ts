@@ -54,7 +54,6 @@ export interface TypedI18nInstance extends Omit<I18nInstance, 't'> {
 export function createTypedWrapper(i18n: I18nInstance): TypedI18nInstance {
 	// Create typed translation function
 	const typedT: TypedTranslate = ((key: string, params?: Record<string, unknown>) => {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		return i18n.t(key, params as any);
 	}) as TypedTranslate;
 

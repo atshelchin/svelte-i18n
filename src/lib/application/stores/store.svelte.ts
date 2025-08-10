@@ -500,28 +500,21 @@ export class I18nStore implements I18nInstance {
 	 * @returns Promise that resolves when loading is complete
 	 */
 	async clientLoad(options?: { initialLocale?: string }): Promise<void> {
-		// Skip loading if languages are already loaded, but still set locale
-		if (this.locales.length > 0) {
-			// If initial locale provided, set it
-			if (options?.initialLocale && this.locales.includes(options.initialLocale)) {
-				this.currentLocale = options.initialLocale;
+		// Step 1: Load built-in translations if not already loaded
+		if (this.locales.length === 0) {
+			try {
+				await loadBuiltInTranslations(this, {
+					onLoaded: (locale) => console.log(`✓ Loaded built-in ${locale}`),
+					onError: (locale) => console.warn(`No built-in translations for ${locale}`)
+				});
+			} catch (error) {
+				console.warn('Failed to load built-in translations:', error);
 			}
-			return;
 		}
 
-		// Step 1: Load built-in translations (no network requests)
-		try {
-			await loadBuiltInTranslations(this, {
-				onLoaded: (locale) => console.log(`✓ Loaded built-in ${locale}`),
-				onError: (locale) => console.warn(`No built-in translations for ${locale}`)
-			});
-		} catch (error) {
-			console.warn('Failed to load built-in translations:', error);
-		}
-
-		// Step 2: Try new auto-discovery system (based on index.json configuration)
-		// This is supplementary - only works if index.json exists
-		console.log('Starting auto-discovery...');
+		// Step 2: ALWAYS try auto-discovery system (based on index.json configuration)
+		// This is important because auto-discovered translations can add new locales
+		// or override existing built-in translations
 		try {
 			await autoDiscoverV2(this, {
 				namespace: this.config.namespace,
