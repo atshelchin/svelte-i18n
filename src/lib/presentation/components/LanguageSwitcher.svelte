@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { getI18n } from '../../application/stores/store.svelte.js';
+	import { getAppSupportedLanguages } from '../../infrastructure/loaders/app-languages.js';
+	import { onMount } from 'svelte';
 
 	interface Props {
 		class?: string;
@@ -20,8 +22,14 @@
 	const i18n = getI18n();
 
 	const currentLocale = $derived(i18n.locale);
-	const availableLocales = $derived(i18n.locales);
+	let availableLocales = $state(i18n.locales);
 	const languageMeta = $derived(i18n.meta);
+
+	// On mount, get all app-supported languages (including those from index.json)
+	onMount(async () => {
+		const allSupportedLanguages = await getAppSupportedLanguages(i18n);
+		availableLocales = allSupportedLanguages;
+	});
 
 	// ISO 639-1 language codes with native names as defaults
 	const defaultLocaleNames: Record<string, string> = {

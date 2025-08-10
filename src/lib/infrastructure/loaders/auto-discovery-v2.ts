@@ -21,6 +21,64 @@ export interface AutoDiscoveryOptions {
 	onLoaded?: (target: string, locale: string) => void;
 }
 
+// Cache for index.json configuration to avoid multiple fetches
+let indexConfigCache: { autoDiscovery?: AutoDiscoveryConfig } | null = null;
+let indexConfigPromise: Promise<{ autoDiscovery?: AutoDiscoveryConfig } | null> | null = null;
+
+// Cache for loaded translations to avoid duplicate fetches
+const translationCache = new Map<string, any>();
+const translationPromises = new Map<string, Promise<any>>();
+
+/**
+ * Get the cached auto-discovery configuration
+ * This is useful for other modules that need to check what languages are configured
+ */
+export function getCachedAutoDiscoveryConfig(): { autoDiscovery?: AutoDiscoveryConfig } | null {
+	return indexConfigCache;
+}
+
+/**
+ * Load the auto-discovery configuration (with caching)
+ */
+export async function loadAutoDiscoveryConfig(
+	translationsPath = '/translations',
+	indexFile = 'index.json'
+): Promise<{ autoDiscovery?: AutoDiscoveryConfig } | null> {
+	// Return cached if available
+	if (indexConfigCache) {
+		return indexConfigCache;
+	}
+
+	// Wait for existing promise if in progress
+	if (indexConfigPromise) {
+		return await indexConfigPromise;
+	}
+
+	// Start loading
+	const basePath = getAppBasePath();
+	const indexUrl = `${basePath ? basePath : ''}${translationsPath}/${indexFile}`;
+	const absoluteIndexUrl =
+		typeof window !== 'undefined' && !indexUrl.startsWith('http')
+			? new URL(indexUrl, window.location.origin).href
+			: indexUrl;
+
+	indexConfigPromise = (async () => {
+		try {
+			const response = await fetch(absoluteIndexUrl);
+			if (!response.ok) {
+				return null;
+			}
+			const config = await response.json();
+			indexConfigCache = config;
+			return config;
+		} catch {
+			return null;
+		}
+	})();
+
+	return await indexConfigPromise;
+}
+
 /**
  * Load translations based on auto-discovery configuration
  * @param i18n The i18n instance to load translations into
@@ -40,25 +98,15 @@ export async function autoDiscoverTranslations(
 	} = options;
 
 	try {
-		// Step 1: Try to load index.json
-		const indexUrl = `${translationsPath}/${indexFile}`;
-		const absoluteIndexUrl =
-			typeof window !== 'undefined' && !indexUrl.startsWith('http')
-				? new URL(indexUrl, window.location.origin).href
-				: indexUrl;
+		// Step 1: Load index.json (with caching)
+		const config = await loadAutoDiscoveryConfig(translationsPath, indexFile);
 
-		const indexResponse = await fetch(absoluteIndexUrl);
-
-		if (!indexResponse.ok) {
-			// No index.json = no auto-discovery (this is normal)
+		if (!config) {
 			if (import.meta.env?.DEV && import.meta.env?.VITE_I18N_DEBUG === 'true') {
-				console.debug('Auto-discovery: No index.json found - skipping');
+				console.debug('Auto-discovery: No index.json found or failed to load');
 			}
 			return;
 		}
-
-		// Step 2: Parse configuration
-		const config: { autoDiscovery?: AutoDiscoveryConfig } = await indexResponse.json();
 
 		if (!config.autoDiscovery) {
 			if (import.meta.env?.DEV && import.meta.env?.VITE_I18N_DEBUG === 'true') {
@@ -88,51 +136,106 @@ export async function autoDiscoverTranslations(
 		// Step 4: Load discovered translations
 		for (const target of discoveryTargets) {
 			for (const locale of target.languages) {
-				// Skip if already loaded
-				if (i18n.locales.includes(locale)) {
-					if (import.meta.env?.DEV && import.meta.env?.VITE_I18N_DEBUG === 'true') {
-						console.debug(`Auto-discovery: ${locale} already loaded for ${target.type}`);
-					}
-					continue;
-				}
+				// Note: We do NOT skip if locale is already loaded
+				// Auto-discovered translations have higher priority than built-in
+				// They will override any existing translations
 
 				try {
 					// Determine the file path based on target type
 					let filePath: string;
 					if (target.type === 'app') {
-						filePath = `${translationsPath}/${locale}.json`;
+						// App translations also in subdirectory for consistency
+						filePath = `${translationsPath}/app/${locale}.json`;
 					} else {
 						// Package translations in subdirectory
 						filePath = `${translationsPath}/${target.type}/${locale}.json`;
 					}
 
-					const absoluteUrl =
-						typeof window !== 'undefined' && !filePath.startsWith('http')
-							? new URL(filePath, window.location.origin).href
-							: filePath;
+					const cacheKey = `${target.type}:${locale}`;
 
-					const response = await fetch(absoluteUrl);
+					// Check if already cached
+					if (translationCache.has(cacheKey)) {
+						const cachedTranslations = translationCache.get(cacheKey);
+						const isOverride = i18n.locales.includes(locale);
+						await i18n.loadLanguage(locale, cachedTranslations);
+						onLoaded(target.type, locale);
+						if (import.meta.env?.DEV && import.meta.env?.VITE_I18N_DEBUG === 'true') {
+							if (isOverride) {
+								console.debug(`Auto-discovery: Used cached ${locale} to override built-in for ${target.type}`);
+							} else {
+								console.debug(`Auto-discovery: Used cached ${locale} for ${target.type}`);
+							}
+						}
+						continue;
+					}
 
-					if (response.ok) {
-						const translations = await response.json();
+					// Check if already being fetched
+					if (translationPromises.has(cacheKey)) {
+						const existingPromise = translationPromises.get(cacheKey);
+						const translations = await existingPromise;
+						if (translations) {
+							const isOverride = i18n.locales.includes(locale);
+							await i18n.loadLanguage(locale, translations);
+							onLoaded(target.type, locale);
+							if (import.meta.env?.DEV && import.meta.env?.VITE_I18N_DEBUG === 'true') {
+								if (isOverride) {
+									console.debug(`Auto-discovery: Reused fetch to override ${locale} for ${target.type}`);
+								} else {
+									console.debug(`Auto-discovery: Reused fetch for ${locale} for ${target.type}`);
+								}
+							}
+						}
+						continue;
+					}
+
+					// Create a promise for this fetch
+					const fetchPromise = (async () => {
+						const absoluteUrl =
+							typeof window !== 'undefined' && !filePath.startsWith('http')
+								? new URL(filePath, window.location.origin).href
+								: filePath;
+
+						const response = await fetch(absoluteUrl);
+
+						if (response.ok) {
+							const translations = await response.json();
+							translationCache.set(cacheKey, translations);
+							return translations;
+						} else if (response.status === 404) {
+							// Expected - language declared but file not yet added
+							if (import.meta.env?.DEV && import.meta.env?.VITE_I18N_DEBUG === 'true') {
+								console.debug(
+									`Auto-discovery: ${locale} declared for ${target.type} but file not found at ${filePath}`
+								);
+							}
+							return null;
+						} else {
+							throw new Error(`HTTP ${response.status}`);
+						}
+					})();
+
+					translationPromises.set(cacheKey, fetchPromise);
+
+					const translations = await fetchPromise;
+					if (translations) {
+						const isOverride = i18n.locales.includes(locale);
 						await i18n.loadLanguage(locale, translations);
 						onLoaded(target.type, locale);
 
 						if (import.meta.env?.DEV && import.meta.env?.VITE_I18N_DEBUG === 'true') {
-							console.debug(`Auto-discovery: Loaded ${locale} for ${target.type}`);
+							if (isOverride) {
+								console.debug(`Auto-discovery: Overrode built-in ${locale} for ${target.type} with auto-discovered version`);
+							} else {
+								console.debug(`Auto-discovery: Loaded ${locale} for ${target.type}`);
+							}
 						}
-					} else if (response.status === 404) {
-						// Expected - language declared but file not yet added
-						if (import.meta.env?.DEV && import.meta.env?.VITE_I18N_DEBUG === 'true') {
-							console.debug(
-								`Auto-discovery: ${locale} declared for ${target.type} but file not found`
-							);
-						}
-					} else {
-						throw new Error(`HTTP ${response.status}`);
 					}
 				} catch (error) {
 					onError(target.type, locale, error as Error);
+				} finally {
+					// Clean up the promise cache after completion
+					const cacheKey = `${target.type}:${locale}`;
+					translationPromises.delete(cacheKey);
 				}
 			}
 		}

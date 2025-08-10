@@ -18,6 +18,10 @@ let validationPopupI18n: I18nInstance | null = null;
  */
 export async function getValidationPopupI18n(): Promise<I18nInstance> {
 	if (!validationPopupI18n) {
+		// Register package translations globally first (before creating instance)
+		// This ensures they're available for the built-in loader
+		registerPackageTranslations('@shelchin/svelte-i18n', packageTranslations);
+
 		// Create a namespaced i18n instance with optional auto-discovery
 		// Built-in translations are loaded first, then auto-discovery can add more
 		validationPopupI18n = setupI18n({
@@ -35,19 +39,21 @@ export async function getValidationPopupI18n(): Promise<I18nInstance> {
 			}
 		});
 
-		// Register package translations globally for other systems to use
-		registerPackageTranslations('@shelchin/svelte-i18n', packageTranslations);
-
-		// Load all built-in translations (these are bundled with the package)
-		for (const [locale, translations] of Object.entries(packageTranslations)) {
-			await validationPopupI18n.loadLanguage(locale, translations as TranslationFile);
+		// Use clientLoad to load both built-in and auto-discovered translations
+		// This will:
+		// 1. Load built-in translations (en, zh, ja) from the global registry
+		// 2. Load auto-discovered translations (fr, zh) from index.json
+		if (typeof window !== 'undefined') {
+			await validationPopupI18n.clientLoad();
+		} else {
+			// Server-side: only load built-in translations
+			for (const [locale, translations] of Object.entries(packageTranslations)) {
+				await validationPopupI18n.loadLanguage(locale, translations as TranslationFile);
+			}
 		}
 
-		// Auto-discovery will run automatically when locale changes
-		// This allows users to add new translations without recompiling
-
 		if (import.meta.env?.DEV) {
-			console.info('ValidationPopup i18n initialized with built-in translations.');
+			console.info('ValidationPopup i18n initialized with translations.');
 			console.info('Loaded locales:', validationPopupI18n.locales);
 			console.info('Current locale:', validationPopupI18n.locale);
 			console.info(

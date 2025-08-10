@@ -1,11 +1,12 @@
 {
     "autoDiscovery": {
         "app": [
-            "pt"
+            "pt","ko"
         ],
         "packages": {
             "@shelchin/svelte-i18n": [
-                "fr"
+                "fr",
+                "zh"
             ]
         }
     }

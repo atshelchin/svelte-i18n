@@ -33,42 +33,48 @@ export async function loadBuiltInTranslations(
 		onError?: (locale: string, error: Error) => void;
 	}
 ): Promise<void> {
+	const storeNamespace = store.getNamespace();
 	const loadedLocales = new Set<string>();
 
-	// Collect all available locales
-	for (const namespace of Object.values(globalRegistry)) {
-		for (const locale of Object.keys(namespace)) {
-			loadedLocales.add(locale);
+	// Determine which translations to load based on namespace
+	if (!storeNamespace || storeNamespace === 'app') {
+		// App instance: load only app translations
+		if (globalRegistry.app) {
+			for (const locale of Object.keys(globalRegistry.app)) {
+				loadedLocales.add(locale);
+			}
+		}
+	} else {
+		// Package instance: load only that package's translations
+		if (globalRegistry[storeNamespace]) {
+			for (const locale of Object.keys(globalRegistry[storeNamespace])) {
+				loadedLocales.add(locale);
+			}
 		}
 	}
 
 	// Load translations for each locale
 	for (const locale of loadedLocales) {
 		try {
-			const merged: Record<string, any> = {};
+			let translations: Record<string, any> = {};
 
-			// First add app translations (no prefix)
-			const appTranslation = globalRegistry.app?.[locale];
-			if (appTranslation) {
-				Object.assign(merged, appTranslation);
-			}
-
-			// Then add namespaced translations
-			for (const [namespace, translations] of Object.entries(globalRegistry)) {
-				if (namespace === 'app') continue;
-
-				const translation = translations[locale];
-				if (translation) {
-					// Add with namespace prefix
-					for (const [key, value] of Object.entries(translation)) {
-						merged[`${namespace}.${key}`] = value;
-					}
+			if (!storeNamespace || storeNamespace === 'app') {
+				// App instance: load app translations
+				const appTranslation = globalRegistry.app?.[locale];
+				if (appTranslation) {
+					translations = appTranslation;
+				}
+			} else {
+				// Package instance: load package-specific translations
+				const packageTranslation = globalRegistry[storeNamespace]?.[locale];
+				if (packageTranslation) {
+					translations = packageTranslation;
 				}
 			}
 
 			// Add to store if we have translations
-			if (Object.keys(merged).length > 0) {
-				await store.loadLanguage(locale, merged);
+			if (Object.keys(translations).length > 0) {
+				await store.loadLanguage(locale, translations);
 				options?.onLoaded?.(locale);
 			}
 		} catch (error) {

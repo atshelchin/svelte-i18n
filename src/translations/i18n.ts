@@ -15,11 +15,7 @@ import appZh from './app/zh.json' with { type: 'json' };
 import appJa from './app/ja.json' with { type: 'json' };
 import appFr from './app/fr.json' with { type: 'json' };
 import appDe from './app/de.json' with { type: 'json' };
-import appEs from './app/es.json' with { type: 'json' };
-import appRu from './app/ru.json' with { type: 'json' };
 import appAr from './app/ar.json' with { type: 'json' };
-import appHi from './app/hi.json' with { type: 'json' };
-import appKo from './app/ko.json' with { type: 'json' };
 import appZhTW from './app/zh-TW.json' with { type: 'json' };
 
 // Package translations (@shelchin/svelte-i18n)
@@ -39,11 +35,7 @@ const builtInTranslations = {
 		ja: appJa,
 		fr: appFr,
 		de: appDe,
-		es: appEs,
-		ru: appRu,
 		ar: appAr,
-		hi: appHi,
-		ko: appKo,
 		'zh-TW': appZhTW
 	},
 	// Package translations (with namespace prefix)
@@ -85,7 +77,8 @@ export const i18n = setupI18n({
 // ============================================
 
 if (typeof window !== 'undefined') {
-	loadBuiltInTranslations(i18n).catch(console.error);
+	// Use clientLoad which handles both built-in and auto-discovery
+	i18n.clientLoad().catch(console.error);
 }
 
 // ============================================

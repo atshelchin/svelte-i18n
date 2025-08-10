@@ -4,7 +4,7 @@
  */
 
 import type { I18nInstance } from '../../domain/models/types.js';
-import { getAppBasePath } from './base-path.js';
+import { loadAutoDiscoveryConfig } from './auto-discovery-v2.js';
 
 /**
  * Get all languages that the app supports (for language switching)
@@ -23,29 +23,18 @@ export async function getAppSupportedLanguages(
 	const supportedLanguages = new Set<string>(i18n.locales);
 
 	try {
-		// Try to load index.json to find additional app languages
-		const basePath = getAppBasePath();
-		const indexUrl = `${basePath ? basePath : ''}${translationsPath}/index.json`;
-		const absoluteIndexUrl =
-			typeof window !== 'undefined' && !indexUrl.startsWith('http')
-				? new URL(indexUrl, window.location.origin).href
-				: indexUrl;
+		// Use the cached config loader to avoid duplicate fetches
+		const config = await loadAutoDiscoveryConfig(translationsPath);
 
-		const response = await fetch(absoluteIndexUrl);
-
-		if (response.ok) {
-			const config = await response.json();
-
+		if (config?.autoDiscovery?.app) {
 			// Add auto-discovered app languages
-			if (config.autoDiscovery?.app) {
-				for (const locale of config.autoDiscovery.app) {
-					supportedLanguages.add(locale);
-				}
+			for (const locale of config.autoDiscovery.app) {
+				supportedLanguages.add(locale);
 			}
-
-			// Note: We intentionally do NOT add package languages
-			// Packages should use whatever language the app is using
 		}
+
+		// Note: We intentionally do NOT add package languages
+		// Packages should use whatever language the app is using
 	} catch (error) {
 		// If index.json doesn't exist or fails to load, that's fine
 		// We still have the built-in languages

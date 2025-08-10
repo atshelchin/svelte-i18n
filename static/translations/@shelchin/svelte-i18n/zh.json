@@ -8,7 +8,7 @@
 	},
 	"validationPopup": {
 		"header": {
-			"title": "翻译验证报告 (内置版本)",
+			"title": "翻译验证报告",
 			"issues": "{count} 个问题",
 			"languages": "{count} 种语言",
 			"close": "关闭"
@@ -44,6 +44,6 @@
 			"generatedAt": "生成时间：{date}",
 			"todoTranslate": "[待办：翻译为{language}]"
 		},
-		"testOverride": "这是内置版本 (来自 src/translations/@shelchin/svelte-i18n/zh.json)"
+		"testOverride": "这是自动发现的版本 (来自 static/translations/@shelchin/svelte-i18n/zh.json)"
 	}
 }

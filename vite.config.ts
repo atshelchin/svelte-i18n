@@ -1,10 +1,9 @@
 import tailwindcss from '@tailwindcss/vite';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
-import { translationsPlugin } from './src/lib/vite-plugin/index.js';
 
 export default defineConfig({
-	plugins: [tailwindcss(), sveltekit()], //translationsPlugin
+	plugins: [tailwindcss(), sveltekit()],
 	test: {
 		expect: { requireAssertions: true },
 		projects: [

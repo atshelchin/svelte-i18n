@@ -1,6 +1,5 @@
 // Core exports
 export { setupI18n, getI18n } from './application/stores/store.svelte.js';
-export { autoLoadLanguages, watchLanguages } from './infrastructure/loaders/auto-loader.js';
 export {
 	saveLocale,
 	loadSavedLocale,
@@ -37,20 +36,13 @@ export {
 } from './domain/services/utils.js';
 export { getAppBasePath, buildAssetUrl } from './infrastructure/loaders/base-path.js';
 
-// Auto-discovery exports
+// Auto-discovery exports  
 export {
 	autoDiscoverTranslations,
-	autoDiscoverAllTranslations,
-	withAutoDiscovery,
-	createAutoDiscoveryEffect,
-	type AutoDiscoveryOptions
-} from './infrastructure/loaders/auto-discovery.js';
-
-// New auto-discovery system
-export {
-	autoDiscoverTranslations as autoDiscoverV2,
+	loadAutoDiscoveryConfig,
+	getCachedAutoDiscoveryConfig,
 	type AutoDiscoveryConfig,
-	type AutoDiscoveryOptions as AutoDiscoveryOptionsV2
+	type AutoDiscoveryOptions
 } from './infrastructure/loaders/auto-discovery-v2.js';
 
 // App language helpers
@@ -59,7 +51,6 @@ export {
 	isAppLanguageSupported
 } from './infrastructure/loaders/app-languages.js';
 
-export { fuzzySearchLanguages, type LanguageInfo } from './infrastructure/loaders/languages.js';
 
 // Formatter exports
 export {

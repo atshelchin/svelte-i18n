@@ -15,11 +15,6 @@ import {
 	detectBrowserLanguage as detectLang,
 	mergeTranslations
 } from '../../domain/services/utils.js';
-import { autoDiscoverTranslations as autoDiscoverOld } from '../../infrastructure/loaders/auto-discovery.js';
-import {
-	autoLoadLanguages,
-	type AutoLoadOptions
-} from '../../infrastructure/loaders/auto-loader.js';
 import { autoDiscoverTranslations as autoDiscoverV2 } from '../../infrastructure/loaders/auto-discovery-v2.js';
 import { loadBuiltInTranslations } from '../../infrastructure/loaders/built-in.js';
 import { saveLocale, getInitialLocale } from '../../infrastructure/persistence/persistence.js';
@@ -70,10 +65,8 @@ export class I18nStore implements I18nInstance {
 		// Get initial locale based on saved preference or browser detection
 		this.currentLocale = getInitialLocale(config.defaultLocale);
 
-		// Setup auto-discovery if enabled
-		if (config.autoDiscovery && config.namespace) {
-			this.setupAutoDiscovery();
-		}
+		// Note: Auto-discovery is now handled in clientLoad() to avoid duplicate calls
+		// Don't call setupAutoDiscovery here anymore
 	}
 
 	async setLocale(locale: string): Promise<void> {
@@ -82,22 +75,11 @@ export class I18nStore implements I18nInstance {
 			// Persist the user's choice
 			saveLocale(locale);
 		} else {
-			// Try auto-discovery before warning
-			if (this.config.autoDiscovery && this.config.namespace) {
-				const options =
-					typeof this.config.autoDiscovery === 'object' ? this.config.autoDiscovery : {};
-
-				const translations = await autoDiscoverOld(this.config.namespace, locale, options);
-
-				if (translations) {
-					await this.loadLanguage(locale, translations);
-					this.currentLocale = locale;
-					saveLocale(locale);
-					return;
-				}
-			}
-
-			console.warn(`Locale "${locale}" not loaded`);
+			// Don't try auto-discovery here - it should be done once in clientLoad
+			// This prevents duplicate requests when switching languages
+			console.warn(
+				`Locale "${locale}" not loaded. Please ensure it's loaded via clientLoad() or loadLanguage()`
+			);
 		}
 	}
 
@@ -215,8 +197,9 @@ export class I18nStore implements I18nInstance {
 				}
 			}
 
-			// Merge with existing translations if namespace is used
-			if (this.config.namespace && this.translations[locale]) {
+			// Merge with existing translations to allow overriding
+			// This ensures auto-discovered translations can override built-in ones
+			if (this.translations[locale]) {
 				this.translations[locale] = mergeTranslations(this.translations[locale], translations);
 			} else {
 				this.translations[locale] = translations;
@@ -295,27 +278,6 @@ export class I18nStore implements I18nInstance {
 		return this.config.namespace;
 	}
 
-	private async setupAutoDiscovery(): Promise<void> {
-		if (!this.config.autoDiscovery || !this.config.namespace) return;
-
-		const options = typeof this.config.autoDiscovery === 'object' ? this.config.autoDiscovery : {};
-
-		// Auto-discover translations for common locales on initialization
-		if (typeof window !== 'undefined') {
-			const locales = options.locales || ['en', 'zh', 'es', 'fr', 'de', 'ja', 'ko'];
-			for (const locale of locales) {
-				try {
-					const translations = await autoDiscoverOld(this.config.namespace, locale, options);
-					if (translations) {
-						await this.loadLanguage(locale, translations);
-					}
-				} catch {
-					// Silent fail for auto-discovery
-				}
-			}
-		}
-	}
-
 	canShowValidationPopup(): boolean {
 		if (!this.config.namespace) return true;
 		return validationPopupController.canShowPopup(this.config.namespace);
@@ -337,7 +299,7 @@ export class I18nStore implements I18nInstance {
 	 * @param options Optional configuration for loading
 	 * @returns Promise that resolves when loading is complete
 	 */
-	async clientLoad(options?: Partial<AutoLoadOptions>): Promise<void> {
+	async clientLoad(): Promise<void> {
 		// Skip if languages are already loaded
 		if (this.locales.length > 0) {
 			return;
