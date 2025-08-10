@@ -16,6 +16,10 @@ import {
 	mergeTranslations
 } from '../../domain/services/utils.js';
 import { autoDiscoverTranslations } from '../../infrastructure/loaders/auto-discovery.js';
+import {
+	autoLoadLanguages,
+	type AutoLoadOptions
+} from '../../infrastructure/loaders/auto-loader.js';
 import { saveLocale, getInitialLocale } from '../../infrastructure/persistence/persistence.js';
 import {
 	formatNumber as fmtNumber,
@@ -324,12 +328,46 @@ class I18nStore implements I18nInstance {
 			validationPopupController.setActivePopup(active ? this.config.namespace : null);
 		}
 	}
+
+	/**
+	 * Client-side method to automatically load all available languages
+	 * This method handles:
+	 * - Checking if languages are already loaded
+	 * - Loading all available languages
+	 * - Setting fallback locale if needed
+	 *
+	 * @param options Optional configuration for loading
+	 * @returns Promise that resolves when loading is complete
+	 */
+	async clientLoad(options?: Partial<AutoLoadOptions>): Promise<void> {
+		// Skip if languages are already loaded
+		if (this.locales.length > 0) {
+			return;
+		}
+
+		// Use current locale as default locale
+		const loadOptions: AutoLoadOptions = {
+			defaultLocale: this.currentLocale,
+			onLoaded: (locale) => console.log(`✓ Loaded ${locale}`),
+			onError: (locale, error) => console.error(`✗ Failed to load ${locale}:`, error),
+			...options
+		};
+
+		// Load all available languages
+		await autoLoadLanguages(this, loadOptions);
+
+		// If the saved/detected locale wasn't loaded, fallback to first available locale
+		if (!this.locales.includes(this.currentLocale)) {
+			const fallbackLocale = this.locales[0] || 'en';
+			await this.setLocale(fallbackLocale);
+		}
+	}
 }
 
 let globalInstance: I18nStore | null = null;
 const namespacedInstances = new SvelteMap<string, I18nStore>();
 
-export function setupI18n(config: I18nConfig): I18nStore {
+export function setupI18n(config: I18nConfig): I18nInstance {
 	// If this is a namespaced instance, create a separate instance for it
 	if (config.namespace) {
 		const existing = namespacedInstances.get(config.namespace);
@@ -350,7 +388,7 @@ export function setupI18n(config: I18nConfig): I18nStore {
 	return globalInstance;
 }
 
-export function getI18n(): I18nStore {
+export function getI18n(): I18nInstance {
 	if (!globalInstance) {
 		throw new Error('i18n not initialized. Call setupI18n first.');
 	}

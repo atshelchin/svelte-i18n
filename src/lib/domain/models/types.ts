@@ -81,10 +81,11 @@ export interface I18nInstance<TKeys extends string = string> {
 	formatRelativeTime: (value: number, unit: Intl.RelativeTimeFormatUnit) => string;
 	formatList: (items: string[], type?: 'conjunction' | 'disjunction' | 'unit') => string;
 	detectBrowserLanguage: () => string | null;
-	getNamespace?: () => string | undefined;
-	canShowValidationPopup?: () => boolean;
-	setActiveValidationPopup?: (active: boolean) => void;
+	getNamespace: () => string | undefined;
+	canShowValidationPopup: () => boolean;
+	setActiveValidationPopup: (active: boolean) => void;
 	getAllKeys?: () => TKeys[];
+	clientLoad: (options?: Record<string, unknown>) => Promise<void>;
 }
 
 export type PathKeys<T> = T extends object
