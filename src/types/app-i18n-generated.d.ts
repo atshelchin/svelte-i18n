@@ -3,14 +3,13 @@
  * DO NOT EDIT MANUALLY
  *
  * Generated from: src/translations/app/en.json
- * Generated at: 2025-08-10T08:14:38.884Z
+ * Generated at: 2025-08-10T13:11:45.760Z
  */
 type ParamsKey<T> = {
 	key: string;
 	params: T;
 };
 export interface I18nKeys {
-	sb: string;
 	welcome: ParamsKey<{
 		name: string | number;
 	}>;
@@ -219,7 +218,6 @@ export interface I18nKeys {
 	};
 }
 export type I18nPath =
-	| 'sb'
 	| 'welcome'
 	| 'greeting'
 	| 'nav'
@@ -416,7 +414,6 @@ export declare function createTypedI18n(
 	t: (key: string, params?: Record<string, unknown>) => string
 ): TypedI18n;
 export declare const I18N_PATHS: readonly [
-	'sb',
 	'welcome',
 	'greeting',
 	'nav',

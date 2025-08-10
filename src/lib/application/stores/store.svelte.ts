@@ -218,6 +218,10 @@ export class I18nStore implements I18nInstance {
 		}
 
 		this.translations[locale] = translationData;
+		// Add locale to the list if it's a new language
+		if (!this.locales.includes(locale)) {
+			this.locales.push(locale);
+		}
 	}
 
 	async loadLanguage(
@@ -286,6 +290,10 @@ export class I18nStore implements I18nInstance {
 				this.translations[locale] = mergeTranslations(this.translations[locale], translations);
 			} else {
 				this.translations[locale] = translations;
+				// Add locale to the list if it's a new language
+				if (!this.locales.includes(locale)) {
+					this.locales.push(locale);
+				}
 			}
 		} catch (error) {
 			console.error(`Failed to load language ${locale}:`, error);
@@ -455,6 +463,16 @@ export class I18nStore implements I18nInstance {
 		const allAvailableLocales = [...actuallyAvailable, ...declaredLocales].filter(
 			(locale, index, arr) => arr.indexOf(locale) === index
 		);
+
+		// Update the locales list with all discovered locales
+		// This ensures i18n.locales reflects all available languages including auto-discovered ones
+		if (declaredLocales.length > 0) {
+			for (const locale of declaredLocales) {
+				if (!this.locales.includes(locale)) {
+					this.locales.push(locale);
+				}
+			}
+		}
 
 		// Get locale from cookie
 		const cookieName = this.config.cookieName || 'i18n-locale';

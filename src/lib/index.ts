@@ -9,6 +9,7 @@ import {
 	setupI18n as setupOriginalI18n
 } from './application/stores/store.svelte.js';
 
+export { type I18nStore } from './application/stores/store.svelte.js';
 // Types are used below
 
 // Direct re-export without modification
