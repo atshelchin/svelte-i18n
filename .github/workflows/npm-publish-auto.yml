@@ -1,17 +1,29 @@
-name: Auto Publish to NPM
+name: Publish to NPM
 
 on:
-  push:
-    branches:
-      - main # Publishes dev versions
-      - prod # Publishes stable versions
-    paths:
-      - 'package.json' # Only trigger when package.json changes
-      - 'src/**'
-      - '!**.md' # Ignore markdown files
+  # Trigger after CI workflow completes on main branch
+  workflow_run:
+    workflows: ['CI']
+    branches: [main]
+    types:
+      - completed
+  # Manual trigger for emergency releases
+  workflow_dispatch:
+    inputs:
+      npm-tag:
+        description: 'NPM tag (latest, dev, beta)'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - latest
+          - dev
+          - beta
 
 jobs:
   check-version:
+    # Only run if CI passed (or manual trigger)
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     outputs:
       should-publish: ${{ steps.check.outputs.should-publish }}
@@ -31,25 +43,33 @@ jobs:
           # Clean version (remove any existing suffixes)
           CLEAN_VERSION=${BASE_VERSION%%-*}
 
-          # Determine final version and NPM tag based on branch
-          if [[ "${{ github.ref }}" == "refs/heads/prod" ]]; then
-            # prod branch - use clean version, publish as stable
+          # Handle manual trigger
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             VERSION=$CLEAN_VERSION
-            echo "npm-tag=latest" >> $GITHUB_OUTPUT
+            echo "npm-tag=${{ github.event.inputs.npm-tag }}" >> $GITHUB_OUTPUT
+          # Automatic trigger from CI
           elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
             # main branch - add -dev suffix, publish as dev
             VERSION="${CLEAN_VERSION}-dev"
             echo "npm-tag=dev" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == "refs/heads/prod" ]]; then
+            # prod branch - use clean version, publish as stable
+            VERSION=$CLEAN_VERSION
+            echo "npm-tag=latest" >> $GITHUB_OUTPUT
           fi
 
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "📦 Will publish version: $VERSION"
 
-      - name: Check if version changed
+      - name: Check if version changed or manual trigger
         id: check
         run: |
+          # Always publish on manual trigger
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "Manual trigger, will publish"
+            echo "should-publish=true" >> $GITHUB_OUTPUT
           # Check if this is the first commit or if package.json version changed
-          if [ $(git rev-list --count HEAD) -eq 1 ]; then
+          elif [ $(git rev-list --count HEAD) -eq 1 ]; then
             echo "First commit, will publish"
             echo "should-publish=true" >> $GITHUB_OUTPUT
           else
@@ -73,60 +93,8 @@ jobs:
             fi
           fi
 
-  test:
-    needs: check-version
-    if: needs.check-version.outputs.should-publish == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'pnpm'
-
-      - name: Get Playwright version
-        id: playwright-version
-        run: echo "version=$(cat package.json | grep \"playwright\" | head -1 | awk -F':' '{print $2}' | sed 's/[", ]//g')" >> $GITHUB_OUTPUT
-
-      - name: Cache Playwright browsers
-        uses: actions/cache@v3
-        id: playwright-cache
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
-          restore-keys: |
-            ${{ runner.os }}-playwright-
-
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Install Playwright Browsers
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: pnpm exec playwright install --with-deps chromium
-
-      - name: Install Playwright Dependencies
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: pnpm exec playwright install-deps chromium
-
-      - name: Run linter
-        run: pnpm run lint
-
-      - name: Run type check
-        run: pnpm run check
-
-      - name: Run tests
-        run: pnpm run test:unit -- --run
-
   publish:
-    needs: [check-version, test]
+    needs: check-version
     if: needs.check-version.outputs.should-publish == 'true'
     runs-on: ubuntu-latest
     permissions:
@@ -157,6 +125,13 @@ jobs:
           # This includes svelte-package, CLI build, and publint validation
           pnpm run prepack
 
+      - name: Update version for dev/beta releases
+        if: needs.check-version.outputs.npm-tag != 'latest'
+        run: |
+          VERSION=${{ needs.check-version.outputs.version }}
+          # Update package.json with the suffixed version for dev/beta releases
+          npm version $VERSION --no-git-tag-version --allow-same-version
+
       - name: Check if version exists on NPM
         id: npm-check
         run: |
@@ -164,18 +139,22 @@ jobs:
           # Check if this exact version already exists
           if npm view @shelchin/svelte-i18n@$VERSION version 2>/dev/null; then
             echo "❌ Version $VERSION already exists on NPM"
-            exit 1
+            echo "Version already exists, skipping publish"
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "✅ Version $VERSION is new, proceeding with publish"
+            echo "exists=false" >> $GITHUB_OUTPUT
           fi
-          echo "✅ Version $VERSION is new, proceeding with publish"
 
       - name: Publish to NPM
+        if: steps.npm-check.outputs.exists != 'true'
         run: |
           npm publish --tag ${{ needs.check-version.outputs.npm-tag }} --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Create Git Tag (prod branch only)
-        if: github.ref == 'refs/heads/prod'
+      - name: Create Git Tag (latest releases only)
+        if: needs.check-version.outputs.npm-tag == 'latest' && steps.npm-check.outputs.exists != 'true'
         run: |
           VERSION=${{ needs.check-version.outputs.version }}
           git config --global user.name "github-actions[bot]"
@@ -185,8 +164,8 @@ jobs:
           git tag -a "v$VERSION" -m "Release v$VERSION"
           git push origin "v$VERSION"
 
-      - name: Create GitHub Release (prod branch only)
-        if: github.ref == 'refs/heads/prod'
+      - name: Create GitHub Release (latest releases only)
+        if: needs.check-version.outputs.npm-tag == 'latest' && steps.npm-check.outputs.exists != 'true'
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ needs.check-version.outputs.version }}
@@ -221,9 +200,17 @@ jobs:
           echo "📦 NPM Tag: ${{ needs.check-version.outputs.npm-tag }}"
           echo "🏷️ Git Tag: v${{ needs.check-version.outputs.version }}"
           echo "🌳 Branch: ${{ github.ref_name }}"
+          echo "🔄 Triggered by: ${{ github.event_name }}"
 
       - name: Notify failure
         if: needs.publish.result == 'failure'
         run: |
           echo "❌ Failed to publish @shelchin/svelte-i18n@${{ needs.check-version.outputs.version }}"
+          exit 1
+
+      - name: Notify skipped due to CI failure
+        if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion != 'success'
+        run: |
+          echo "⏭️ Skipped NPM publish because CI failed"
+          echo "❌ CI conclusion: ${{ github.event.workflow_run.conclusion }}"
           exit 1

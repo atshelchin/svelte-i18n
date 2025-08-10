@@ -410,7 +410,7 @@ npm run build
 
 ## 📄 License
 
-MIT © [shelchin](https://github.com/shelchin)
+MIT © [shelchin](https://github.com/atshelchin)
 
 ---
 

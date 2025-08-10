@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { setupI18n } from './store.svelte.js';
+import { setupI18n, resetI18nForTesting } from './store.svelte.js';
 import type { TranslationSchema } from '../../domain/models/types.js';
 
 describe('i18n Store', () => {
@@ -30,6 +30,7 @@ describe('i18n Store', () => {
 	};
 
 	beforeEach(() => {
+		resetI18nForTesting(); // Reset global state before each test
 		i18n = setupI18n({
 			defaultLocale: 'en',
 			fallbackLocale: 'en'
