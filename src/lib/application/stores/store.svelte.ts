@@ -57,6 +57,8 @@ export class I18nStore implements I18nInstance {
 	private loading = $state<boolean>(false);
 	private namespacePrefix: string;
 	private validationErrors = $state<Record<string, string[]>>({});
+	// Store available locales as a reactive array
+	private availableLocales = $state<string[]>([]);
 
 	// On server-side, $derived doesn't work, so we need getters
 	get locale() {
@@ -64,7 +66,7 @@ export class I18nStore implements I18nInstance {
 	}
 
 	get locales() {
-		return Object.keys(this.translations);
+		return this.availableLocales;
 	}
 
 	get isLoading() {
@@ -218,9 +220,9 @@ export class I18nStore implements I18nInstance {
 		}
 
 		this.translations[locale] = translationData;
-		// Add locale to the list if it's a new language
-		if (!this.locales.includes(locale)) {
-			this.locales.push(locale);
+		// Add locale to available locales if not already present
+		if (!this.availableLocales.includes(locale)) {
+			this.availableLocales.push(locale);
 		}
 	}
 
@@ -290,9 +292,9 @@ export class I18nStore implements I18nInstance {
 				this.translations[locale] = mergeTranslations(this.translations[locale], translations);
 			} else {
 				this.translations[locale] = translations;
-				// Add locale to the list if it's a new language
-				if (!this.locales.includes(locale)) {
-					this.locales.push(locale);
+				// Add locale to available locales if not already present
+				if (!this.availableLocales.includes(locale)) {
+					this.availableLocales.push(locale);
 				}
 			}
 		} catch (error) {
@@ -437,6 +439,8 @@ export class I18nStore implements I18nInstance {
 							}
 						}
 					} else if (indexContent.autoDiscovery?.packages?.[namespace]) {
+						const { existsSync } = await import('fs');
+						const { join } = await import('path');
 						// For package namespace, check files
 						for (const locale of indexContent.autoDiscovery.packages[namespace]) {
 							const localePath = join(
@@ -464,12 +468,34 @@ export class I18nStore implements I18nInstance {
 			(locale, index, arr) => arr.indexOf(locale) === index
 		);
 
-		// Update the locales list with all discovered locales
-		// This ensures i18n.locales reflects all available languages including auto-discovered ones
-		if (declaredLocales.length > 0) {
+		// Load discovered locales for SSR
+		// This ensures translations are available for server-side rendering
+		if (declaredLocales.length > 0 && typeof window === 'undefined') {
+			const { existsSync, readFileSync } = await import('fs');
+			const { join } = await import('path');
+			const namespace = this.config.namespace || 'app';
 			for (const locale of declaredLocales) {
-				if (!this.locales.includes(locale)) {
-					this.locales.push(locale);
+				// Load the actual translations for SSR if not already loaded
+				if (!this.translations[locale]) {
+					try {
+						const localePath = join(
+							process.cwd(),
+							`static/translations/${namespace === 'app' ? 'app' : namespace}/${locale}.json`
+						);
+						if (existsSync(localePath)) {
+							const translationData = JSON.parse(readFileSync(localePath, 'utf-8'));
+							// Load translations synchronously for SSR
+							// This will also add the locale to availableLocales
+							this.loadLanguageSync(locale, translationData);
+							console.log(`[SSR] Loaded auto-discovered translations for ${locale}`);
+						}
+					} catch (error) {
+						console.warn(`[SSR] Failed to load translations for ${locale}:`, error);
+						// Even if loading fails, add to available locales so client can try
+						if (!this.availableLocales.includes(locale)) {
+							this.availableLocales = [...this.availableLocales, locale];
+						}
+					}
 				}
 			}
 		}
