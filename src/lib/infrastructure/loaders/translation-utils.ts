@@ -37,17 +37,17 @@ export function getMergedTranslations(
 	locale: string
 ): Record<string, any> {
 	const merged: Record<string, any> = {};
-	
+
 	// First add app translations (no prefix)
 	const appTranslation = registry.app?.[locale];
 	if (appTranslation) {
 		Object.assign(merged, appTranslation);
 	}
-	
+
 	// Then add namespaced translations
 	for (const [namespace, translations] of Object.entries(registry)) {
 		if (namespace === 'app') continue;
-		
+
 		const translation = translations[locale];
 		if (translation) {
 			// Add with namespace prefix
@@ -56,17 +56,14 @@ export function getMergedTranslations(
 			}
 		}
 	}
-	
+
 	return merged;
 }
 
 /**
  * Check if a locale is available in the registry
  */
-export function isLocaleAvailable(
-	registry: TranslationRegistry,
-	locale: string
-): boolean {
+export function isLocaleAvailable(registry: TranslationRegistry, locale: string): boolean {
 	for (const namespace of Object.values(registry)) {
 		if (locale in namespace) {
 			return true;
@@ -85,9 +82,6 @@ export function getNamespaces(registry: TranslationRegistry): string[] {
 /**
  * Get all locales for a specific namespace
  */
-export function getNamespaceLocales(
-	registry: TranslationRegistry,
-	namespace: string
-): string[] {
+export function getNamespaceLocales(registry: TranslationRegistry, namespace: string): string[] {
 	return Object.keys(registry[namespace] || {});
 }

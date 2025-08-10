@@ -347,27 +347,13 @@ export class I18nStore implements I18nInstance {
 		}
 
 		try {
-			// First try to load built-in translations
+			// Load built-in translations (no HTTP fallback)
 			await loadBuiltInTranslations(this, {
 				onLoaded: (locale) => console.log(`✓ Loaded built-in ${locale}`),
 				onError: (locale, error) => console.warn(`No built-in translations for ${locale}`)
 			});
 		} catch (error) {
 			console.warn('Failed to load built-in translations:', error);
-		}
-
-		// If no translations were loaded, try HTTP loading as fallback
-		if (this.locales.length === 0) {
-			// Use current locale as default locale
-			const loadOptions: AutoLoadOptions = {
-				defaultLocale: this.currentLocale,
-				onLoaded: (locale) => console.log(`✓ Loaded ${locale} from HTTP`),
-				onError: (locale, error) => console.error(`✗ Failed to load ${locale}:`, error),
-				...options
-			};
-
-			// Load all available languages via HTTP
-			await autoLoadLanguages(this, loadOptions);
 		}
 
 		// If the saved/detected locale wasn't loaded, fallback to first available locale

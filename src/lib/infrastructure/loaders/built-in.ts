@@ -34,29 +34,29 @@ export async function loadBuiltInTranslations(
 	}
 ): Promise<void> {
 	const loadedLocales = new Set<string>();
-	
+
 	// Collect all available locales
 	for (const namespace of Object.values(globalRegistry)) {
 		for (const locale of Object.keys(namespace)) {
 			loadedLocales.add(locale);
 		}
 	}
-	
+
 	// Load translations for each locale
 	for (const locale of loadedLocales) {
 		try {
 			const merged: Record<string, any> = {};
-			
+
 			// First add app translations (no prefix)
 			const appTranslation = globalRegistry.app?.[locale];
 			if (appTranslation) {
 				Object.assign(merged, appTranslation);
 			}
-			
+
 			// Then add namespaced translations
 			for (const [namespace, translations] of Object.entries(globalRegistry)) {
 				if (namespace === 'app') continue;
-				
+
 				const translation = translations[locale];
 				if (translation) {
 					// Add with namespace prefix
@@ -65,7 +65,7 @@ export async function loadBuiltInTranslations(
 					}
 				}
 			}
-			
+
 			// Add to store if we have translations
 			if (Object.keys(merged).length > 0) {
 				await store.loadLanguage(locale, merged);
@@ -89,7 +89,7 @@ export function registerPackageTranslations(
 	if (!globalRegistry[packageName]) {
 		globalRegistry[packageName] = {};
 	}
-	
+
 	for (const [locale, translation] of Object.entries(translations)) {
 		globalRegistry[packageName][locale] = translation;
 	}
