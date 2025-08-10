@@ -8,26 +8,30 @@
 
 	// On client side, initialize i18n and load translations
 	onMount(async () => {
-		// Get saved locale from localStorage or use browser detection
+		// Get saved locale from localStorage
 		const savedLocale = localStorage.getItem('i18n-locale');
-		let initialLocale = data.locale;
+
+		// First load all available translations (including auto-discovered ones)
+		// Don't pass initialLocale yet, let it load with default locale first
+		await i18n.clientLoad();
+
+		// Now that all languages are loaded, we can check if saved locale is available
+		let targetLocale = data.locale;
 
 		if (savedLocale && i18n.locales.includes(savedLocale)) {
-			initialLocale = savedLocale;
-		} else {
-			// Try browser language detection
+			// Now savedLocale check includes auto-discovered languages
+			targetLocale = savedLocale;
+		} else if (!savedLocale) {
+			// No saved locale, try browser language detection
 			const browserLang = i18n.detectBrowserLanguage();
 			if (browserLang && i18n.locales.includes(browserLang)) {
-				initialLocale = browserLang;
+				targetLocale = browserLang;
 			}
 		}
 
-		// Load auto-discovered translations and set initial locale
-		await i18n.clientLoad({ initialLocale });
-
-		// Set the locale if it's different
-		if (i18n.locale !== initialLocale) {
-			i18n.setLocale(initialLocale);
+		// Set the locale if it's different from current
+		if (i18n.locale !== targetLocale && i18n.locales.includes(targetLocale)) {
+			await i18n.setLocale(targetLocale);
 		}
 	});
 </script>
