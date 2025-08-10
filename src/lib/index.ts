@@ -36,7 +36,7 @@ export {
 } from './domain/services/utils.js';
 export { getAppBasePath, buildAssetUrl } from './infrastructure/loaders/base-path.js';
 
-// Auto-discovery exports  
+// Auto-discovery exports
 export {
 	autoDiscoverTranslations,
 	loadAutoDiscoveryConfig,
@@ -51,6 +51,13 @@ export {
 	isAppLanguageSupported
 } from './infrastructure/loaders/app-languages.js';
 
+// Language search utilities
+export {
+	fuzzySearchLanguages,
+	getLanguageInfo,
+	getAllLanguages,
+	type LanguageInfo
+} from './infrastructure/utils/language-search.js';
 
 // Formatter exports
 export {

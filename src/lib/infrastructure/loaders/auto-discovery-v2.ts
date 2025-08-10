@@ -161,7 +161,9 @@ export async function autoDiscoverTranslations(
 						onLoaded(target.type, locale);
 						if (import.meta.env?.DEV && import.meta.env?.VITE_I18N_DEBUG === 'true') {
 							if (isOverride) {
-								console.debug(`Auto-discovery: Used cached ${locale} to override built-in for ${target.type}`);
+								console.debug(
+									`Auto-discovery: Used cached ${locale} to override built-in for ${target.type}`
+								);
 							} else {
 								console.debug(`Auto-discovery: Used cached ${locale} for ${target.type}`);
 							}
@@ -179,7 +181,9 @@ export async function autoDiscoverTranslations(
 							onLoaded(target.type, locale);
 							if (import.meta.env?.DEV && import.meta.env?.VITE_I18N_DEBUG === 'true') {
 								if (isOverride) {
-									console.debug(`Auto-discovery: Reused fetch to override ${locale} for ${target.type}`);
+									console.debug(
+										`Auto-discovery: Reused fetch to override ${locale} for ${target.type}`
+									);
 								} else {
 									console.debug(`Auto-discovery: Reused fetch for ${locale} for ${target.type}`);
 								}
@@ -224,7 +228,9 @@ export async function autoDiscoverTranslations(
 
 						if (import.meta.env?.DEV && import.meta.env?.VITE_I18N_DEBUG === 'true') {
 							if (isOverride) {
-								console.debug(`Auto-discovery: Overrode built-in ${locale} for ${target.type} with auto-discovered version`);
+								console.debug(
+									`Auto-discovery: Overrode built-in ${locale} for ${target.type} with auto-discovered version`
+								);
 							} else {
 								console.debug(`Auto-discovery: Loaded ${locale} for ${target.type}`);
 							}
