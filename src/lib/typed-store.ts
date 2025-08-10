@@ -15,7 +15,6 @@ type AppI18nPath = string; // Will be overridden when types are generated
 
 // Attempt to load generated types if they exist
 try {
-	// @ts-expect-error - These imports may not exist until generated
 	const appTypes = await import('../types/app-i18n-generated.js');
 	// @ts-expect-error - Global type assignment
 	globalThis.__I18N_TYPES__ = appTypes;

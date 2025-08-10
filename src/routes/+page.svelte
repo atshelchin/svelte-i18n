@@ -2,8 +2,12 @@
 	import { getI18n } from '../translations/i18n.js';
 	import { LanguageSwitcher, ValidationPopup } from '$lib/index.js';
 	import { base } from '$app/paths';
-
 	const i18n = getI18n();
+	// Debug: Check i18n state during rendering
+	if (typeof window === 'undefined') {
+		console.log('[SSR] +page.svelte - i18n.locale:', i18n.locale, 'i18n.locales:', i18n.locales);
+		console.log('[SSR] +page.svelte - demo.coreFeatures:', i18n.t('demo.coreFeatures'));
+	}
 
 	// Demo states
 	let name = $state('Svelte Developer');

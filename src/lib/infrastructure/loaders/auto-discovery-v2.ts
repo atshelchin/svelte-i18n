@@ -3,7 +3,7 @@
  * This is a supplementary mechanism - only works when index.json exists
  */
 
-import { DEV } from 'esm-env';
+import { DEV } from '../../utils/env.js';
 import type { I18nInstance } from '../../domain/models/types.js';
 import { getAppBasePath } from './base-path.js';
 
@@ -103,18 +103,16 @@ export async function autoDiscoverTranslations(
 		const config = await loadAutoDiscoveryConfig(translationsPath, indexFile);
 
 		if (!config) {
-			if (DEV) {
-				console.debug('Auto-discovery: No index.json found or failed to load');
-			}
+			console.warn('Auto-discovery: No index.json found or failed to load');
 			return;
 		}
 
 		if (!config.autoDiscovery) {
-			if (DEV) {
-				console.debug('Auto-discovery: No configuration found');
-			}
+			console.warn('Auto-discovery: No configuration found in index.json');
 			return;
 		}
+		
+		console.log('Auto-discovery config loaded:', config.autoDiscovery);
 
 		// Step 3: Determine what to discover
 		const discoveryTargets: Array<{ type: string; languages: string[] }> = [];

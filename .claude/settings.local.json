@@ -34,7 +34,10 @@
 			"Bash(pnpm test:*)",
 			"Bash(npm run test:unit:*)",
 			"Bash(npx tsx:*)",
-			"Bash(npm run prepack:*)"
+			"Bash(npm run prepack:*)",
+			"Bash(curl:*)",
+			"Bash(/dev/null)",
+			"Bash(npm run lint:*)"
 		],
 		"deny": []
 	}

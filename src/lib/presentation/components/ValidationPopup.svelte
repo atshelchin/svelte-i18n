@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { DEV } from '../../utils/env.js';
 	import { getI18n } from '../../application/stores/store.svelte.js';
 	import type { I18nInstance } from '../../domain/models/types.js';
 	import { getValidationPopupI18n } from './validation-popup-i18n.js';
@@ -193,7 +194,7 @@
 			popupLocale = i18n.locale;
 
 			// Debug: Check if translations are working
-			if (import.meta.env.DEV) {
+			if (DEV) {
 				console.log('ValidationPopup i18n test:', popupI18n.t('validationPopup.header.title'));
 			}
 		}

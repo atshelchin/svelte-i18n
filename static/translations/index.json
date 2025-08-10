@@ -1,8 +1,11 @@
 {
     "autoDiscovery": {
         "app": [
+            "es",
+            "hi",
+            "ko",
             "pt",
-            "ko"
+            "ru"
         ],
         "packages": {
             "@shelchin/svelte-i18n": [

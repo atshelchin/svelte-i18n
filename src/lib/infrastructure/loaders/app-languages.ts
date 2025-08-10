@@ -3,7 +3,7 @@
  * This combines built-in languages with auto-discovered app languages
  */
 
-import { DEV } from 'esm-env';
+import { DEV } from '../../utils/env.js';
 import type { I18nInstance } from '../../domain/models/types.js';
 import { loadAutoDiscoveryConfig } from './auto-discovery-v2.js';
 
@@ -39,7 +39,7 @@ export async function getAppSupportedLanguages(
 	} catch (error) {
 		// If index.json doesn't exist or fails to load, that's fine
 		// We still have the built-in languages
-		if (import.meta.env?.DEV && import.meta.env?.VITE_I18N_DEBUG === 'true') {
+		if (DEV) {
 			console.debug('Could not load index.json for app languages:', error);
 		}
 	}

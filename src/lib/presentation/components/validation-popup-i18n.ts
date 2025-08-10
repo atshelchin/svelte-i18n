@@ -1,3 +1,4 @@
+import { DEV } from '../../utils/env.js';
 import { setupI18n } from '../../application/stores/store.svelte.js';
 import type { I18nInstance, TranslationFile } from '../../domain/models/types.js';
 import { registerPackageTranslations } from '../../infrastructure/loaders/built-in.js';
@@ -34,8 +35,8 @@ export async function getValidationPopupI18n(): Promise<I18nInstance> {
 					'{namespace}/{locale}.json', // @shelchin/svelte-i18n/en.json
 					'{namespace}.{locale}.json' // @shelchin/svelte-i18n.en.json
 				],
-				debug: import.meta.env?.DEV && import.meta.env?.VITE_I18N_DEBUG === 'true'
-				// Only show debug logs in dev mode when VITE_I18N_DEBUG=true
+				debug: DEV
+				// Only show debug logs in dev mode
 			}
 		});
 
@@ -52,7 +53,7 @@ export async function getValidationPopupI18n(): Promise<I18nInstance> {
 			}
 		}
 
-		if (import.meta.env?.DEV) {
+		if (DEV) {
 			console.info('ValidationPopup i18n initialized with translations.');
 			console.info('Loaded locales:', validationPopupI18n.locales);
 			console.info('Current locale:', validationPopupI18n.locale);

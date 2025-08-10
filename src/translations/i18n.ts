@@ -70,23 +70,23 @@ const i18nConfig = {
 		suffix: '}'
 	},
 	formats: {
-		date: { year: 'numeric', month: 'long', day: 'numeric' },
-		time: { hour: '2-digit', minute: '2-digit' },
+		date: { year: 'numeric' as const, month: 'long' as const, day: 'numeric' as const },
+		time: { hour: '2-digit' as const, minute: '2-digit' as const },
 		number: { minimumFractionDigits: 0, maximumFractionDigits: 2 },
-		currency: { style: 'currency', currency: 'USD' }
+		currency: { style: 'currency' as const, currency: 'USD' }
 	}
 };
 
 // Create and initialize i18n instance
 function createI18nInstance() {
 	const instance = setupI18n(i18nConfig);
-	
+
 	// Load built-in translations synchronously
 	for (const [locale, translations] of Object.entries(builtInTranslations.app)) {
-		// @ts-ignore - loadLanguageSync is not in the interface but exists on the implementation
+		// @ts-expect-error - loadLanguageSync is not in the interface but exists on the implementation
 		instance.loadLanguageSync(locale, translations);
 	}
-	
+
 	return instance;
 }
 

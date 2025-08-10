@@ -1,4 +1,4 @@
-import { DEV } from 'esm-env';
+import { DEV } from '../../utils/env.js';
 import { SvelteMap } from 'svelte/reactivity';
 import type {
 	I18nConfig,
@@ -18,7 +18,8 @@ import {
 } from '../../domain/services/utils.js';
 import { autoDiscoverTranslations as autoDiscoverV2 } from '../../infrastructure/loaders/auto-discovery-v2.js';
 import { loadBuiltInTranslations } from '../../infrastructure/loaders/built-in.js';
-import { saveLocale, getInitialLocale } from '../../infrastructure/persistence/persistence.js';
+// Universal persistence is used instead
+// import { saveLocale, getInitialLocale } from '../../infrastructure/persistence/persistence.js';
 import {
 	saveLocaleUniversal,
 	getInitialLocaleUniversal
@@ -61,19 +62,19 @@ export class I18nStore implements I18nInstance {
 	get locale() {
 		return this.currentLocale;
 	}
-	
+
 	get locales() {
 		return Object.keys(this.translations);
 	}
-	
+
 	get isLoading() {
 		return this.loading;
 	}
-	
+
 	get errors() {
 		return this.validationErrors;
 	}
-	
+
 	get meta() {
 		return this.languageMeta;
 	}
@@ -179,15 +180,44 @@ export class I18nStore implements I18nInstance {
 	 */
 	loadLanguageSync(locale: string, translations: TranslationSchema | TranslationFile): void {
 		// Extract metadata if present
-		if ('_meta' in translations && typeof translations._meta === 'object' && translations._meta !== null) {
+		let translationData: TranslationSchema;
+		if (
+			'_meta' in translations &&
+			typeof translations._meta === 'object' &&
+			translations._meta !== null
+		) {
 			this.languageMeta[locale] = translations._meta as unknown as LanguageMeta;
 			// Remove _meta from translations
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			const { _meta, ...rest } = translations;
-			this.translations[locale] = rest as TranslationSchema;
+			translationData = rest as TranslationSchema;
 		} else {
-			this.translations[locale] = translations as TranslationSchema;
+			translationData = translations as TranslationSchema;
 		}
+
+		// Validate translations against the default locale schema
+		if (this.translations[this.config.defaultLocale] && locale !== this.config.defaultLocale) {
+			const errors = validateSchema(translationData, this.translations[this.config.defaultLocale]);
+			if (errors.length > 0) {
+				this.validationErrors[locale] = errors;
+
+				// Show user-friendly error in development
+				// Always show validation errors for debugging
+				const namespace = this.config.namespace || 'app';
+				console.error(
+					`❌ Translation validation failed for ${namespace} in locale "${locale}":`,
+					errors
+				);
+				console.group(`Missing/Invalid translations in ${namespace} for locale "${locale}":`);
+				errors.forEach((error) => console.error(`  • ${error}`));
+				console.groupEnd();
+			} else {
+				// Clear errors if validation passes
+				delete this.validationErrors[locale];
+			}
+		}
+
+		this.translations[locale] = translationData;
 	}
 
 	async loadLanguage(
@@ -233,16 +263,17 @@ export class I18nStore implements I18nInstance {
 				const errors = validateSchema(translations, this.translations[this.config.defaultLocale]);
 				if (errors.length > 0) {
 					this.validationErrors[locale] = errors;
-					if (DEV) {
-						console.error(`❌ Translation validation failed for locale "${locale}":`, errors);
-					}
 
 					// Show user-friendly error in development
-					if (DEV) {
-						console.group(`Missing/Invalid translations in ${locale}:`);
-						errors.forEach((error) => console.error(`  • ${error}`));
-						console.groupEnd();
-					}
+					// Always show validation errors for debugging
+					const namespace = this.config.namespace || 'app';
+					console.error(
+						`❌ Translation validation failed for ${namespace} in locale "${locale}":`,
+						errors
+					);
+					console.group(`Missing/Invalid translations in ${namespace} for locale "${locale}":`);
+					errors.forEach((error) => console.error(`  • ${error}`));
+					console.groupEnd();
 				} else {
 					// Clear errors if validation passes
 					delete this.validationErrors[locale];
@@ -373,7 +404,7 @@ export class I18nStore implements I18nInstance {
 
 		// In SSR, also check static/translations/index.json for declared locales
 		// But we need to verify they actually exist
-		let declaredLocales: string[] = [];
+		const declaredLocales: string[] = [];
 		if (typeof window === 'undefined') {
 			try {
 				// Try to read index.json to see what locales are declared
@@ -391,7 +422,6 @@ export class I18nStore implements I18nInstance {
 							const localePath = join(process.cwd(), `static/translations/app/${locale}.json`);
 							if (existsSync(localePath)) {
 								declaredLocales.push(locale);
-								console.log(`[SSR] Found static translation: app/${locale}.json`);
 							} else {
 								console.warn(
 									`[SSR] Declared locale '${locale}' in index.json but file not found: app/${locale}.json`
@@ -407,7 +437,6 @@ export class I18nStore implements I18nInstance {
 							);
 							if (existsSync(localePath)) {
 								declaredLocales.push(locale);
-								console.log(`[SSR] Found static translation: ${namespace}/${locale}.json`);
 							} else {
 								console.warn(
 									`[SSR] Declared locale '${locale}' in index.json but file not found: ${namespace}/${locale}.json`
@@ -422,45 +451,40 @@ export class I18nStore implements I18nInstance {
 		}
 
 		// Combine actually available (built-in) and declared (static) locales
-		const allAvailableLocales = [...new Set([...actuallyAvailable, ...declaredLocales])];
+		// Use array deduplication without Set to avoid svelte reactivity warnings
+		const allAvailableLocales = [...actuallyAvailable, ...declaredLocales].filter(
+			(locale, index, arr) => arr.indexOf(locale) === index
+		);
 
 		// Get locale from cookie
 		const cookieName = this.config.cookieName || 'i18n-locale';
 		const cookieLocale = cookies?.get ? cookies.get(cookieName) : undefined;
 
+		console.log(
+			'[SSR] serverLoad - cookies object:',
+			!!cookies,
+			'cookieName:',
+			cookieName,
+			'cookieLocale:',
+			cookieLocale
+		);
+
 		// Determine the best locale to use
 		let bestLocale = this.config.defaultLocale;
-
-		console.log(
-			`[SSR] serverLoad - cookie: ${cookieLocale}, built-in: [${actuallyAvailable.join(', ')}], static: [${declaredLocales.join(', ')}]`
-		);
 
 		if (cookieLocale && allAvailableLocales.includes(cookieLocale)) {
 			// Use cookie locale if it's available (either built-in or static)
 			bestLocale = cookieLocale;
-			console.log(`[SSR] Using cookie locale: ${cookieLocale}`);
 		} else if (allAvailableLocales.includes(this.config.defaultLocale)) {
 			// Use default locale if available
 			bestLocale = this.config.defaultLocale;
-			console.log(
-				`[SSR] Cookie locale '${cookieLocale}' not available, using default: ${this.config.defaultLocale}`
-			);
 		} else if (allAvailableLocales.length > 0) {
 			// Fallback to first available locale
 			bestLocale = allAvailableLocales[0];
-			console.log(`[SSR] Default not available, using first available: ${bestLocale}`);
 		}
 
 		// Force set the locale
-		console.log(`[SSR] Before update - currentLocale: ${this.currentLocale}, locale: ${this.locale}`);
 		this.currentLocale = bestLocale;
-		console.log(`[SSR] After update - currentLocale: ${this.currentLocale}, locale: ${this.locale}`);
-
-		const currentLocale = this.currentLocale;
-		const availableLocales = allAvailableLocales;
-		console.log({ currentLocale, availableLocales });
-		console.log(`[SSR] Final locale: ${this.currentLocale}`);
-		console.log(`[SSR] this.locale (derived): ${this.locale}`);
 
 		return bestLocale;
 	}
@@ -497,37 +521,32 @@ export class I18nStore implements I18nInstance {
 
 		// Step 2: Try new auto-discovery system (based on index.json configuration)
 		// This is supplementary - only works if index.json exists
+		console.log('Starting auto-discovery...');
 		try {
 			await autoDiscoverV2(this, {
 				namespace: this.config.namespace,
 				onLoaded: (target, locale) => {
-					if (DEV) {
-						console.log(`✓ Auto-discovered ${locale} for ${target}`);
-					}
+					console.log(`✓ Auto-discovered ${locale} for ${target}`);
 				},
 				onError: (target, locale, error) => {
-					// Silent by default, only log in debug mode
-					if (DEV) {
-						console.debug(`Failed to auto-discover ${locale} for ${target}:`, error);
-					}
+					console.error(`Failed to auto-discover ${locale} for ${target}:`, error);
 				}
 			});
 		} catch (error) {
-			// Auto-discovery is optional, silent fail
-			if (DEV) {
-				console.debug('Auto-discovery error:', error);
-			}
+			console.error('Auto-discovery error:', error);
 		}
 
 		// Use provided initial locale or get from cookies/localStorage
-		const clientLocale = options?.initialLocale || getInitialLocaleUniversal(
-			this.config.defaultLocale,
-			typeof document !== 'undefined' ? document.cookie : undefined,
-			{
-				cookieName: this.config.cookieName,
-				storageKey: this.config.storageKey
-			}
-		);
+		const clientLocale =
+			options?.initialLocale ||
+			getInitialLocaleUniversal(
+				this.config.defaultLocale,
+				typeof document !== 'undefined' ? document.cookie : undefined,
+				{
+					cookieName: this.config.cookieName,
+					storageKey: this.config.storageKey
+				}
+			);
 
 		// Set locale if available, otherwise fallback
 		if (this.locales.includes(clientLocale)) {
