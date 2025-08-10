@@ -4,7 +4,7 @@ on:
   # Trigger after CI workflow completes on main branch
   workflow_run:
     workflows: ['CI']
-    branches: [main]
+    branches: [main, prod]
     types:
       - completed
   # Manual trigger for emergency releases
