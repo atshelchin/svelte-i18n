@@ -1,6 +1,6 @@
 {
 	"name": "@shelchin/svelte-i18n",
-	"version": "0.0.13",
+	"version": "0.0.15",
 	"description": "The last Svelte i18n library you'll ever need. Type-safe, AI-powered, zero-config.",
 	"author": "Shelchin",
 	"license": "MIT",
