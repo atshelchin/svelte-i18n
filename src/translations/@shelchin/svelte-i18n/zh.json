@@ -1,0 +1,49 @@
+{
+	"_meta": {
+		"name": "中文",
+		"englishName": "Chinese",
+		"direction": "ltr",
+		"flag": "🇨🇳",
+		"code": "zh"
+	},
+	"validationPopup": {
+		"header": {
+			"title": "翻译验证报告 (内置版本)",
+			"issues": "{count} 个问题",
+			"languages": "{count} 种语言",
+			"close": "关闭"
+		},
+		"controls": {
+			"languageLabel": "语言：",
+			"languageOption": "{flag} {name} ({count} 个错误)",
+			"export": "导出"
+		},
+		"exportMenu": {
+			"downloadJSON": "下载 JSON",
+			"downloadText": "下载文本报告",
+			"copyJSON": "复制 JSON 到剪贴板",
+			"copied": "已复制到剪贴板！"
+		},
+		"pagination": {
+			"page": "第 {current} 页 / 共 {total} 页",
+			"previous": "上一页",
+			"next": "下一页"
+		},
+		"emptyState": {
+			"selectLanguage": "请从上方下拉菜单中选择一种语言",
+			"noErrors": "此语言没有验证错误"
+		},
+		"floatingIndicator": {
+			"translationIssues": "翻译问题"
+		},
+		"report": {
+			"title": "缺失翻译报告",
+			"language": "语言：{name} ({code})",
+			"totalMissing": "缺失键总数：{count}",
+			"details": "详情：",
+			"generatedAt": "生成时间：{date}",
+			"todoTranslate": "[待办：翻译为{language}]"
+		},
+		"testOverride": "这是内置版本 (来自 src/translations/@shelchin/svelte-i18n/zh.json)"
+	}
+}

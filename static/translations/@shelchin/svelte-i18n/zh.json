@@ -1,0 +1,29 @@
+{
+	"_meta": {
+		"name": "中文",
+		"englishName": "Chinese",
+		"direction": "ltr",
+		"flag": "🇨🇳",
+		"code": "zh"
+	},
+	"validationPopup": {
+		"header": {
+			"title": "翻译验证报告",
+			"issues": "{count} 个问题",
+			"languages": "{count} 种语言",
+			"close": "关闭"
+		},
+		"controls": {
+			"languageLabel": "语言：",
+			"languageOption": "{flag} {name} ({count} 个错误)",
+			"export": "导出"
+		},
+		"exportMenu": {
+			"downloadJSON": "下载 JSON",
+			"downloadText": "下载文本报告",
+			"copyJSON": "复制 JSON 到剪贴板",
+			"copied": "已复制到剪贴板！"
+		}
+
+	}
+}

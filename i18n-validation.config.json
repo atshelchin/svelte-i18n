@@ -1,0 +1,8 @@
+{
+	"packages": ["@shelchin/svelte-i18n"],
+	"autoDiscover": true,
+	"validationRules": {
+		"allowExtraKeys": false,
+		"requireAllKeys": true
+	}
+}

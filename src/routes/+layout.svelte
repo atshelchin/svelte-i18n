@@ -1,47 +1,33 @@
 <script lang="ts">
 	import '../app.css';
-	import { setupI18n, autoLoadLanguages } from '$lib/index.js';
 	import { onMount } from 'svelte';
+	import { i18n } from '../app/i18n.js';
+	import type { LayoutData } from './$types.js';
 
-	let { children } = $props();
+	let { children, data } = $props<{ children: any; data: LayoutData }>();
 
-	// Initialize i18n (will reuse existing instance if already created)
-	const i18n = setupI18n({
-		defaultLocale: 'en',
-		fallbackLocale: 'en',
-		interpolation: {
-			prefix: '{',
-			suffix: '}'
-		},
-		formats: {
-			date: { year: 'numeric', month: 'long', day: 'numeric' },
-			time: { hour: '2-digit', minute: '2-digit' },
-			number: { minimumFractionDigits: 0, maximumFractionDigits: 2 },
-			currency: { style: 'currency', currency: 'USD' }
-		}
-	});
-
-	// Track if languages are already loaded
-	let languagesLoaded = $state(i18n.locales.length > 0);
-
+	// On client side, initialize i18n and load translations
 	onMount(async () => {
-		// Only load languages if they haven't been loaded yet
-		if (!languagesLoaded) {
-			// Automatically load all available languages
-			// Note: autoLoadLanguages will automatically detect the base path
-			await autoLoadLanguages(i18n, {
-				// translationsPath is automatically determined from base path
-				defaultLocale: i18n.locale, // Use the initial locale (from localStorage or browser)
-				onLoaded: (locale) => console.log(`✓ Loaded ${locale}`),
-				onError: (locale, error) => console.error(`✗ Failed to load ${locale}:`, error)
-			});
+		// Get saved locale from localStorage or use browser detection
+		const savedLocale = localStorage.getItem('i18n-locale');
+		let initialLocale = data.locale;
 
-			languagesLoaded = true;
-
-			// If the saved/detected locale wasn't loaded, fallback to default
-			if (!i18n.locales.includes(i18n.locale)) {
-				i18n.setLocale(i18n.locales[0] || 'en');
+		if (savedLocale && i18n.locales.includes(savedLocale)) {
+			initialLocale = savedLocale;
+		} else {
+			// Try browser language detection
+			const browserLang = i18n.detectBrowserLanguage();
+			if (browserLang && i18n.locales.includes(browserLang)) {
+				initialLocale = browserLang;
 			}
+		}
+
+		// Load auto-discovered translations and set initial locale
+		await i18n.clientLoad({ initialLocale });
+
+		// Set the locale if it's different
+		if (i18n.locale !== initialLocale) {
+			i18n.setLocale(initialLocale);
 		}
 	});
 </script>

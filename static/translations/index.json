@@ -1,16 +1,17 @@
 {
-  "availableLanguages": [
-    "en",
-    "zh",
-    "zh-TW",
-    "es",
-    "fr",
-    "de",
-    "ja",
-    "ko",
-    "ru",
-    "ar",
-    "pt",
-    "hi"
-  ]
+    "autoDiscovery": {
+        "app": [
+            "es",
+            "hi",
+            "ko",
+            "pt",
+            "ru"
+        ],
+        "packages": {
+            "@shelchin/svelte-i18n": [
+                "fr",
+                "zh"
+            ]
+        }
+    }
 }

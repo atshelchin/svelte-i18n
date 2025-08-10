@@ -1,0 +1,23 @@
+{
+	"_meta": {
+		"name": "Español",
+		"englishName": "Spanish",
+		"direction": "ltr",
+		"flag": "🇪🇸",
+		"code": "es"
+	},
+	"welcome": "¡Bienvenido {name}!",
+	"greeting": "¡Hola, mundo!",
+
+	"nav": {
+		"home": "Inicio",
+		"about": "Acerca de"
+	},
+	"items": {
+		"count": "{count} artículo|{count} artículos"
+	},
+	"demo": {
+		"title": "Demo de svelte-i18n",
+		"features": "Características"
+	}
+}

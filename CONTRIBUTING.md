@@ -214,7 +214,7 @@ describe('formatNumber', () => {
 
 When working on CLI tools:
 
-1. Update `src/cli/` files
+1. Update `src/lib/cli/` files
 2. Build CLI: `npm run build:cli`
 3. Test locally: `node dist/cli/index.js [command]`
 4. Update help text and examples
