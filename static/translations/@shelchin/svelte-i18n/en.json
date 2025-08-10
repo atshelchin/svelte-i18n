@@ -1,0 +1,48 @@
+{
+	"_meta": {
+		"name": "English",
+		"englishName": "English",
+		"direction": "ltr",
+		"flag": "🇬🇧",
+		"code": "en"
+	},
+	"validationPopup": {
+		"header": {
+			"title": "Translation Validation Report",
+			"issues": "{count} issues",
+			"languages": "{count} languages",
+			"close": "Close"
+		},
+		"controls": {
+			"languageLabel": "Language:",
+			"languageOption": "{flag} {name} ({count} errors)",
+			"export": "Export"
+		},
+		"exportMenu": {
+			"downloadJSON": "Download JSON",
+			"downloadText": "Download Text Report",
+			"copyJSON": "Copy JSON to Clipboard",
+			"copied": "Copied to clipboard!"
+		},
+		"pagination": {
+			"page": "Page {current} / {total}",
+			"previous": "Previous",
+			"next": "Next"
+		},
+		"emptyState": {
+			"selectLanguage": "Please select a language from the dropdown above",
+			"noErrors": "No validation errors for this language"
+		},
+		"floatingIndicator": {
+			"translationIssues": "Translation Issues"
+		},
+		"report": {
+			"title": "Missing Translations Report",
+			"language": "Language: {name} ({code})",
+			"totalMissing": "Total missing keys: {count}",
+			"details": "Details:",
+			"generatedAt": "Generated at: {date}",
+			"todoTranslate": "[TODO: Translate to {language}]"
+		}
+	}
+}

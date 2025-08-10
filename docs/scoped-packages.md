@@ -53,16 +53,16 @@ import { setupI18n } from '@shelchin/svelte-i18n';
 
 // For a scoped package
 const i18n = setupI18n({
-    namespace: '@myorg/awesome-package',  // Include the full scope
-    defaultLocale: 'en',
-    autoDiscovery: true  // Will look in /translations/@myorg/awesome-package.{locale}.json
+	namespace: '@myorg/awesome-package', // Include the full scope
+	defaultLocale: 'en',
+	autoDiscovery: true // Will look in /translations/@myorg/awesome-package.{locale}.json
 });
 
 // For a non-scoped package
 const i18n = setupI18n({
-    namespace: 'my-package',
-    defaultLocale: 'en',
-    autoDiscovery: true  // Will look in /translations/my-package.{locale}.json
+	namespace: 'my-package',
+	defaultLocale: 'en',
+	autoDiscovery: true // Will look in /translations/my-package.{locale}.json
 });
 ```
 
@@ -82,13 +82,10 @@ You can also define custom patterns:
 
 ```typescript
 const i18n = setupI18n({
-    namespace: '@myorg/lib',
-    autoDiscovery: {
-        patterns: [
-            'i18n/{namespace}/{locale}.json',
-            'locales/{namespace}.{locale}.json'
-        ]
-    }
+	namespace: '@myorg/lib',
+	autoDiscovery: {
+		patterns: ['i18n/{namespace}/{locale}.json', 'locales/{namespace}.{locale}.json']
+	}
 });
 ```
 

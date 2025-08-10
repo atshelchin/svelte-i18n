@@ -1,30 +1,28 @@
 import { setupI18n } from '../../application/stores/store.svelte.js';
 import type { I18nInstance, TranslationFile } from '../../domain/models/types.js';
-import validationPopupEn from './translations/validation-popup-en.json' with { type: 'json' };
-import validationPopupZh from './translations/validation-popup-zh.json' with { type: 'json' };
+import { builtInTranslations } from '../../assets/translations/index.js';
 
 let validationPopupI18n: I18nInstance | null = null;
 
 /**
  * Get or create the namespaced i18n instance for ValidationPopup component
  * With auto-discovery enabled, it will automatically load translations from:
- * - /translations/svelte-i18n-validation.{locale}.json
- * - /translations/validation-popup.{locale}.json
- * - /translations/components/validation-popup.{locale}.json
+ * - /translations/@shelchin/svelte-i18n.{locale}.json
+ * - /translations/@shelchin/svelte-i18n/{locale}.json
  */
 export async function getValidationPopupI18n(): Promise<I18nInstance> {
 	if (!validationPopupI18n) {
 		// Create a namespaced i18n instance with auto-discovery enabled
+		// Using the scoped package name as namespace
 		validationPopupI18n = setupI18n({
 			defaultLocale: 'en',
 			fallbackLocale: 'en',
-			namespace: 'svelte-i18n-validation', // Unique namespace for this component
+			namespace: '@shelchin/svelte-i18n', // Use scoped package name
 			autoDiscovery: {
 				baseUrl: '/translations',
 				patterns: [
-					'validation-popup.{locale}.json',
-					'{namespace}.{locale}.json',
-					'components/validation-popup.{locale}.json'
+					'{namespace}.{locale}.json', // @shelchin/svelte-i18n.en.json
+					'{namespace}/{locale}.json' // @shelchin/svelte-i18n/en.json
 				],
 				debug: import.meta.env?.DEV ?? false
 			}
@@ -36,8 +34,9 @@ export async function getValidationPopupI18n(): Promise<I18nInstance> {
 		// 3. User translations will merge with and override built-in ones
 
 		// Load the built-in translations first (these are bundled with the package)
-		await validationPopupI18n.loadLanguage('en', validationPopupEn);
-		await validationPopupI18n.loadLanguage('zh', validationPopupZh);
+		for (const [locale, translations] of Object.entries(builtInTranslations)) {
+			await validationPopupI18n.loadLanguage(locale, translations as TranslationFile);
+		}
 
 		// Auto-discovery will run automatically when locale changes
 		// If user has placed custom translations in static/translations/,
@@ -48,7 +47,7 @@ export async function getValidationPopupI18n(): Promise<I18nInstance> {
 			console.info('Loaded locales:', validationPopupI18n.locales);
 			console.info('Current locale:', validationPopupI18n.locale);
 			console.info(
-				'User can override by placing files in static/translations/validation-popup.{locale}.json'
+				'User can override by placing files in static/translations/@shelchin/svelte-i18n.{locale}.json'
 			);
 		}
 	}

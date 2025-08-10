@@ -66,3 +66,10 @@ export { default as ValidationStatus } from './presentation/components/Validatio
 export { default as ValidationPopup } from './presentation/components/ValidationPopup.svelte';
 export { default as TypeSafetyDemo } from './presentation/components/TypeSafetyDemo.svelte';
 export { default as CodeExample } from './presentation/components/CodeExample.svelte';
+
+// Built-in translations exports
+export {
+	builtInTranslations,
+	getBuiltInLocales,
+	getBuiltInTranslation
+} from './assets/translations/index.js';

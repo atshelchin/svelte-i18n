@@ -1,0 +1,67 @@
+{
+	"_meta": {
+		"name": "Português",
+		"englishName": "Portuguese",
+		"direction": "ltr",
+		"flag": "🇵🇹",
+		"code": "pt"
+	},
+	"welcome": "Bem-vindo {name}!",
+	"greeting": "Olá, mundo!",
+	"nav": {
+		"home": "Início",
+		"about": "Sobre",
+		"contact": "Contato",
+		"settings": "Configurações"
+	},
+	"user": {
+		"profile": {
+			"title": "Perfil do Usuário",
+			"name": "Nome",
+			"email": "E-mail",
+			"bio": "Biografia"
+		},
+		"settings": {
+			"title": "Configurações",
+			"language": "Idioma",
+			"theme": "Tema",
+			"notifications": "Notificações"
+		}
+	},
+	"items": {
+		"count": "{count} item|{count} itens",
+		"empty": "Nenhum item encontrado",
+		"loading": "Carregando itens..."
+	},
+	"actions": {
+		"save": "Salvar",
+		"cancel": "Cancelar",
+		"delete": "Excluir",
+		"edit": "Editar",
+		"submit": "Enviar",
+		"search": "Pesquisar"
+	},
+	"messages": {
+		"success": "Operação bem-sucedida!",
+		"error": "Ocorreu um erro",
+		"loading": "Carregando...",
+		"confirmDelete": "Tem certeza de que deseja excluir este item?"
+	},
+	"date": {
+		"today": "Hoje",
+		"yesterday": "Ontem",
+		"tomorrow": "Amanhã",
+		"format": "DD/MM/YYYY"
+	},
+	"demo": {
+		"title": "Demo svelte-i18n",
+		"features": "Recursos",
+		"interpolation": "Interpolação de string com nome: {name}",
+		"pluralization": "Exemplo de pluralização",
+		"nested": "Chaves de tradução aninhadas",
+		"formatting": "Formatação de data e número",
+		"switchLanguage": "Mudar idioma",
+		"currentLocale": "Idioma atual: {locale}",
+		"tryIt": "Experimente você mesmo!"
+	}
+}

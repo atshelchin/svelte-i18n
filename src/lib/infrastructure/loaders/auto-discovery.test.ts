@@ -4,28 +4,28 @@ import { autoDiscoverTranslations } from './auto-discovery.js';
 describe('Auto-discovery with scoped packages', () => {
 	// Mock fetch
 	const mockFetch = vi.fn();
-	
+
 	beforeEach(() => {
 		mockFetch.mockClear();
-		// @ts-ignore
-		global.window = { 
-			location: { 
+		// @ts-expect-error - Mocking window for testing
+		global.window = {
+			location: {
 				origin: 'http://localhost:3000',
 				hostname: 'localhost',
 				pathname: '/',
 				href: 'http://localhost:3000/'
-			} 
+			}
 		};
-		// @ts-ignore
-		global.document = { 
+		// @ts-expect-error - Mocking document for testing
+		global.document = {
 			querySelector: vi.fn().mockReturnValue(null)
 		};
 	});
 
 	afterEach(() => {
-		// @ts-ignore
+		// @ts-expect-error - Cleaning up mock
 		delete global.window;
-		// @ts-ignore
+		// @ts-expect-error - Cleaning up mock
 		delete global.document;
 	});
 
@@ -101,12 +101,8 @@ describe('Auto-discovery with scoped packages', () => {
 		expect(result2).toEqual(translations2);
 
 		// Verify different URLs were called
-		expect(mockFetch).toHaveBeenCalledWith(
-			expect.stringContaining('/@org1/package.en.json')
-		);
-		expect(mockFetch).toHaveBeenCalledWith(
-			expect.stringContaining('/@org2/package.en.json')
-		);
+		expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('/@org1/package.en.json'));
+		expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('/@org2/package.en.json'));
 	});
 
 	it('should handle scoped packages with custom patterns', async () => {
@@ -116,10 +112,7 @@ describe('Auto-discovery with scoped packages', () => {
 		});
 
 		await autoDiscoverTranslations('@myorg/awesome-lib', 'zh', {
-			patterns: [
-				'libs/{namespace}/{locale}.json',
-				'i18n/{namespace}.{locale}.json'
-			],
+			patterns: ['libs/{namespace}/{locale}.json', 'i18n/{namespace}.{locale}.json'],
 			fetcher: mockFetch,
 			debug: false
 		});
@@ -148,7 +141,9 @@ describe('Auto-discovery with scoped packages', () => {
 
 		// Verify the @ symbol is preserved in the URL
 		const calls = mockFetch.mock.calls;
-		expect(calls.some(call => call[0].includes('@test-org'))).toBe(true);
-		expect(calls.some(call => call[0].includes('/static/translations/@test-org/test-package'))).toBe(true);
+		expect(calls.some((call) => call[0].includes('@test-org'))).toBe(true);
+		expect(
+			calls.some((call) => call[0].includes('/static/translations/@test-org/test-package'))
+		).toBe(true);
 	});
 });

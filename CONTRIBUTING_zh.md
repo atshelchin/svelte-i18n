@@ -214,7 +214,7 @@ describe('formatNumber', () => {
 
 开发 CLI 工具时：
 
-1. 更新 `src/cli/` 文件
+1. 更新 `src/lib/cli/` 文件
 2. 构建 CLI：`npm run build:cli`
 3. 本地测试：`node dist/cli/index.js [command]`
 4. 更新帮助文本和示例

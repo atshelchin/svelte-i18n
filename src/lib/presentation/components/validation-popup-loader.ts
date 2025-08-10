@@ -4,9 +4,9 @@ import type { I18nInstance } from '../../domain/models/types.js';
  * Auto-discovery of ValidationPopup translations
  *
  * This loader will automatically look for translation files in the application's
- * static/translations directory following the naming convention:
- * - validation-popup.{locale}.json
- * - svelte-i18n-validation.{locale}.json
+ * static/translations directory following the scoped package naming convention:
+ * - @shelchin/svelte-i18n.{locale}.json
+ * - @shelchin/svelte-i18n/{locale}.json
  *
  * This allows developers to add new language support without modifying the package
  */
@@ -16,11 +16,10 @@ export async function autoLoadValidationPopupTranslations(
 ): Promise<void> {
 	const currentLocale = i18n.locale;
 
-	// Try multiple naming conventions for flexibility
+	// Try scoped package naming conventions
 	const possibleFiles = [
-		`${baseUrl}/validation-popup.${currentLocale}.json`,
-		`${baseUrl}/svelte-i18n-validation.${currentLocale}.json`,
-		`${baseUrl}/components/validation-popup.${currentLocale}.json`
+		`${baseUrl}/@shelchin/svelte-i18n.${currentLocale}.json`,
+		`${baseUrl}/@shelchin/svelte-i18n/${currentLocale}.json`
 	];
 
 	for (const file of possibleFiles) {
@@ -83,9 +82,8 @@ export function registerValidationPopupWithMainI18n(
 /**
  * Convention-based loader for ValidationPopup translations
  * Looks for files in these locations (in order):
- * 1. /translations/validation-popup.{locale}.json
- * 2. /translations/svelte-i18n-validation.{locale}.json
- * 3. /translations/components/validation-popup.{locale}.json
+ * 1. /translations/@shelchin/svelte-i18n.{locale}.json
+ * 2. /translations/@shelchin/svelte-i18n/{locale}.json
  */
 export async function loadValidationPopupFromStatic(
 	i18n: I18nInstance,
@@ -97,11 +95,7 @@ export async function loadValidationPopupFromStatic(
 ): Promise<boolean> {
 	const { baseUrl = '/translations', fallbackToBuiltIn = true } = options;
 
-	const files = [
-		`validation-popup.${locale}.json`,
-		`svelte-i18n-validation.${locale}.json`,
-		`components/validation-popup.${locale}.json`
-	];
+	const files = [`@shelchin/svelte-i18n.${locale}.json`, `@shelchin/svelte-i18n/${locale}.json`];
 
 	for (const filename of files) {
 		try {
