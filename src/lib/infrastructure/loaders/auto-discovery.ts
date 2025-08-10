@@ -85,13 +85,20 @@ const DEFAULT_DISCOVERY_LOCALES = [
 
 /**
  * Default file patterns for discovery
+ * Supports both scoped (@org/package) and non-scoped packages
+ * 
+ * Examples:
+ * - Non-scoped: my-package -> /translations/my-package.en.json
+ * - Scoped: @shelchin/my-package -> /translations/@shelchin/my-package.en.json
+ * 
+ * The scope becomes part of the directory structure to avoid naming conflicts
  */
 const DEFAULT_PATTERNS = [
-	'{namespace}.{locale}.json', // my-package.en.json
-	'{namespace}/{locale}.json', // my-package/en.json
-	'{namespace}-{locale}.json', // my-package-en.json
-	'packages/{namespace}.{locale}.json', // packages/my-package.en.json
-	'components/{namespace}.{locale}.json' // components/my-package.en.json
+	'{namespace}.{locale}.json', // my-package.en.json or @shelchin/my-package.en.json
+	'{namespace}/{locale}.json', // my-package/en.json or @shelchin/my-package/en.json
+	'{namespace}-{locale}.json', // my-package-en.json or @shelchin/my-package-en.json
+	'packages/{namespace}.{locale}.json', // packages/@shelchin/my-package.en.json
+	'components/{namespace}.{locale}.json' // components/@shelchin/my-package.en.json
 ];
 
 /**
@@ -119,6 +126,15 @@ async function tryLoadTranslation(
 
 /**
  * Build URLs to try based on patterns
+ * Handles both scoped (@org/package) and non-scoped packages
+ * 
+ * For scoped packages like @shelchin/my-package, generates:
+ * - /translations/@shelchin/my-package.en.json
+ * - /translations/@shelchin/my-package/en.json
+ * 
+ * For non-scoped packages like my-package, generates:
+ * - /translations/my-package.en.json
+ * - /translations/my-package/en.json
  */
 function buildUrls(
 	namespace: string,
@@ -126,6 +142,8 @@ function buildUrls(
 	baseUrl: string,
 	patterns: string[]
 ): string[] {
+	// Preserve the full namespace including scope (if present)
+	// The namespace will already include @ and / for scoped packages
 	return patterns.map((pattern) => {
 		const path = pattern.replace('{namespace}', namespace).replace('{locale}', locale);
 		return `${baseUrl}/${path}`.replace(/\/+/g, '/');
