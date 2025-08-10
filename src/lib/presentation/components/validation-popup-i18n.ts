@@ -4,9 +4,9 @@ import type { I18nInstance, TranslationFile } from '../../domain/models/types.js
 import { registerPackageTranslations } from '../../infrastructure/loaders/built-in.js';
 
 // Import package translations directly (only built-in ones)
-import en from '../../../translations/@shelchin/svelte-i18n/en.json' with { type: 'json' };
-import zh from '../../../translations/@shelchin/svelte-i18n/zh.json' with { type: 'json' };
-import ja from '../../../translations/@shelchin/svelte-i18n/ja.json' with { type: 'json' };
+import en from '../../translations/@shelchin/svelte-i18n/en.json' with { type: 'json' };
+import zh from '../../translations/@shelchin/svelte-i18n/zh.json' with { type: 'json' };
+import ja from '../../translations/@shelchin/svelte-i18n/ja.json' with { type: 'json' };
 // Note: fr.json is configured for auto-discovery in index.json, not built-in
 
 const packageTranslations = { en, zh, ja };

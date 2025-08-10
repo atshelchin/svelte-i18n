@@ -3,9 +3,7 @@
  * This file handles all translation imports and i18n setup
  */
 
-import { registerBuiltInTranslations } from '$lib/index.js';
-
-import { createTypedI18n } from '$lib/typed-export.js';
+import { registerBuiltInTranslations, createTypedI18n } from '$lib/index.js';
 import type { I18nPath } from '../types/app-i18n-generated.js';
 
 // Create typed versions with app-specific types
@@ -24,9 +22,9 @@ import appAr from './app/ar.json' with { type: 'json' };
 import appZhTW from './app/zh-TW.json' with { type: 'json' };
 
 // Package translations (@shelchin/svelte-i18n)
-import pkgEn from './@shelchin/svelte-i18n/en.json' with { type: 'json' };
-import pkgZh from './@shelchin/svelte-i18n/zh.json' with { type: 'json' };
-import pkgJa from './@shelchin/svelte-i18n/ja.json' with { type: 'json' };
+import pkgEn from '$lib/translations/@shelchin/svelte-i18n/en.json' with { type: 'json' };
+import pkgZh from '$lib/translations/@shelchin/svelte-i18n/zh.json' with { type: 'json' };
+import pkgJa from '$lib/translations/@shelchin/svelte-i18n/ja.json' with { type: 'json' };
 
 // ============================================
 // Organize translations by namespace
