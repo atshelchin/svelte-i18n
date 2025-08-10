@@ -11,7 +11,7 @@ import {
 	getI18n as getOriginalI18n,
 	setupI18n as setupOriginalI18n
 } from './application/stores/store.svelte.js';
-import type { I18nConfig, I18nInstance } from './domain/models/types.js';
+import type { I18nConfig, I18nInstance, InterpolationParams } from './domain/models/types.js';
 // Import the app-generated types (application should generate these)
 import type { I18nPath, I18nKeys } from '../types/app-i18n-generated.js';
 
@@ -54,7 +54,7 @@ function createTypedProxy(instance: I18nInstance): TypedI18nInstance {
 			if (prop === 't') {
 				// Return a typed version of the t function
 				return (key: string, params?: Record<string, unknown>) => {
-					return target.t(key, params as any);
+					return target.t(key, params as InterpolationParams);
 				};
 			}
 			return target[prop as keyof I18nInstance];

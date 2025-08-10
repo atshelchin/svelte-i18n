@@ -3,10 +3,10 @@
  * This wrapper uses the generated types from the CLI tool
  */
 
-import type { I18nInstance } from '../../domain/models/types.js';
+import type { I18nInstance, InterpolationParams } from '../../domain/models/types.js';
 // These types should be imported from the app's generated types
 // This is just a placeholder for the library
-type I18nKeys = any;
+type I18nKeys = Record<string, unknown>;
 type I18nPath = string;
 
 /**
@@ -54,7 +54,7 @@ export interface TypedI18nInstance extends Omit<I18nInstance, 't'> {
 export function createTypedWrapper(i18n: I18nInstance): TypedI18nInstance {
 	// Create typed translation function
 	const typedT: TypedTranslate = ((key: string, params?: Record<string, unknown>) => {
-		return i18n.t(key, params as any);
+		return i18n.t(key, params as InterpolationParams);
 	}) as TypedTranslate;
 
 	// Return typed instance

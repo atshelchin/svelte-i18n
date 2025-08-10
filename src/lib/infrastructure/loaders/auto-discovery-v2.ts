@@ -4,7 +4,7 @@
  */
 
 import { DEV } from '../../utils/env.js';
-import type { I18nInstance } from '../../domain/models/types.js';
+import type { I18nInstance, TranslationSchema } from '../../domain/models/types.js';
 import { getAppBasePath } from './base-path.js';
 
 export interface AutoDiscoveryConfig {
@@ -173,7 +173,7 @@ export async function autoDiscoverTranslations(
 					if (translationCache.has(cacheKey)) {
 						const cachedTranslations = translationCache.get(cacheKey);
 						const isOverride = i18n.locales.includes(locale);
-						await i18n.loadLanguage(locale, cachedTranslations as any);
+						await i18n.loadLanguage(locale, cachedTranslations as TranslationSchema);
 						onLoaded(target.type, locale);
 						if (DEV) {
 							if (isOverride) {
@@ -193,7 +193,7 @@ export async function autoDiscoverTranslations(
 						const translations = await existingPromise;
 						if (translations) {
 							const isOverride = i18n.locales.includes(locale);
-							await i18n.loadLanguage(locale, translations as any);
+							await i18n.loadLanguage(locale, translations as TranslationSchema);
 							onLoaded(target.type, locale);
 							if (DEV) {
 								if (isOverride) {
@@ -239,7 +239,7 @@ export async function autoDiscoverTranslations(
 					const translations = await fetchPromise;
 					if (translations) {
 						const isOverride = i18n.locales.includes(locale);
-						await i18n.loadLanguage(locale, translations as any);
+						await i18n.loadLanguage(locale, translations as TranslationSchema);
 						onLoaded(target.type, locale);
 
 						if (DEV) {

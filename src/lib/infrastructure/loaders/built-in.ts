@@ -3,7 +3,7 @@
  * Loads translations that are bundled with the application
  */
 
-import type { I18nInstance } from '../../domain/models/types.js';
+import type { I18nInstance, TranslationSchema } from '../../domain/models/types.js';
 
 // Type for translation registry
 export interface TranslationRegistry {
@@ -74,7 +74,7 @@ export async function loadBuiltInTranslations(
 
 			// Add to store if we have translations
 			if (Object.keys(translations).length > 0) {
-				await store.loadLanguage(locale, translations as any);
+				await store.loadLanguage(locale, translations as TranslationSchema);
 				options?.onLoaded?.(locale);
 			}
 		} catch (error) {

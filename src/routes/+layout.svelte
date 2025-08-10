@@ -4,7 +4,7 @@
 	import { i18n } from '../app/i18n.js';
 	import type { LayoutData } from './$types.js';
 
-	let { children, data } = $props<{ children: any; data: LayoutData }>();
+	let { children, data } = $props<{ children: import('svelte').Snippet; data: LayoutData }>();
 
 	// On client side, initialize i18n and load translations
 	onMount(async () => {

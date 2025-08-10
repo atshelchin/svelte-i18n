@@ -10,6 +10,13 @@ import {
 import type { I18nConfig, I18nInstance } from './domain/models/types.js';
 
 /**
+ * Typed i18n instance with application-specific translation keys
+ */
+export interface TypedI18nInstance<TPath extends string = string> extends Omit<I18nInstance, 't'> {
+	t(key: TPath, params?: Record<string, any>): string;
+}
+
+/**
  * Create typed i18n functions with application-specific types
  *
  * Usage in external applications:
@@ -37,16 +44,12 @@ import type { I18nConfig, I18nInstance } from './domain/models/types.js';
  * ```
  */
 export function createTypedI18n<TPath extends string = string>() {
-	interface TypedI18nInstance extends Omit<I18nInstance, 't'> {
-		t(key: TPath, params?: Record<string, any>): string;
-	}
-
 	return {
-		getI18n(): TypedI18nInstance {
-			return getOriginal() as TypedI18nInstance;
+		getI18n(): TypedI18nInstance<TPath> {
+			return getOriginal() as TypedI18nInstance<TPath>;
 		},
-		setupI18n(config: I18nConfig): TypedI18nInstance {
-			return setupOriginal(config) as TypedI18nInstance;
+		setupI18n(config: I18nConfig): TypedI18nInstance<TPath> {
+			return setupOriginal(config) as TypedI18nInstance<TPath>;
 		}
 	};
 }
