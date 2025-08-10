@@ -44,14 +44,14 @@ The tool generates a nested JSON structure with placeholder values:
 
 ```json
 {
-  "demo": {
-    "title": "[TODO: Add translation]",
-    "features": "[TODO: Add translation]",
-    "settings": {
-      "language": "[TODO: Add translation]",
-      "theme": "[TODO: Add translation]"
-    }
-  }
+	"demo": {
+		"title": "[TODO: Add translation]",
+		"features": "[TODO: Add translation]",
+		"settings": {
+			"language": "[TODO: Add translation]",
+			"theme": "[TODO: Add translation]"
+		}
+	}
 }
 ```
 
@@ -183,26 +183,20 @@ The generated types provide:
 ```typescript
 // Auto-generated i18n type definitions
 export interface I18nKeys {
-  demo: {
-    title: string;
-    welcome: ParamsKey<{ name: string }>;
-    items: {
-      count: ParamsKey<{ count: number }>;
-    };
-  };
+	demo: {
+		title: string;
+		welcome: ParamsKey<{ name: string }>;
+		items: {
+			count: ParamsKey<{ count: number }>;
+		};
+	};
 }
 
-export type I18nPath = 
-  | "demo.title"
-  | "demo.welcome"
-  | "demo.items.count";
+export type I18nPath = 'demo.title' | 'demo.welcome' | 'demo.items.count';
 
 // Type-safe translation function
 export interface TypedI18n {
-  <P extends I18nPath>(
-    key: P,
-    ...params: ExtractParams<GetValue<I18nKeys, P>>
-  ): string;
+	<P extends I18nPath>(key: P, ...params: ExtractParams<GetValue<I18nKeys, P>>): string;
 }
 ```
 
@@ -234,12 +228,12 @@ Create an `i18n-validation.config.json` file in your project root for custom val
 
 ```json
 {
-  "packages": ["@shelchin/svelte-i18n", "my-package"],
-  "autoDiscover": true,
-  "validationRules": {
-    "allowExtraKeys": false,
-    "requireAllKeys": true
-  }
+	"packages": ["@shelchin/svelte-i18n", "my-package"],
+	"autoDiscover": true,
+	"validationRules": {
+		"allowExtraKeys": false,
+		"requireAllKeys": true
+	}
 }
 ```
 
@@ -248,19 +242,21 @@ Create an `i18n-validation.config.json` file in your project root for custom val
 1. **Regular Extraction**: Run `cli:extract` regularly during development to keep your translation template up-to-date
 
 2. **CI/CD Integration**: Add validation to your CI pipeline:
+
    ```yaml
    - name: Validate translations
      run: npm run cli:validate -- --strict
    ```
 
 3. **Pre-commit Hooks**: Generate types before committing:
+
    ```json
    {
-     "husky": {
-       "hooks": {
-         "pre-commit": "npm run cli:generate-types"
-       }
-     }
+   	"husky": {
+   		"hooks": {
+   			"pre-commit": "npm run cli:generate-types"
+   		}
+   	}
    }
    ```
 

@@ -44,6 +44,16 @@ export interface I18nConfig {
 		currency?: Intl.NumberFormatOptions;
 	};
 	/**
+	 * Cookie name for storing locale preference (for SSR)
+	 * @default 'i18n-locale'
+	 */
+	cookieName?: string;
+	/**
+	 * LocalStorage key for storing locale preference (for client)
+	 * @default 'svelte-i18n-locale'
+	 */
+	storageKey?: string;
+	/**
 	 * Auto-discovery configuration for loading translations from static files
 	 * When enabled, the i18n instance will automatically look for translation files
 	 * in the application's static directory following naming conventions:
@@ -85,7 +95,8 @@ export interface I18nInstance<TKeys extends string = string> {
 	canShowValidationPopup: () => boolean;
 	setActiveValidationPopup: (active: boolean) => void;
 	getAllKeys?: () => TKeys[];
-	clientLoad: (options?: Record<string, unknown>) => Promise<void>;
+	clientLoad: (options?: { initialLocale?: string }) => Promise<void>;
+	serverLoad: (cookies?: any) => Promise<string>;
 }
 
 export type PathKeys<T> = T extends object

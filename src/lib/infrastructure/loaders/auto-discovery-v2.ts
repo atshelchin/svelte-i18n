@@ -3,6 +3,7 @@
  * This is a supplementary mechanism - only works when index.json exists
  */
 
+import { DEV } from 'esm-env';
 import type { I18nInstance } from '../../domain/models/types.js';
 import { getAppBasePath } from './base-path.js';
 
@@ -102,14 +103,14 @@ export async function autoDiscoverTranslations(
 		const config = await loadAutoDiscoveryConfig(translationsPath, indexFile);
 
 		if (!config) {
-			if (import.meta.env?.DEV && import.meta.env?.VITE_I18N_DEBUG === 'true') {
+			if (DEV) {
 				console.debug('Auto-discovery: No index.json found or failed to load');
 			}
 			return;
 		}
 
 		if (!config.autoDiscovery) {
-			if (import.meta.env?.DEV && import.meta.env?.VITE_I18N_DEBUG === 'true') {
+			if (DEV) {
 				console.debug('Auto-discovery: No configuration found');
 			}
 			return;
@@ -160,7 +161,7 @@ export async function autoDiscoverTranslations(
 						// eslint-disable-next-line @typescript-eslint/no-explicit-any
 						await i18n.loadLanguage(locale, cachedTranslations as any);
 						onLoaded(target.type, locale);
-						if (import.meta.env?.DEV && import.meta.env?.VITE_I18N_DEBUG === 'true') {
+						if (DEV) {
 							if (isOverride) {
 								console.debug(
 									`Auto-discovery: Used cached ${locale} to override built-in for ${target.type}`
@@ -181,7 +182,7 @@ export async function autoDiscoverTranslations(
 							// eslint-disable-next-line @typescript-eslint/no-explicit-any
 							await i18n.loadLanguage(locale, translations as any);
 							onLoaded(target.type, locale);
-							if (import.meta.env?.DEV && import.meta.env?.VITE_I18N_DEBUG === 'true') {
+							if (DEV) {
 								if (isOverride) {
 									console.debug(
 										`Auto-discovery: Reused fetch to override ${locale} for ${target.type}`
@@ -209,7 +210,7 @@ export async function autoDiscoverTranslations(
 							return translations;
 						} else if (response.status === 404) {
 							// Expected - language declared but file not yet added
-							if (import.meta.env?.DEV && import.meta.env?.VITE_I18N_DEBUG === 'true') {
+							if (DEV) {
 								console.debug(
 									`Auto-discovery: ${locale} declared for ${target.type} but file not found at ${filePath}`
 								);
@@ -229,7 +230,7 @@ export async function autoDiscoverTranslations(
 						await i18n.loadLanguage(locale, translations as any);
 						onLoaded(target.type, locale);
 
-						if (import.meta.env?.DEV && import.meta.env?.VITE_I18N_DEBUG === 'true') {
+						if (DEV) {
 							if (isOverride) {
 								console.debug(
 									`Auto-discovery: Overrode built-in ${locale} for ${target.type} with auto-discovered version`
@@ -250,7 +251,7 @@ export async function autoDiscoverTranslations(
 		}
 	} catch (error) {
 		// Configuration loading error
-		if (import.meta.env?.DEV) {
+		if (DEV) {
 			console.error('Auto-discovery configuration error:', error);
 		}
 	}

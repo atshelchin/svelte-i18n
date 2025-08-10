@@ -3,8 +3,6 @@
  * This file should be imported by the application after generating types
  */
 
-/// <reference path="./types/app-i18n-generated.ts" />
-
 import type { I18nPath } from './types/app-i18n-generated';
 
 // Override the global module augmentation

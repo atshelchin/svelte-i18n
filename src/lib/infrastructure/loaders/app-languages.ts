@@ -3,6 +3,7 @@
  * This combines built-in languages with auto-discovered app languages
  */
 
+import { DEV } from 'esm-env';
 import type { I18nInstance } from '../../domain/models/types.js';
 import { loadAutoDiscoveryConfig } from './auto-discovery-v2.js';
 

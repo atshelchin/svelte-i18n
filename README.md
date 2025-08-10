@@ -277,6 +277,7 @@ npm run cli:validate -- --help
 ```
 
 **Checks:**
+
 - Missing translation keys
 - Type mismatches between languages
 - Extra keys (warnings)
@@ -304,10 +305,12 @@ npm run cli:generate-types -- --help
 ```
 
 **Output:**
+
 - Library types: `src/lib/types/library-i18n-generated.ts`
 - App types: `src/types/app-i18n-generated.ts`
 
 **Benefits:**
+
 - Full IntelliSense support
 - Compile-time error checking
 - Auto-completion for all translation keys

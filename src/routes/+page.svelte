@@ -221,10 +221,10 @@ i18n.formatRelativeTime(-2, 'day');
 				<div class="demo-card">
 					<h3>{i18n.t('demo.nested')}</h3>
 					<nav class="demo-nav">
-						<a href="#home">{i18n.t('nav.home')}</a>
-						<a href="#about">{i18n.t('nav.about')}</a>
-						<a href="#contact">{i18n.t('nav.contact')}</a>
-						<a href="#settings">{i18n.t('nav.settings')}</a>
+						<a href="/">{i18n.t('nav.home')}</a>
+						<a href="/editor">{i18n.t('nav.about')}</a>
+						<a href="/">{i18n.t('nav.contact')}</a>
+						<a href="/">{i18n.t('nav.settings')}</a>
 					</nav>
 					<p class="nested-example">
 						{i18n.t('user.profile.title')} → {i18n.t('user.settings.language')}

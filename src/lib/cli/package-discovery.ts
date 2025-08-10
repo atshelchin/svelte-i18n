@@ -58,7 +58,10 @@ export function packageUsesI18n(packageName: string): boolean {
 /**
  * Discover all packages in static/translations that need validation
  */
-export function discoverStaticPackages(staticDir: string, config: { packages?: string[]; autoDiscover?: boolean }): string[] {
+export function discoverStaticPackages(
+	staticDir: string,
+	config: { packages?: string[]; autoDiscover?: boolean }
+): string[] {
 	const packages: string[] = [];
 
 	if (!existsSync(staticDir)) {

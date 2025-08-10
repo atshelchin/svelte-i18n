@@ -22,9 +22,10 @@
 	const i18n = getI18n();
 
 	const currentLocale = $derived(i18n.locale);
+
 	let availableLocales = $state(i18n.locales);
 	const languageMeta = $derived(i18n.meta);
-
+	console.log({currentLocale,availableLocales})
 	// On mount, get all app-supported languages (including those from index.json)
 	onMount(async () => {
 		const allSupportedLanguages = await getAppSupportedLanguages(i18n);

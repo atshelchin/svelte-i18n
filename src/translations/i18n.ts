@@ -62,7 +62,7 @@ registerBuiltInTranslations(builtInTranslations);
 // Configure and initialize i18n
 // ============================================
 
-export const i18n = setupI18n({
+const i18nConfig = {
 	defaultLocale: 'en',
 	fallbackLocale: 'en',
 	interpolation: {
@@ -75,20 +75,36 @@ export const i18n = setupI18n({
 		number: { minimumFractionDigits: 0, maximumFractionDigits: 2 },
 		currency: { style: 'currency', currency: 'USD' }
 	}
-});
+};
 
-// ============================================
-// Auto-load translations on client side
-// ============================================
-
-if (typeof window !== 'undefined') {
-	// Use clientLoad which handles both built-in and auto-discovery
-	i18n.clientLoad().catch(console.error);
+// Create and initialize i18n instance
+function createI18nInstance() {
+	const instance = setupI18n(i18nConfig);
+	
+	// Load built-in translations synchronously
+	for (const [locale, translations] of Object.entries(builtInTranslations.app)) {
+		// @ts-ignore - loadLanguageSync is not in the interface but exists on the implementation
+		instance.loadLanguageSync(locale, translations);
+	}
+	
+	return instance;
 }
+
+// Export a getter function that returns the instance
+// On client-side, this will return the same cached instance
+// On server-side, we'll create a new instance per request in +layout.server.ts
+export const i18n = createI18nInstance();
+
+// ============================================
+// Client-side auto-discovery
+// ============================================
+
+// Don't auto-load on client side - let +layout.svelte handle it
+// This prevents conflict with server-provided locale
 
 // ============================================
 // Export for use in application
 // ============================================
 
-export { builtInTranslations };
+export { builtInTranslations, createI18nInstance };
 export default i18n;

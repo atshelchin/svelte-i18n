@@ -1,3 +1,4 @@
+import { DEV } from 'esm-env';
 import { SvelteMap } from 'svelte/reactivity';
 import type {
 	I18nConfig,
@@ -18,6 +19,10 @@ import {
 import { autoDiscoverTranslations as autoDiscoverV2 } from '../../infrastructure/loaders/auto-discovery-v2.js';
 import { loadBuiltInTranslations } from '../../infrastructure/loaders/built-in.js';
 import { saveLocale, getInitialLocale } from '../../infrastructure/persistence/persistence.js';
+import {
+	saveLocaleUniversal,
+	getInitialLocaleUniversal
+} from '../../infrastructure/persistence/universal-persistence.js';
 import {
 	formatNumber as fmtNumber,
 	formatCurrency as fmtCurrency,
@@ -52,28 +57,56 @@ export class I18nStore implements I18nInstance {
 	private namespacePrefix: string;
 	private validationErrors = $state<Record<string, string[]>>({});
 
-	locale = $derived(this.currentLocale);
-	locales = $derived(Object.keys(this.translations));
-	isLoading = $derived(this.loading);
-	errors = $derived(this.validationErrors);
-	meta = $derived(this.languageMeta);
+	// On server-side, $derived doesn't work, so we need getters
+	get locale() {
+		return this.currentLocale;
+	}
+	
+	get locales() {
+		return Object.keys(this.translations);
+	}
+	
+	get isLoading() {
+		return this.loading;
+	}
+	
+	get errors() {
+		return this.validationErrors;
+	}
+	
+	get meta() {
+		return this.languageMeta;
+	}
 
 	constructor(config: I18nConfig) {
 		this.config = config;
 		this.namespacePrefix = config.namespace ? `${config.namespace}:` : '';
 
-		// Get initial locale based on saved preference or browser detection
-		this.currentLocale = getInitialLocale(config.defaultLocale);
+		// For SSR, locale should be set via serverLoad or clientLoad
+		// Set default locale initially
+		this.currentLocale = config.defaultLocale;
 
 		// Note: Auto-discovery is now handled in clientLoad() to avoid duplicate calls
 		// Don't call setupAutoDiscovery here anymore
 	}
 
+	/**
+	 * Set locale synchronously without persistence (for initial hydration)
+	 */
+	setLocaleSync(locale: string): void {
+		if (this.translations[locale]) {
+			this.currentLocale = locale;
+		}
+	}
+
 	async setLocale(locale: string): Promise<void> {
 		if (this.translations[locale]) {
 			this.currentLocale = locale;
-			// Persist the user's choice
-			saveLocale(locale);
+			// Persist to both cookie and localStorage
+			saveLocaleUniversal(locale, {
+				cookieName: this.config.cookieName,
+				storageKey: this.config.storageKey
+			});
 		} else {
 			// Don't try auto-discovery here - it should be done once in clientLoad
 			// This prevents duplicate requests when switching languages
@@ -83,7 +116,6 @@ export class I18nStore implements I18nInstance {
 		}
 	}
 
-	// @ts-expect-error - Type will be narrowed by app's generated types
 	t = (key: string, params?: InterpolationParams): string => {
 		// Handle namespaced keys
 		let actualKey = key;
@@ -112,7 +144,7 @@ export class I18nStore implements I18nInstance {
 			if (this.config.missingKeyHandler) {
 				return this.config.missingKeyHandler(key, this.currentLocale);
 			}
-			if (import.meta.env.DEV) {
+			if (DEV) {
 				console.warn(`Missing translation: ${key} in locale: ${this.currentLocale}`);
 			}
 			return key;
@@ -140,6 +172,23 @@ export class I18nStore implements I18nInstance {
 
 		return value as string;
 	};
+
+	/**
+	 * Load translations synchronously (for built-in translations)
+	 * This is used to prevent flash during hydration
+	 */
+	loadLanguageSync(locale: string, translations: TranslationSchema | TranslationFile): void {
+		// Extract metadata if present
+		if ('_meta' in translations && typeof translations._meta === 'object' && translations._meta !== null) {
+			this.languageMeta[locale] = translations._meta as unknown as LanguageMeta;
+			// Remove _meta from translations
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
+			const { _meta, ...rest } = translations;
+			this.translations[locale] = rest as TranslationSchema;
+		} else {
+			this.translations[locale] = translations as TranslationSchema;
+		}
+	}
 
 	async loadLanguage(
 		locale: string,
@@ -184,12 +233,12 @@ export class I18nStore implements I18nInstance {
 				const errors = validateSchema(translations, this.translations[this.config.defaultLocale]);
 				if (errors.length > 0) {
 					this.validationErrors[locale] = errors;
-					if (import.meta.env?.DEV && import.meta.env?.VITE_I18N_DEBUG === 'true') {
+					if (DEV) {
 						console.error(`❌ Translation validation failed for locale "${locale}":`, errors);
 					}
 
 					// Show user-friendly error in development
-					if (import.meta.env.DEV && import.meta.env?.VITE_I18N_DEBUG === 'true') {
+					if (DEV) {
 						console.group(`Missing/Invalid translations in ${locale}:`);
 						errors.forEach((error) => console.error(`  • ${error}`));
 						console.groupEnd();
@@ -293,6 +342,130 @@ export class I18nStore implements I18nInstance {
 	}
 
 	/**
+	 * Server-side method to load translations and determine best locale
+	 * This method is for SSR and should be called in +layout.server.ts
+	 *
+	 * @param cookies SvelteKit cookies object
+	 * @returns The best locale to use based on cookie and available translations
+	 */
+	async serverLoad(cookies: any): Promise<string> {
+		// Load translations if not already loaded
+		if (this.locales.length === 0) {
+			// Wait for translations to be loaded
+			// In SSR, translations should be loaded synchronously in i18n.ts
+			await new Promise((resolve) => setTimeout(resolve, 10)); // Small delay to ensure translations are loaded
+
+			// If still no translations, try loading built-in ones
+			if (this.locales.length === 0) {
+				try {
+					await loadBuiltInTranslations(this, {
+						onLoaded: (locale) => console.log(`✓ Loaded built-in ${locale}`),
+						onError: (locale) => console.warn(`No built-in translations for ${locale}`)
+					});
+				} catch (error) {
+					console.warn('Failed to load built-in translations:', error);
+				}
+			}
+		}
+
+		// Get actually available locales (built-in translations that are truly loaded)
+		const actuallyAvailable = this.locales;
+
+		// In SSR, also check static/translations/index.json for declared locales
+		// But we need to verify they actually exist
+		let declaredLocales: string[] = [];
+		if (typeof window === 'undefined') {
+			try {
+				// Try to read index.json to see what locales are declared
+				const { existsSync, readFileSync } = await import('fs');
+				const { join } = await import('path');
+
+				const indexPath = join(process.cwd(), 'static/translations/index.json');
+				if (existsSync(indexPath)) {
+					const indexContent = JSON.parse(readFileSync(indexPath, 'utf-8'));
+					const namespace = this.config.namespace || 'app';
+
+					if (namespace === 'app' && indexContent.autoDiscovery?.app) {
+						// For app namespace, check if declared locales actually have files
+						for (const locale of indexContent.autoDiscovery.app) {
+							const localePath = join(process.cwd(), `static/translations/app/${locale}.json`);
+							if (existsSync(localePath)) {
+								declaredLocales.push(locale);
+								console.log(`[SSR] Found static translation: app/${locale}.json`);
+							} else {
+								console.warn(
+									`[SSR] Declared locale '${locale}' in index.json but file not found: app/${locale}.json`
+								);
+							}
+						}
+					} else if (indexContent.autoDiscovery?.packages?.[namespace]) {
+						// For package namespace, check files
+						for (const locale of indexContent.autoDiscovery.packages[namespace]) {
+							const localePath = join(
+								process.cwd(),
+								`static/translations/${namespace}/${locale}.json`
+							);
+							if (existsSync(localePath)) {
+								declaredLocales.push(locale);
+								console.log(`[SSR] Found static translation: ${namespace}/${locale}.json`);
+							} else {
+								console.warn(
+									`[SSR] Declared locale '${locale}' in index.json but file not found: ${namespace}/${locale}.json`
+								);
+							}
+						}
+					}
+				}
+			} catch (error) {
+				console.warn('[SSR] Could not check static translations:', error);
+			}
+		}
+
+		// Combine actually available (built-in) and declared (static) locales
+		const allAvailableLocales = [...new Set([...actuallyAvailable, ...declaredLocales])];
+
+		// Get locale from cookie
+		const cookieName = this.config.cookieName || 'i18n-locale';
+		const cookieLocale = cookies?.get ? cookies.get(cookieName) : undefined;
+
+		// Determine the best locale to use
+		let bestLocale = this.config.defaultLocale;
+
+		console.log(
+			`[SSR] serverLoad - cookie: ${cookieLocale}, built-in: [${actuallyAvailable.join(', ')}], static: [${declaredLocales.join(', ')}]`
+		);
+
+		if (cookieLocale && allAvailableLocales.includes(cookieLocale)) {
+			// Use cookie locale if it's available (either built-in or static)
+			bestLocale = cookieLocale;
+			console.log(`[SSR] Using cookie locale: ${cookieLocale}`);
+		} else if (allAvailableLocales.includes(this.config.defaultLocale)) {
+			// Use default locale if available
+			bestLocale = this.config.defaultLocale;
+			console.log(
+				`[SSR] Cookie locale '${cookieLocale}' not available, using default: ${this.config.defaultLocale}`
+			);
+		} else if (allAvailableLocales.length > 0) {
+			// Fallback to first available locale
+			bestLocale = allAvailableLocales[0];
+			console.log(`[SSR] Default not available, using first available: ${bestLocale}`);
+		}
+
+		// Force set the locale
+		console.log(`[SSR] Before update - currentLocale: ${this.currentLocale}, locale: ${this.locale}`);
+		this.currentLocale = bestLocale;
+		console.log(`[SSR] After update - currentLocale: ${this.currentLocale}, locale: ${this.locale}`);
+
+		const currentLocale = this.currentLocale;
+		const availableLocales = allAvailableLocales;
+		console.log({ currentLocale, availableLocales });
+		console.log(`[SSR] Final locale: ${this.currentLocale}`);
+		console.log(`[SSR] this.locale (derived): ${this.locale}`);
+
+		return bestLocale;
+	}
+
+	/**
 	 * Client-side method to automatically load all available languages
 	 * This method handles:
 	 * - Checking if languages are already loaded
@@ -302,9 +475,13 @@ export class I18nStore implements I18nInstance {
 	 * @param options Optional configuration for loading
 	 * @returns Promise that resolves when loading is complete
 	 */
-	async clientLoad(): Promise<void> {
-		// Skip if languages are already loaded
+	async clientLoad(options?: { initialLocale?: string }): Promise<void> {
+		// Skip loading if languages are already loaded, but still set locale
 		if (this.locales.length > 0) {
+			// If initial locale provided, set it
+			if (options?.initialLocale && this.locales.includes(options.initialLocale)) {
+				this.currentLocale = options.initialLocale;
+			}
 			return;
 		}
 
@@ -324,26 +501,38 @@ export class I18nStore implements I18nInstance {
 			await autoDiscoverV2(this, {
 				namespace: this.config.namespace,
 				onLoaded: (target, locale) => {
-					if (import.meta.env?.DEV && import.meta.env?.VITE_I18N_DEBUG === 'true') {
+					if (DEV) {
 						console.log(`✓ Auto-discovered ${locale} for ${target}`);
 					}
 				},
 				onError: (target, locale, error) => {
 					// Silent by default, only log in debug mode
-					if (import.meta.env?.DEV && import.meta.env?.VITE_I18N_DEBUG === 'true') {
+					if (DEV) {
 						console.debug(`Failed to auto-discover ${locale} for ${target}:`, error);
 					}
 				}
 			});
 		} catch (error) {
 			// Auto-discovery is optional, silent fail
-			if (import.meta.env?.DEV && import.meta.env?.VITE_I18N_DEBUG === 'true') {
+			if (DEV) {
 				console.debug('Auto-discovery error:', error);
 			}
 		}
 
-		// If the saved/detected locale wasn't loaded, fallback to first available locale
-		if (!this.locales.includes(this.currentLocale)) {
+		// Use provided initial locale or get from cookies/localStorage
+		const clientLocale = options?.initialLocale || getInitialLocaleUniversal(
+			this.config.defaultLocale,
+			typeof document !== 'undefined' ? document.cookie : undefined,
+			{
+				cookieName: this.config.cookieName,
+				storageKey: this.config.storageKey
+			}
+		);
+
+		// Set locale if available, otherwise fallback
+		if (this.locales.includes(clientLocale)) {
+			this.currentLocale = clientLocale;
+		} else if (!this.locales.includes(this.currentLocale)) {
 			const fallbackLocale = this.locales[0] || 'en';
 			await this.setLocale(fallbackLocale);
 		}
