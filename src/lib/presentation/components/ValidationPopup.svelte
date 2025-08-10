@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { getI18n } from '../store.svelte.js';
-	import type { I18nInstance } from '../types.js';
+	import { getI18n } from '../../application/stores/store.svelte.js';
+	import type { I18nInstance } from '../../domain/models/types.js';
 	import { getValidationPopupI18n } from './validation-popup-i18n.js';
 	import { onMount } from 'svelte';
 

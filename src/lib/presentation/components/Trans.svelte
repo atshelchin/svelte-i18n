@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { getI18n } from '../store.svelte.js';
-	import type { InterpolationParams } from '../types.js';
+	import { getI18n } from '../../application/stores/store.svelte.js';
+	import type { InterpolationParams } from '../../domain/models/types.js';
 	import type { Snippet } from 'svelte';
 
 	interface Props {

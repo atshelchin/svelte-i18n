@@ -3,7 +3,7 @@
  * Prevents conflicts between applications and third-party libraries
  */
 
-import type { I18nInstance } from './types.js';
+import type { I18nInstance } from '../../domain/models/types.js';
 
 // Global namespace registry
 const namespaceRegistry = new Map<string, I18nInstance>();

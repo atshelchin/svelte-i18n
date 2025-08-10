@@ -6,7 +6,7 @@
  * applications to provide translations without modifying source code.
  */
 
-import type { I18nConfig, TranslationFile, TranslationSchema } from './types.js';
+import type { I18nConfig, TranslationFile, TranslationSchema } from '../../domain/models/types.js';
 import { getAppBasePath } from './base-path.js';
 
 export interface AutoDiscoveryOptions {

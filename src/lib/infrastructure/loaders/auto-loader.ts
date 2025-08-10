@@ -1,4 +1,4 @@
-import type { I18nInstance } from './types.js';
+import type { I18nInstance } from '../../domain/models/types.js';
 import { getAppBasePath } from './base-path.js';
 
 export interface AutoLoadOptions {

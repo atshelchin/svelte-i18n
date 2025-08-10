@@ -6,7 +6,7 @@ import type {
 	InterpolationParams,
 	LanguageMeta,
 	TranslationFile
-} from './types.js';
+} from '../../domain/models/types.js';
 import {
 	getNestedValue,
 	interpolate,
@@ -14,9 +14,9 @@ import {
 	validateSchema,
 	detectBrowserLanguage as detectLang,
 	mergeTranslations
-} from './utils.js';
-import { autoDiscoverTranslations } from './auto-discovery.js';
-import { saveLocale, getInitialLocale } from './persistence.js';
+} from '../../domain/services/utils.js';
+import { autoDiscoverTranslations } from '../../infrastructure/loaders/auto-discovery.js';
+import { saveLocale, getInitialLocale } from '../../infrastructure/persistence/persistence.js';
 import {
 	formatNumber as fmtNumber,
 	formatCurrency as fmtCurrency,
@@ -25,7 +25,7 @@ import {
 	formatRelativeTime as fmtRelativeTime,
 	formatList as fmtList,
 	FORMATS
-} from './formatter.js';
+} from '../../infrastructure/formatters/formatter.js';
 
 // Simple validation popup controller to prevent multiple popups
 class ValidationPopupController {

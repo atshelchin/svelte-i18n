@@ -7,8 +7,8 @@
 
 import { readFileSync, readdirSync, statSync } from 'fs';
 import { join, basename } from 'path';
-import { validateSchema } from '../lib/utils.js';
-import type { TranslationSchema } from '../lib/types.js';
+import { validateSchema } from '../lib/domain/services/utils.js';
+import type { TranslationSchema } from '../lib/domain/models/types.js';
 
 interface ValidateOptions {
 	translationsDir: string;

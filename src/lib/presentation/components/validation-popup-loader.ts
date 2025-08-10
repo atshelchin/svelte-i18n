@@ -1,4 +1,4 @@
-import type { I18nInstance } from '../types.js';
+import type { I18nInstance } from '../../domain/models/types.js';
 
 /**
  * Auto-discovery of ValidationPopup translations

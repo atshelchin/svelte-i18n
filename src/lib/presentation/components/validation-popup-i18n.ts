@@ -1,5 +1,5 @@
-import { setupI18n } from '../store.svelte.js';
-import type { I18nInstance, TranslationFile } from '../types.js';
+import { setupI18n } from '../../application/stores/store.svelte.js';
+import type { I18nInstance, TranslationFile } from '../../domain/models/types.js';
 import validationPopupEn from './translations/validation-popup-en.json' with { type: 'json' };
 import validationPopupZh from './translations/validation-popup-zh.json' with { type: 'json' };
 

@@ -14,8 +14,8 @@ export interface TranslationSchema {
 export interface LanguageMeta {
 	code: string; // ISO 639-1 language code (e.g., "en", "zh")
 	name: string; // Native name of the language (e.g., "English", "中文")
-	englishName?: string; // English name (e.g., "Chinese")
-	direction?: 'ltr' | 'rtl'; // Text direction
+	englishName: string; // English name (e.g., "Chinese")
+	direction: 'ltr' | 'rtl'; // Text direction
 	flag?: string; // Optional flag emoji
 }
 

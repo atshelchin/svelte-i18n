@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getI18n } from '../store.svelte.js';
+	import { getI18n } from '../../application/stores/store.svelte.js';
 
 	const i18n = getI18n();
 

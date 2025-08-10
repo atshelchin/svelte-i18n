@@ -3,8 +3,7 @@
 	import { SvelteSet, SvelteMap } from 'svelte/reactivity';
 	import { base } from '$app/paths';
 	import { getI18n } from '$lib/index.js';
-	import type { LanguageMeta } from '$lib/types.js';
-	import { fuzzySearchLanguages, type LanguageInfo } from '$lib/languages.js';
+	import { fuzzySearchLanguages, type LanguageInfo, type LanguageMeta } from '$lib/index.js';
 	import TaskHistory from './TaskHistory.svelte';
 	import {
 		type TranslationTask,

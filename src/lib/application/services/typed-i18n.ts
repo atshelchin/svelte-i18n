@@ -2,7 +2,12 @@
  * Enhanced type-safe i18n system with auto-completion
  */
 
-import type { TranslationSchema, InterpolationParams, I18nConfig, I18nInstance } from './types.js';
+import type {
+	TranslationSchema,
+	InterpolationParams,
+	I18nConfig,
+	I18nInstance
+} from '../../domain/models/types.js';
 
 // Helper type to extract all possible translation keys from a schema
 export type ExtractKeys<T, P extends string = ''> = T extends object
@@ -143,7 +148,7 @@ export async function createTypedI18nFromGenerated<T extends GeneratedTranslatio
 	config: I18nConfig
 ): Promise<TypedI18nInstance<T['schema'], T['keys']>> {
 	// This would be imported from the main store
-	const { setupI18n } = await import('./store.svelte.js');
+	const { setupI18n } = await import('../stores/store.svelte.js');
 
 	const i18n = setupI18n(config);
 	return createTypedI18n<T['schema']>(i18n);

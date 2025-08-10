@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { slide } from 'svelte/transition';
-	import { getI18n } from '../store.svelte.js';
+	import { getI18n } from '../../application/stores/store.svelte.js';
 
 	interface Props {
 		title: string;

@@ -1,7 +1,12 @@
 // Core exports
-export { setupI18n, getI18n } from './store.svelte.js';
-export { autoLoadLanguages, watchLanguages } from './auto-loader.js';
-export { saveLocale, loadSavedLocale, clearSavedLocale, getInitialLocale } from './persistence.js';
+export { setupI18n, getI18n } from './application/stores/store.svelte.js';
+export { autoLoadLanguages, watchLanguages } from './infrastructure/loaders/auto-loader.js';
+export {
+	saveLocale,
+	loadSavedLocale,
+	clearSavedLocale,
+	getInitialLocale
+} from './infrastructure/persistence/persistence.js';
 export type {
 	I18nConfig,
 	I18nInstance,
@@ -12,7 +17,7 @@ export type {
 	PathKeys,
 	TypedTranslationFunction,
 	ExtractKeys
-} from './types.js';
+} from './domain/models/types.js';
 
 // Type-safe exports
 export {
@@ -22,11 +27,15 @@ export {
 	type ExtractParams,
 	type GetKeyParams,
 	type GeneratedTranslationTypes
-} from './typed-i18n.js';
+} from './application/services/typed-i18n.js';
 
 // Utility exports
-export { validateSchema, detectBrowserLanguage, mergeTranslations } from './utils.js';
-export { getAppBasePath, buildAssetUrl } from './base-path.js';
+export {
+	validateSchema,
+	detectBrowserLanguage,
+	mergeTranslations
+} from './domain/services/utils.js';
+export { getAppBasePath, buildAssetUrl } from './infrastructure/loaders/base-path.js';
 
 // Auto-discovery exports
 export {
@@ -35,7 +44,9 @@ export {
 	withAutoDiscovery,
 	createAutoDiscoveryEffect,
 	type AutoDiscoveryOptions
-} from './auto-discovery.js';
+} from './infrastructure/loaders/auto-discovery.js';
+
+export { fuzzySearchLanguages, type LanguageInfo } from './infrastructure/loaders/languages.js';
 
 // Formatter exports
 export {
@@ -46,12 +57,12 @@ export {
 	formatRelativeTime,
 	formatList,
 	FORMATS
-} from './formatter.js';
+} from './infrastructure/formatters/formatter.js';
 
 // Component exports
-export { default as Trans } from './components/Trans.svelte';
-export { default as LanguageSwitcher } from './components/LanguageSwitcher.svelte';
-export { default as ValidationStatus } from './components/ValidationStatus.svelte';
-export { default as ValidationPopup } from './components/ValidationPopup.svelte';
-export { default as TypeSafetyDemo } from './components/TypeSafetyDemo.svelte';
-export { default as CodeExample } from './components/CodeExample.svelte';
+export { default as Trans } from './presentation/components/Trans.svelte';
+export { default as LanguageSwitcher } from './presentation/components/LanguageSwitcher.svelte';
+export { default as ValidationStatus } from './presentation/components/ValidationStatus.svelte';
+export { default as ValidationPopup } from './presentation/components/ValidationPopup.svelte';
+export { default as TypeSafetyDemo } from './presentation/components/TypeSafetyDemo.svelte';
+export { default as CodeExample } from './presentation/components/CodeExample.svelte';
