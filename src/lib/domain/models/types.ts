@@ -50,7 +50,7 @@ export interface I18nConfig {
 	cookieName?: string;
 	/**
 	 * LocalStorage key for storing locale preference (for client)
-	 * @default 'svelte-i18n-locale'
+	 * @default 'i18n-locale'
 	 */
 	storageKey?: string;
 	/**

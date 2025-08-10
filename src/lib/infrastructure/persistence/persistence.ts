@@ -1,4 +1,4 @@
-const STORAGE_KEY = 'svelte-i18n-locale';
+const STORAGE_KEY = 'i18n-locale';
 
 /**
  * Save the selected locale to localStorage

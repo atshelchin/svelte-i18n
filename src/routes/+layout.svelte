@@ -6,33 +6,29 @@
 
 	let { children, data } = $props<{ children: any; data: LayoutData }>();
 
-	let isInitialized = false;
-	console.log('layout.sevelte', { data });
+	// On client side, initialize i18n and load translations
+	onMount(async () => {
+		// Get saved locale from localStorage or use browser detection
+		const savedLocale = localStorage.getItem('i18n-locale');
+		let initialLocale = data.locale;
 
-	// Immediately sync locale on client side during hydration
-	// This must happen synchronously to prevent flash
-	if (typeof window !== 'undefined' && !isInitialized) {
-		if (data.locale && i18n.locales.includes(data.locale)) {
-			if (i18n.locale !== data.locale) {
-				console.log(
-					'[Client] Immediate sync - setting locale from:',
-					i18n.locale,
-					'to:',
-					data.locale
-				);
-				// Set the server-determined locale immediately
-				// Use synchronous method to prevent delay
-				(i18n as any).setLocaleSync(data.locale);
+		if (savedLocale && i18n.locales.includes(savedLocale)) {
+			initialLocale = savedLocale;
+		} else {
+			// Try browser language detection
+			const browserLang = i18n.detectBrowserLanguage();
+			if (browserLang && i18n.locales.includes(browserLang)) {
+				initialLocale = browserLang;
 			}
 		}
-		isInitialized = true;
-	}
 
-	// On client side, load additional translations (auto-discovery)
-	onMount(async () => {
-		// Load auto-discovered translations
-		// Pass the server locale to maintain it
-		await i18n.clientLoad({ initialLocale: data.locale });
+		// Load auto-discovered translations and set initial locale
+		await i18n.clientLoad({ initialLocale });
+
+		// Set the locale if it's different
+		if (i18n.locale !== initialLocale) {
+			i18n.setLocale(initialLocale);
+		}
 	});
 </script>
 

@@ -9,7 +9,7 @@ interface PersistenceConfig {
 }
 
 const DEFAULT_COOKIE_NAME = 'i18n-locale';
-const DEFAULT_STORAGE_KEY = 'svelte-i18n-locale';
+const DEFAULT_STORAGE_KEY = 'i18n-locale';
 
 /**
  * Parse cookies from a cookie string
