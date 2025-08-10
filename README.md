@@ -344,6 +344,10 @@ Create `/static/translations/index.json`:
 
 Then translations are auto-loaded from `/static/translations/app/{locale}.json`.
 
+### SSR (Server-Side Rendering) Example
+
+For a complete SSR example with SvelteKit, check out the [demo repository](https://github.com/atshelchin/i18n-demo).
+
 ---
 
 ## 📦 Package Structure

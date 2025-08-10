@@ -344,6 +344,10 @@ registerBuiltInTranslations({
 
 然后翻译会从 `/static/translations/app/{locale}.json` 自动加载。
 
+### SSR（服务器端渲染）示例
+
+有关使用 SvelteKit 的完整 SSR 示例，请查看[演示仓库](https://github.com/atshelchin/i18n-demo)。
+
 ---
 
 ## 📦 包结构
