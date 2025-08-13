@@ -129,7 +129,18 @@ export class I18nStore implements I18nInstance {
 					`[setLocale] Locale ${locale} is available but not loaded, attempting to load...`
 				);
 				try {
-					await this.loadLanguage(locale);
+					// Determine the source URL for auto-discovered languages
+					let source: string | undefined;
+					if (typeof window !== 'undefined') {
+						// Check if this is an auto-discovered language
+						const basePath = window.location.origin;
+						const namespace = this.config.namespace || 'app';
+						const translationsPath = `/translations/${namespace}/${locale}.json`;
+						source = `${basePath}${translationsPath}`;
+						console.log(`[setLocale] Attempting to load from: ${source}`);
+					}
+					
+					await this.loadLanguage(locale, source);
 					this.currentLocale = locale;
 					saveLocaleUniversal(locale, {
 						cookieName: this.config.cookieName,
