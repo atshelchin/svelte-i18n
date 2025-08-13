@@ -10,13 +10,16 @@ export function getAppBasePath(): string {
 
 	// Client-side: multiple detection strategies
 
-	// 1. Try SvelteKit's app.paths.base (most reliable for SvelteKit apps)
+	// 1. Try SvelteKit's runtime configuration (most reliable for SvelteKit apps)
 	try {
-		// @ts-expect-error - SvelteKit runtime global
-		const app = globalThis.__sveltekit_app || globalThis.__sveltekit;
-		if (app?.paths?.base) {
-			console.debug('[i18n] Base path from SvelteKit:', app.paths.base);
-			return app.paths.base;
+		// SvelteKit generates a unique ID for each build, look for any __sveltekit_* global
+		const globalKeys = Object.keys(globalThis).filter(key => key.startsWith('__sveltekit_'));
+		for (const key of globalKeys) {
+			const sveltekitConfig = (globalThis as any)[key];
+			if (sveltekitConfig?.base !== undefined) {
+				console.debug('[i18n] Base path from SvelteKit runtime:', sveltekitConfig.base);
+				return sveltekitConfig.base;
+			}
 		}
 
 		// Also check for SvelteKit base in config
@@ -53,22 +56,7 @@ export function getAppBasePath(): string {
 		}
 	}
 
-	// 4. Auto-detect from URL for GitHub Pages ONLY
-	const pathname = window.location.pathname;
-	const hostname = window.location.hostname;
-
-	// Check if we're on GitHub Pages (*.github.io)
-	if (hostname.endsWith('.github.io')) {
-		// Extract the repository name from the path
-		const segments = pathname.split('/').filter(Boolean);
-		if (segments.length > 0 && segments[0] !== 'translations') {
-			const basePath = `/${segments[0]}`;
-			console.debug('[i18n] Base path detected from GitHub Pages URL:', basePath);
-			return basePath;
-		}
-	}
-
-	// For all other deployments, don't auto-detect base path from URL
+	// 4. For all other deployments, don't auto-detect base path from URL
 	// Let SvelteKit or explicit configuration handle it
 
 	console.debug('[i18n] No base path detected, using root');

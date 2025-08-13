@@ -91,7 +91,7 @@ export async function autoDiscoverTranslations(
 ): Promise<void> {
 	const basePath = getAppBasePath();
 	const {
-		translationsPath = basePath ? `${basePath}/translations` : '/translations',
+		translationsPath = '/translations', // Don't include base path here
 		indexFile = 'index.json',
 		namespace,
 		onError = () => {}, // Silent by default
