@@ -11,7 +11,7 @@
 
 **Zero-config • Type-safe • AI-powered • Enterprise Features**
 
-[Demo](https://svelte-i18n-demo.vercel.app) • [Documentation](#documentation) • [Translation Editor](#translation-editor) • [中文文档](./README_zh.md)
+[Demo](https://svelte-i18n-demo.vercel.app) • [Documentation](#documentation) • [中文文档](./README-zh.md)
 
 </div>
 
@@ -34,49 +34,81 @@
 
 > **Stop wrestling with i18n libraries.** We've built the one that just works.
 
-### 🎯 8 Reasons This Changes Everything:
+### 🎯 9 Reasons This Changes Everything:
 
-1. **🤖 AI-Powered Translation Editor** - Non-developers can create translations with OpenAI integration. No JSON editing, no technical knowledge required.
+1. **🔗 Unified API for Packages & Apps** - The SAME API works for both npm packages and SvelteKit applications. Package authors and app developers use identical code. Packages automatically inherit app settings.
 
-2. **⚡ True Zero-Config** - Auto-discovers languages, auto-loads translations from static files, auto-detects user preferences. It literally just works.
+2. **🤖 AI-Powered Translation Editor** - Non-developers can create translations with OpenAI integration. No JSON editing, no technical knowledge required.
 
-3. **🔒 100% Type-Safe** - Every translation key is typed with auto-completion. Get suggestions as you type `i18n.t('...')`. Typos are compile-time errors.
+3. **⚡ True Zero-Config** - Auto-discovers languages, auto-loads translations from static files, auto-detects user preferences. It literally just works.
 
-4. **🎨 Svelte 5 Native** - Built with runes from the ground up. Not a port, not a wrapper - pure Svelte 5.
+4. **🔒 100% Type-Safe** - Every translation key is typed with auto-completion. Get suggestions as you type `i18n.t('...')`. Typos are compile-time errors.
 
-5. **🌐 Global Formatting** - Format dates, numbers, currencies for 100+ locales using native Intl API. Zero dependencies.
+5. **🎨 Svelte 5 Native** - Built with runes from the ground up. Not a port, not a wrapper - pure Svelte 5.
 
-6. **📦 Enterprise-Ready** - Namespace isolation for micro-frontends, static site generation support, post-build language addition via auto-discovery, comprehensive testing.
+6. **🌐 Global Formatting** - Format dates, numbers, currencies for 100+ locales using native Intl API. Zero dependencies.
 
-7. **💾 Translation Caching** - Save and resume translation work anytime. Browser-based IndexedDB storage keeps your progress safe.
+7. **📦 Enterprise-Ready** - Namespace isolation for micro-frontends, static site generation support, post-build language addition via auto-discovery, comprehensive testing.
 
-8. **📂 Flexible Import Options** - Import from files, URLs, or resume incomplete translations. Supports multiple source languages for context.
+8. **💾 Translation Caching** - Save and resume translation work anytime. Browser-based IndexedDB storage keeps your progress safe.
+
+9. **📂 Flexible Import Options** - Import from files, URLs, or resume incomplete translations. Supports multiple source languages for context.
 
 ---
 
 ## 💫 Quick Start
 
+### 1. Installation
+
 ```bash
+# Using pnpm (recommended)
+pnpm add @shelchin/svelte-i18n
+
+# Using npm
 npm install @shelchin/svelte-i18n
 ```
 
-**30 seconds to i18n:**
+### 2. Initialize
 
-```typescript
-// Setup
-import { setupI18n } from '@shelchin/svelte-i18n';
-
-const i18n = setupI18n({
-	defaultLocale: 'en'
-});
-
-// Use
-i18n.t('welcome', { name: 'World' }); // "Welcome, World!"
-i18n.formatCurrency(99.99); // "$99.99" / "99,99 €" / "¥100"
-i18n.formatRelativeTime(-2, 'day'); // "2 days ago" / "hace 2 días"
+```bash
+# Run the initialization command
+pnpm run svelte-i18n init
 ```
 
-**That's it.** Seriously.
+This automatically:
+- Detects your project type (app/package/both)
+- Creates translation directories
+- Generates TypeScript types
+- Sets up i18n configuration
+
+### 3. Use in Your App
+
+```typescript
+// In Svelte applications (@ represents ./src)
+import { i18n } from '@/translations/i18n.js';
+
+// Basic usage
+i18n.t('welcome', { name: 'World' })  // "Welcome, World!"
+
+// Switch language
+await i18n.setLocale('zh')
+
+// Formatting
+i18n.formatCurrency(99.99)            // "$99.99" / "¥100"
+i18n.formatRelativeTime(-2, 'day')    // "2 days ago"
+```
+
+### 4. Use in Package Development
+
+```typescript
+// In library/package components
+import { i18n } from '$lib/translations/i18n.js';
+
+// Use with namespace isolation
+i18n.t('button.submit')  // Package translations are isolated
+```
+
+**That's it!** Your i18n is ready.
 
 ---
 
@@ -130,6 +162,46 @@ onMount(async () => {
 - Community translations
 - A/B testing different translations
 - Regional variations
+
+---
+
+## 🛠️ CLI Commands
+
+### Generate TypeScript Types
+
+```bash
+# Generate types with validation
+pnpm run svelte-i18n generate-types
+
+# Skip validation for faster generation
+pnpm run svelte-i18n generate-types --no-validate
+
+# Generate for library only
+pnpm run svelte-i18n generate-types --lib
+```
+
+### Validate Translations
+
+```bash
+# Check for missing translations
+pnpm run svelte-i18n validate src/translations/locales
+
+# Use strict mode (fail on any issue)
+pnpm run svelte-i18n validate src/translations/locales --strict
+
+# Specify base locale
+pnpm run svelte-i18n validate src/translations/locales --base zh
+```
+
+### Extract Translation Keys
+
+```bash
+# Extract all i18n keys from source code
+pnpm run svelte-i18n extract ./src ./template.json
+
+# Extract from specific file types
+pnpm run svelte-i18n extract ./src ./template.json .svelte .ts
+```
 
 ---
 
@@ -266,6 +338,66 @@ appI18n.t('page.title'); // From app translations
 ```
 
 ---
+
+## 🔗 Unified i18n API for Packages & Applications
+
+**The same API works for both npm packages and SvelteKit applications:**
+
+### For Package Authors
+
+```typescript
+// In your npm package: @my-company/ui-lib
+import { createI18n } from '@shelchin/svelte-i18n';
+import en from './locales/en.json';
+import zh from './locales/zh.json';
+
+export const libI18n = createI18n({
+  namespace: '@my-company/ui-lib',
+  translations: { en, zh }
+});
+
+// Your component can use it
+export function MyButton() {
+  return <button>{libI18n.t('button.label')}</button>;
+}
+```
+
+### For Application Developers
+
+```typescript
+// In your SvelteKit app
+import { createI18n } from '@shelchin/svelte-i18n';
+import en from './locales/en.json';
+import zh from './locales/zh.json';
+
+export const i18n = createI18n({
+	namespace: 'app',
+	isMain: true,
+	defaultLocale: 'en',
+	translations: { en, zh }
+});
+```
+
+### Key Benefits
+
+1. **Configuration Inheritance**: Packages automatically inherit locale settings from the main app
+2. **Namespace Isolation**: No translation key conflicts between packages
+3. **Shared Language Switcher**: One component controls all i18n instances
+4. **Type Safety**: Full TypeScript support with auto-completion
+5. **Zero Configuration**: Packages work out-of-the-box in any app
+
+### Advanced: Package Following App Locale
+
+```typescript
+// Package translations automatically respect app's locale
+// When app switches to 'zh', package UI follows automatically
+
+// In app
+await appI18n.setLocale('zh');
+
+// Package components automatically use Chinese translations
+// (This feature requires subscription mechanism - coming soon)
+```
 
 ## 🎨 Translation Editor
 

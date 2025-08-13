@@ -180,5 +180,6 @@ type LibKeysTest = AssertEqual<
 >;
 
 // This will cause a compile error if the types don't match
-// const _libKeysTest: LibKeysTest = true;
-void true satisfies LibKeysTest;
+// Type test is performed at compile time, not runtime
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _libKeysTest: LibKeysTest = true as LibKeysTest;

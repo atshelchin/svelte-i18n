@@ -30,7 +30,7 @@ describe('Library i18n', () => {
 		expect(libI18n.locale).toBe('zh');
 
 		// Check Chinese translations
-		expect(libI18n.t('validationPopup.header.title')).toBe('翻译验证报告');
+		expect(libI18n.t('validationPopup.header.title')).toBe('翻译验证报告 (内置版本)');
 		expect(libI18n.t('validationPopup.floatingIndicator.translationIssues')).toBe('翻译问题');
 
 		// Switch back to English

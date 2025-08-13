@@ -392,7 +392,7 @@
 	</div>
 {/if}
 
-{#if hasErrors && !isOpen && !hasBeenDismissed}
+{#if hasErrors && !isOpen}
 	<button
 		class="floating-indicator"
 		onclick={() => {

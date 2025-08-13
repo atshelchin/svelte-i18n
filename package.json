@@ -33,7 +33,9 @@
 		"cli:validate": "node dist/cli/validate.js",
 		"cli:generate-types": "node dist/cli/generate-types.js",
 		"svelte-i18n": "node dist/cli/index.js",
-		"i18n:check": "svelte-i18n validate ./src/translations/locales"
+		"i18n:check": "svelte-i18n validate ./src/translations/locales",
+		"i18n:check:lib": "svelte-i18n validate ./src/lib/translations/locales",
+		"i18n:types:lib": "svelte-i18n generate-types --lib"
 	},
 	"bin": {
 		"svelte-i18n": "./dist/cli/index.js"

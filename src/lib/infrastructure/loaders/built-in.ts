@@ -16,6 +16,13 @@ export interface TranslationRegistry {
 let globalRegistry: TranslationRegistry = {};
 
 /**
+ * Clear all registered translations (for testing)
+ */
+export function clearRegisteredTranslations() {
+	globalRegistry = {};
+}
+
+/**
  * Register built-in translations
  * This should be called during app initialization
  */

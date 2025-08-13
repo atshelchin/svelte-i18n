@@ -41,7 +41,8 @@
 			"Bash(npx svelte-check:*)",
 			"Bash(node:*)",
 			"Bash(npm run test:e2e:*)",
-			"WebFetch(domain:localhost)"
+			"WebFetch(domain:localhost)",
+			"Bash(npm run test:*)"
 		],
 		"deny": []
 	}

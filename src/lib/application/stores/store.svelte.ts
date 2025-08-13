@@ -246,15 +246,15 @@ export class I18nStore implements I18nInstance {
 			if (errors.length > 0) {
 				this.validationErrors[locale] = errors;
 
-				// Show user-friendly error in development
-				// Always show validation errors for debugging
+				// Show user-friendly warning in development
+				// Always show validation warnings for debugging
 				const namespace = this.config.namespace || 'app';
-				console.error(
-					`❌ Translation validation failed for ${namespace} in locale "${locale}":`,
+				console.warn(
+					`⚠️ Translation validation warning for ${namespace} in locale "${locale}":`,
 					errors
 				);
 				console.group(`Missing/Invalid translations in ${namespace} for locale "${locale}":`);
-				errors.forEach((error) => console.error(`  • ${error}`));
+				errors.forEach((error) => console.warn(`  • ${error}`));
 				console.groupEnd();
 			} else {
 				// Clear errors if validation passes
@@ -313,15 +313,15 @@ export class I18nStore implements I18nInstance {
 				if (errors.length > 0) {
 					this.validationErrors[locale] = errors;
 
-					// Show user-friendly error in development
-					// Always show validation errors for debugging
+					// Show user-friendly warning in development
+					// Always show validation warnings for debugging
 					const namespace = this.config.namespace || 'app';
-					console.error(
-						`❌ Translation validation failed for ${namespace} in locale "${locale}":`,
+					console.warn(
+						`⚠️ Translation validation warning for ${namespace} in locale "${locale}":`,
 						errors
 					);
 					console.group(`Missing/Invalid translations in ${namespace} for locale "${locale}":`);
-					errors.forEach((error) => console.error(`  • ${error}`));
+					errors.forEach((error) => console.warn(`  • ${error}`));
 					console.groupEnd();
 				} else {
 					// Clear errors if validation passes
@@ -374,8 +374,9 @@ export class I18nStore implements I18nInstance {
 
 		const errors = validateSchema(translations, baseSchema);
 		if (errors.length > 0) {
-			console.error(`Validation errors for ${locale}:`, errors);
-			return false;
+			console.warn(`Validation warnings for ${locale}:`, errors);
+			// Return true to indicate translations are loaded, even with warnings
+			return true;
 		}
 
 		return true;
@@ -668,6 +669,15 @@ export class I18nStore implements I18nInstance {
 
 let globalInstance: I18nStore | null = null;
 const namespacedInstances = new SvelteMap<string, I18nStore>();
+
+/**
+ * Clear all instances (for testing)
+ */
+export function clearAllInstances() {
+	globalInstance = null;
+	namespacedInstances.clear();
+	mainAppConfig = null;
+}
 // Store main app config for inheritance
 let mainAppConfig: I18nConfig | null = null;
 

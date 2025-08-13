@@ -48,6 +48,19 @@ export {
 } from './domain/services/utils.js';
 export { getAppBasePath, buildAssetUrl } from './infrastructure/loaders/base-path.js';
 
+// Layout helper exports for simplified integration
+export {
+	// Main helper functions
+	i18nServerLoad,
+	i18nUniversalLoad,
+	i18nClientInit,
+	i18nIsReady,
+	// One-liner helpers
+	handleSSR,
+	handleClient,
+	handleUniversal
+} from './helpers/layout-helpers.js';
+
 // Auto-discovery exports
 export {
 	autoDiscoverTranslations,

@@ -2,6 +2,7 @@ import { describe, it, expect, beforeAll } from 'vitest';
 import { createTypedUnifiedI18n } from './typed-unified.js';
 import { getI18nInstance } from './unified.js';
 import type { UnifiedI18nConfig } from './unified.js';
+import { configManager } from './application/stores/config-manager.js';
 
 describe('Configuration Inheritance', () => {
 	beforeAll(async () => {
@@ -79,11 +80,14 @@ describe('Configuration Inheritance', () => {
 	});
 
 	it('should use package defaults when main app config is not available', () => {
+		// Clear all existing config to test standalone behavior
+		configManager.clear();
+
 		// Create standalone package without main app
 		const standaloneConfig: UnifiedI18nConfig = {
 			namespace: 'standalone-package',
 			translations: {
-				en: { test: 'Standalone {value}' }
+				en: { test: 'Standalone [value]' }
 			},
 			interpolation: {
 				prefix: '[',

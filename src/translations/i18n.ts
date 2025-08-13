@@ -6,7 +6,8 @@
  * Using unified API with type safety for translation keys
  */
 
-import { createTypedUnifiedI18n, type UnifiedI18nConfig } from '$lib/typed-unified.js';
+import { createTypedUnifiedI18n, type UnifiedI18nConfig } from '@shelchin/svelte-i18n';
+
 import type { I18nPath } from '../types/app-i18n-generated.js';
 
 // ============================================

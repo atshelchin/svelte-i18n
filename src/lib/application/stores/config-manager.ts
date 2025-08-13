@@ -35,6 +35,8 @@ class ConfigManager {
 					...packageConfig,
 					defaultLocale: this.mainConfig.defaultLocale,
 					fallbackLocale: this.mainConfig.fallbackLocale,
+					interpolation: this.mainConfig.interpolation || packageConfig.interpolation,
+					formats: this.mainConfig.formats || packageConfig.formats,
 					// Keep package namespace
 					namespace: packageConfig.namespace
 				};

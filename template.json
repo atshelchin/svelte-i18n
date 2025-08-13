@@ -1,0 +1,190 @@
+{
+	"button": {
+		"submit": "[TODO: Add translation]"
+	},
+	"greeting": "[TODO: Add translation]",
+	"welcome": "[TODO: Add translation]",
+	"nested": {
+		"deep": {
+			"key": "[TODO: Add translation]"
+		}
+	},
+	"items": {
+		"count": "[TODO: Add translation]"
+	},
+	"user": {
+		"name": "[TODO: Add translation]",
+		"profile": {
+			"title": "[TODO: Add translation]"
+		},
+		"settings": {
+			"language": "[TODO: Add translation]"
+		}
+	},
+	"hello": "[TODO: Add translation]",
+	"missing": {
+		"key": "[TODO: Add translation]"
+	},
+	"key": "[TODO: Add translation]",
+	"test": "[TODO: Add translation]",
+	"validationPopup": {
+		"report": {
+			"todoTranslate": "[TODO: Add translation]",
+			"title": "[TODO: Add translation]",
+			"language": "[TODO: Add translation]",
+			"totalMissing": "[TODO: Add translation]",
+			"details": "[TODO: Add translation]",
+			"generatedAt": "[TODO: Add translation]"
+		},
+		"exportMenu": {
+			"copied": "[TODO: Add translation]",
+			"downloadJSON": "[TODO: Add translation]",
+			"downloadText": "[TODO: Add translation]",
+			"copyJSON": "[TODO: Add translation]"
+		},
+		"header": {
+			"title": "[TODO: Add translation]",
+			"issues": "[TODO: Add translation]",
+			"languages": "[TODO: Add translation]",
+			"close": "[TODO: Add translation]"
+		},
+		"controls": {
+			"languageLabel": "[TODO: Add translation]",
+			"languageOption": "[TODO: Add translation]",
+			"export": "[TODO: Add translation]"
+		},
+		"pagination": {
+			"page": "[TODO: Add translation]",
+			"previous": "[TODO: Add translation]",
+			"next": "[TODO: Add translation]"
+		},
+		"emptyState": {
+			"selectLanguage": "[TODO: Add translation]",
+			"noErrors": "[TODO: Add translation]"
+		},
+		"floatingIndicator": {
+			"translationIssues": "[TODO: Add translation]"
+		},
+		"headerr": {
+			"title": "[TODO: Add translation]"
+		}
+	},
+	"thisKeyDoesNotExist": "[TODO: Add translation]",
+	"hero": {
+		"wrongKey": "[TODO: Add translation]"
+	},
+	"nonExistentKey": "[TODO: Add translation]",
+	"two": "[TODO: Add translation]",
+	"one": "[TODO: Add translation]",
+	"nonexistent": "[TODO: Add translation]",
+	"demo": {
+		"currentLocale": "[TODO: Add translation]",
+		"modernI18n": "[TODO: Add translation]",
+		"powerfulLibrary": "[TODO: Add translation]",
+		"loadingTranslations": "[TODO: Add translation]",
+		"noTranslationsLoaded": "[TODO: Add translation]",
+		"noTranslationsMessage": "[TODO: Add translation]",
+		"checkConsole": "[TODO: Add translation]",
+		"svelteReady": "[TODO: Add translation]",
+		"github": "[TODO: Add translation]",
+		"coreFeatures": "[TODO: Add translation]",
+		"autoDiscovery": "[TODO: Add translation]",
+		"autoDiscoveryDesc": "[TODO: Add translation]",
+		"typeSafety": "[TODO: Add translation]",
+		"typeSafetyDesc": "[TODO: Add translation]",
+		"ssrSupport": "[TODO: Add translation]",
+		"ssrSupportDesc": "[TODO: Add translation]",
+		"translationEditor": "[TODO: Add translation]",
+		"translationEditorDesc": "[TODO: Add translation]",
+		"easyToUse": "[TODO: Add translation]",
+		"easyToUseDesc": "[TODO: Add translation]",
+		"svelte5Runes": "[TODO: Add translation]",
+		"svelte5RunesDesc": "[TODO: Add translation]",
+		"tryIt": "[TODO: Add translation]",
+		"interpolation": "[TODO: Add translation]",
+		"enterName": "[TODO: Add translation]",
+		"pluralization": "[TODO: Add translation]",
+		"nested": "[TODO: Add translation]",
+		"formatting": "[TODO: Add translation]",
+		"hideFormattingExamples": "[TODO: Add translation]",
+		"showFormattingExamples": "[TODO: Add translation]",
+		"dateFormats": "[TODO: Add translation]",
+		"short": "[TODO: Add translation]",
+		"long": "[TODO: Add translation]",
+		"full": "[TODO: Add translation]",
+		"numberFormats": "[TODO: Add translation]",
+		"standard": "[TODO: Add translation]",
+		"compact": "[TODO: Add translation]",
+		"percent": "[TODO: Add translation]",
+		"currencyAutoDetected": "[TODO: Add translation]",
+		"otherFormats": "[TODO: Add translation]",
+		"relativeTime": "[TODO: Add translation]",
+		"list": "[TODO: Add translation]",
+		"quickStart": "[TODO: Add translation]",
+		"languagesLoadedCount": "[TODO: Add translation]",
+		"localesSupported": "[TODO: Add translation]",
+		"dependencies": "[TODO: Add translation]",
+		"svelteVersion": "[TODO: Add translation]",
+		"madeWithLove": "[TODO: Add translation]"
+	},
+	"editor": {
+		"title": "[TODO: Add translation]",
+		"errors": {
+			"invalidUrl": "[TODO: Add translation]",
+			"maxSources": "[TODO: Add translation]",
+			"loadFailed": "[TODO: Add translation]",
+			"jsonOnly": "[TODO: Add translation]",
+			"parseFailed": "[TODO: Add translation]",
+			"aiConfig": "[TODO: Add translation]",
+			"noSource": "[TODO: Add translation]"
+		},
+		"translateSuccess": "[TODO: Add translation]",
+		"translateFailed": "[TODO: Add translation]",
+		"downloadSuccess": "[TODO: Add translation]",
+		"subtitle": "[TODO: Add translation]",
+		"backToHome": "[TODO: Add translation]",
+		"addMoreSources": "[TODO: Add translation]",
+		"loadFromFile": "[TODO: Add translation]",
+		"loadFromUrl": "[TODO: Add translation]",
+		"uploadFile": "[TODO: Add translation]",
+		"uploadDescription": "[TODO: Add translation]",
+		"chooseFile": "[TODO: Add translation]",
+		"loadFromUrlTitle": "[TODO: Add translation]",
+		"loadFromUrlDescription": "[TODO: Add translation]",
+		"loading": "[TODO: Add translation]",
+		"load": "[TODO: Add translation]",
+		"expectedFormat": "[TODO: Add translation]",
+		"sourceLanguages": "[TODO: Add translation]",
+		"removeSource": "[TODO: Add translation]",
+		"addSource": "[TODO: Add translation]",
+		"sourcesLoaded": "[TODO: Add translation]",
+		"progress": "[TODO: Add translation]",
+		"translated": "[TODO: Add translation]",
+		"targetLanguage": "[TODO: Add translation]",
+		"enterLanguage": "[TODO: Add translation]",
+		"languageNotRecognized": "[TODO: Add translation]",
+		"aiAssistant": "[TODO: Add translation]",
+		"enableAI": "[TODO: Add translation]",
+		"openaiKey": "[TODO: Add translation]",
+		"translating": "[TODO: Add translation]",
+		"translateAll": "[TODO: Add translation]",
+		"export": "[TODO: Add translation]",
+		"download": "[TODO: Add translation]",
+		"translation": "[TODO: Add translation]",
+		"translationFields": "[TODO: Add translation]",
+		"searchKeys": "[TODO: Add translation]",
+		"translateWithAI": "[TODO: Add translation]",
+		"target": "[TODO: Add translation]",
+		"enterTranslation": "[TODO: Add translation]",
+		"fields": "[TODO: Add translation]"
+	},
+	"nav": {
+		"home": "[TODO: Add translation]",
+		"about": "[TODO: Add translation]",
+		"contact": "[TODO: Add translation]",
+		"settings": "[TODO: Add translation]"
+	},
+	"actions": {
+		"cancel": "[TODO: Add translation]"
+	}
+}

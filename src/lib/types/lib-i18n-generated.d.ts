@@ -1,7 +1,7 @@
 /**
  * Auto-generated i18n type definitions
  * Generated from: en.json
- * Generated at: 2025-08-13T08:44:48.270Z
+ * Generated at: 2025-08-13T13:26:58.770Z
  */
 
 // Type for all translation keys in your library

@@ -160,13 +160,13 @@ describe('App Languages', () => {
 			const libI18n = {
 				locales: ['en', 'zh', 'ja'],
 				namespace: '@shelchin/svelte-i18n'
-			} as I18nInstance;
+			} as unknown as I18nInstance;
 
 			// Simulate app i18n with full language set
 			const appI18n = {
 				locales: ['en', 'zh', 'ja', 'fr', 'de', 'ar', 'zh-TW'],
 				namespace: 'app'
-			} as I18nInstance;
+			} as unknown as I18nInstance;
 
 			// Setup global instances map as the unified system does
 			(globalThis as any).__i18n_instances = new Map([

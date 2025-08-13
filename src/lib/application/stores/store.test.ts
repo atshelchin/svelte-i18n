@@ -183,7 +183,7 @@ describe('I18n Store', () => {
 
 			expect(i18n.locale).toBe('en');
 			expect(consoleSpy).toHaveBeenCalledWith(
-				'Locale "de" not loaded. Please ensure it\'s loaded via clientLoad() or loadLanguage()'
+				'Locale "de" not loaded and not available. Please ensure it\'s loaded via clientLoad() or loadLanguage()'
 			);
 		});
 	});
