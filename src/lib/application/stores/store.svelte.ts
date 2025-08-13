@@ -17,7 +17,10 @@ import {
 	mergeTranslations
 } from '../../domain/services/utils.js';
 import { autoDiscoverTranslations as autoDiscoverV2 } from '../../infrastructure/loaders/auto-discovery-v2.js';
-import { loadBuiltInTranslations, loadBuiltInTranslationsSync } from '../../infrastructure/loaders/built-in.js';
+import {
+	loadBuiltInTranslations,
+	loadBuiltInTranslationsSync
+} from '../../infrastructure/loaders/built-in.js';
 // Universal persistence is used instead
 // import { saveLocale, getInitialLocale } from '../../infrastructure/persistence/persistence.js';
 import {
@@ -107,6 +110,10 @@ export class I18nStore implements I18nInstance {
 	}
 
 	async setLocale(locale: string): Promise<void> {
+		console.log(`[setLocale] Attempting to set locale to: ${locale}`);
+		console.log(`[setLocale] Available translations:`, Object.keys(this.translations));
+		console.log(`[setLocale] Available locales:`, this.availableLocales);
+
 		if (this.translations[locale]) {
 			this.currentLocale = locale;
 			// Persist to both cookie and localStorage
@@ -114,12 +121,31 @@ export class I18nStore implements I18nInstance {
 				cookieName: this.config.cookieName,
 				storageKey: this.config.storageKey
 			});
+			console.log(`[setLocale] Successfully set locale to: ${locale}`);
 		} else {
-			// Don't try auto-discovery here - it should be done once in clientLoad
-			// This prevents duplicate requests when switching languages
-			console.warn(
-				`Locale "${locale}" not loaded. Please ensure it's loaded via clientLoad() or loadLanguage()`
-			);
+			// Try to load the language if it's in availableLocales but not yet loaded
+			if (this.availableLocales.includes(locale)) {
+				console.log(
+					`[setLocale] Locale ${locale} is available but not loaded, attempting to load...`
+				);
+				try {
+					await this.loadLanguage(locale);
+					this.currentLocale = locale;
+					saveLocaleUniversal(locale, {
+						cookieName: this.config.cookieName,
+						storageKey: this.config.storageKey
+					});
+					console.log(`[setLocale] Successfully loaded and set locale to: ${locale}`);
+				} catch (error) {
+					console.error(`[setLocale] Failed to load locale ${locale}:`, error);
+				}
+			} else {
+				// Don't try auto-discovery here - it should be done once in clientLoad
+				// This prevents duplicate requests when switching languages
+				console.warn(
+					`Locale "${locale}" not loaded and not available. Please ensure it's loaded via clientLoad() or loadLanguage()`
+				);
+			}
 		}
 	}
 

@@ -99,9 +99,13 @@ export function saveLocaleUniversal(locale: string, config?: PersistenceConfig):
 export function getInitialLocaleUniversal(
 	defaultLocale: string,
 	cookieString?: string,
-	config?: PersistenceConfig
+	config?: PersistenceConfig & { enableBrowserDetection?: boolean }
 ): string {
-	const { cookieName = DEFAULT_COOKIE_NAME, storageKey = DEFAULT_STORAGE_KEY } = config || {};
+	const {
+		cookieName = DEFAULT_COOKIE_NAME,
+		storageKey = DEFAULT_STORAGE_KEY,
+		enableBrowserDetection = false // Default to false, respect configured default
+	} = config || {};
 
 	// First priority: cookie (works on server and client)
 	if (cookieString) {
@@ -117,8 +121,8 @@ export function getInitialLocaleUniversal(
 		return storageLocale;
 	}
 
-	// Third priority: browser language detection
-	if (typeof window !== 'undefined') {
+	// Third priority: browser language detection (only if explicitly enabled)
+	if (enableBrowserDetection && typeof window !== 'undefined') {
 		const nav = window.navigator as Navigator & {
 			userLanguage?: string;
 			browserLanguage?: string;
