@@ -23,8 +23,7 @@
 	const uiI18n = getEffectiveLibI18n();
 	const errors = $derived(errorI18n.errors);
 	const hasErrors = $derived(Object.keys(errors).length > 0);
-	
-	console.log({propI18n , appI18n , libI18n},propI18n?.errors,appI18n?.errors,libI18n?.errors)
+
 	// Debug logging
 	$effect(() => {
 		console.log('[ValidationPopup] All errors:', errors);
