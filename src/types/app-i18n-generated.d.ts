@@ -1,11 +1,11 @@
 /**
  * Auto-generated i18n type definitions
  * Generated from: ar.json
- * Generated at: 2025-08-13T08:09:49.545Z
+ * Generated at: 2025-08-13T08:11:53.333Z
  */
 
 // Type for all translation keys in your application
-export type I18nPath = 
+export type I18nPath =
 	| '_meta.name'
 	| '_meta.englishName'
 	| '_meta.direction'

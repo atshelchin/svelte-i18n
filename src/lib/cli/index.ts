@@ -51,7 +51,7 @@ switch (command) {
 	case 'init':
 		init();
 		break;
-		
+
 	case 'extract':
 		if (args.length < 2) {
 			console.error('Usage: svelte-i18n extract <srcDir> <outFile> [extensions...]');

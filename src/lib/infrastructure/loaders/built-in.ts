@@ -29,7 +29,7 @@ export function registerBuiltInTranslations(translations: TranslationRegistry) {
  */
 export function loadBuiltInTranslationsSync(store: I18nInstance): void {
 	const storeNamespace = store.getNamespace();
-	
+
 	// Determine which translations to load based on namespace
 	if (storeNamespace === 'app') {
 		// App instance: load only app translations
