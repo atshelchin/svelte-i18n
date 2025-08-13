@@ -4,7 +4,6 @@
  */
 
 import type { Cookies } from '@sveltejs/kit';
-import type { I18nInstance } from '../domain/models/types.js';
 import { onMount } from 'svelte';
 
 /**

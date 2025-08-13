@@ -82,27 +82,68 @@ pnpm run svelte-i18n init
 - 生成 TypeScript 类型
 - 设置 i18n 配置
 
-### 3. 设置 Layout 文件（超级简单！）
+### 3. 设置 Layout 文件（灵活且简单！）
 
 ```typescript
-// +layout.server.ts - 只需 1 行！
-import { handleSSR } from '@shelchin/svelte-i18n';
+// +layout.server.ts
+import type { LayoutServerLoad } from './$types.js';
+import { loadI18nSSR } from '@shelchin/svelte-i18n';
 import { i18n } from '../translations/i18n.js';
 
-export const load = handleSSR(i18n);
+export const load: LayoutServerLoad = async ({ cookies }) => {
+	const i18nData = await loadI18nSSR(i18n, cookies);
+	
+	return {
+		...i18nData,
+		// 在这里添加你的自定义数据
+		myData: 'value'
+	};
+};
+```
+
+```typescript
+// +layout.ts（可选，用于 CSR 优化）
+import type { LayoutLoad } from './$types.js';
+import { loadI18nUniversal } from '@shelchin/svelte-i18n';
+import { browser } from '$app/environment';
+import { i18n } from '../translations/i18n.js';
+
+export const load: LayoutLoad = async ({ data }) => {
+	const i18nData = await loadI18nUniversal(i18n, data, browser);
+	
+	return {
+		...i18nData,
+		// 添加你的自定义数据
+	};
+};
 ```
 
 ```svelte
-<!-- +layout.svelte - 只需 2 行！ -->
-<script>
-	import { handleClient } from '@shelchin/svelte-i18n';
-	import { i18n } from '../translations/i18n.js';
+<!-- +layout.svelte -->
+<script lang="ts">
+	import { onMount } from 'svelte';
+	import { setupI18nClient, initI18nOnMount } from '@shelchin/svelte-i18n';
+	import { i18n, initI18n } from '../translations/i18n.js';
 
 	let { data, children } = $props();
-	handleClient(i18n, data);
+	
+	// 同步设置 i18n 以防止闪烁
+	let isReady = $state(setupI18nClient(i18n, data));
+	
+	// 在客户端挂载时初始化
+	onMount(async () => {
+		await initI18nOnMount(i18n, data, {
+			initFunction: initI18n
+		});
+		if (!isReady) isReady = true;
+	});
 </script>
 
-{@render children()}
+{#if isReady}
+	{@render children()}
+{:else}
+	<div>加载中...</div>
+{/if}
 ```
 
 ### 4. 在应用中使用
@@ -357,16 +398,14 @@ your-app/
 ```typescript
 // +layout.server.ts
 import type { LayoutServerLoad } from './$types';
+import { loadI18nSSR } from '@shelchin/svelte-i18n';
 import { i18n } from '../translations/i18n';
 
 export const load: LayoutServerLoad = async ({ cookies }) => {
-	const locale = cookies.get('i18n-locale') || 'zh';
-	await i18n.setLocale(locale);
-
-	return {
-		locale,
-		locales: i18n.locales
-	};
+	return await loadI18nSSR(i18n, cookies, {
+		cookieName: 'my-locale', // 可选，默认为 'i18n-locale'
+		defaultLocale: 'zh' // 可选，默认为 i18n.locale
+	});
 };
 ```
 

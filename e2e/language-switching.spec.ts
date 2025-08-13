@@ -10,7 +10,7 @@ test.describe('Language Switching with Auto-discovered Languages', () => {
 		});
 	});
 
-	test('should switch between built-in languages', async ({ page, context }) => {
+	test('should switch between built-in languages', async ({ page }) => {
 		await page.goto('/');
 
 		// Wait for page to load
@@ -43,7 +43,7 @@ test.describe('Language Switching with Auto-discovered Languages', () => {
 		expect(i18nCookie?.value).toBe(targetLang);
 	});
 
-	test('should switch to auto-discovered language (Korean)', async ({ page, context }) => {
+	test('should switch to auto-discovered language (Korean)', async ({ page }) => {
 		await page.goto('/');
 
 		// Wait for page to load and auto-discovery to complete

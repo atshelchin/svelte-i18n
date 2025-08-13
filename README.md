@@ -82,27 +82,68 @@ This automatically:
 - Generates TypeScript types
 - Sets up i18n configuration
 
-### 3. Setup Layout Files (Super Simple!)
+### 3. Setup Layout Files (Flexible & Simple!)
 
 ```typescript
-// +layout.server.ts - Just 1 line!
-import { handleSSR } from '@shelchin/svelte-i18n';
+// +layout.server.ts
+import type { LayoutServerLoad } from './$types.js';
+import { loadI18nSSR } from '@shelchin/svelte-i18n';
 import { i18n } from '../translations/i18n.js';
 
-export const load = handleSSR(i18n);
+export const load: LayoutServerLoad = async ({ cookies }) => {
+	const i18nData = await loadI18nSSR(i18n, cookies);
+	
+	return {
+		...i18nData,
+		// Add your custom data here
+		myData: 'value'
+	};
+};
+```
+
+```typescript
+// +layout.ts (optional, for CSR optimizations)
+import type { LayoutLoad } from './$types.js';
+import { loadI18nUniversal } from '@shelchin/svelte-i18n';
+import { browser } from '$app/environment';
+import { i18n } from '../translations/i18n.js';
+
+export const load: LayoutLoad = async ({ data }) => {
+	const i18nData = await loadI18nUniversal(i18n, data, browser);
+	
+	return {
+		...i18nData,
+		// Add your custom data here
+	};
+};
 ```
 
 ```svelte
-<!-- +layout.svelte - Just 2 lines! -->
-<script>
-	import { handleClient } from '@shelchin/svelte-i18n';
-	import { i18n } from '../translations/i18n.js';
+<!-- +layout.svelte -->
+<script lang="ts">
+	import { onMount } from 'svelte';
+	import { setupI18nClient, initI18nOnMount } from '@shelchin/svelte-i18n';
+	import { i18n, initI18n } from '../translations/i18n.js';
 
 	let { data, children } = $props();
-	handleClient(i18n, data);
+	
+	// Setup i18n synchronously to prevent flash
+	let isReady = $state(setupI18nClient(i18n, data));
+	
+	// Initialize on client mount
+	onMount(async () => {
+		await initI18nOnMount(i18n, data, {
+			initFunction: initI18n
+		});
+		if (!isReady) isReady = true;
+	});
 </script>
 
-{@render children()}
+{#if isReady}
+	{@render children()}
+{:else}
+	<div>Loading...</div>
+{/if}
 ```
 
 ### 4. Use in Your App
@@ -280,12 +321,13 @@ import adapter from '@sveltejs/adapter-node';
 
 ```typescript
 // +layout.server.ts
+import { loadI18nSSR } from '@shelchin/svelte-i18n';
+
 export const load: LayoutServerLoad = async ({ cookies }) => {
-	await i18n.serverLoad(cookies); // Load locale from cookie
-	return {
-		locale: i18n.locale,
-		locales: i18n.locales
-	};
+	return await loadI18nSSR(i18n, cookies, {
+		cookieName: 'my-locale', // optional, defaults to 'i18n-locale'
+		defaultLocale: 'en' // optional, defaults to i18n.locale
+	});
 };
 ```
 
