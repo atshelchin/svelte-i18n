@@ -1,5 +1,5 @@
-import type { LayoutServerLoad } from './$types';
-import { i18n } from '../translations/i18n';
+import type { LayoutServerLoad } from './$types.js';
+import { i18n } from '../translations/i18n.js';
 
 export const load: LayoutServerLoad = async ({ cookies }) => {
 	// Read the language preference from cookie during SSR

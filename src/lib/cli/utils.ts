@@ -77,18 +77,53 @@ export function generateTypeDefinitions(
 		throw new Error(`Translations directory not found: ${translationsDir}`);
 	}
 
-	// Find the first JSON file to use as template
+	// Find JSON files and use the most complete one as template
 	const files = fs
 		.readdirSync(translationsDir)
-		.filter((f) => f.endsWith('.json'))
-		.sort();
+		.filter((f) => f.endsWith('.json'));
 
 	if (files.length === 0) {
 		throw new Error(`No translation files found in ${translationsDir}`);
 	}
 
-	const templateFile = path.join(translationsDir, files[0]);
+	// Find the file with the most keys (most complete translation)
+	let templateFile = '';
+	let maxKeys = 0;
+	
+	// Prefer 'en.json' if it exists, otherwise use the file with most keys
+	if (files.includes('en.json')) {
+		templateFile = path.join(translationsDir, 'en.json');
+	} else {
+		for (const file of files) {
+			const filePath = path.join(translationsDir, file);
+			const content = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+			const keyCount = countKeys(content);
+			
+			if (keyCount > maxKeys) {
+				maxKeys = keyCount;
+				templateFile = filePath;
+			}
+		}
+	}
+	
+	if (!templateFile) {
+		templateFile = path.join(translationsDir, files[0]);
+	}
+	
 	const translations = JSON.parse(fs.readFileSync(templateFile, 'utf8'));
+	
+	// Helper function to count total keys in an object
+	function countKeys(obj: any): number {
+		let count = 0;
+		for (const key in obj) {
+			if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
+				count += countKeys(obj[key]);
+			} else {
+				count++;
+			}
+		}
+		return count;
+	}
 
 	// Generate type paths from the translation structure
 	const paths: string[] = [];

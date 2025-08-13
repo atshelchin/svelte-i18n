@@ -1,11 +1,11 @@
 /**
  * Auto-generated i18n type definitions
  * Generated from: en.json
- * Generated at: 2025-08-13T08:11:53.336Z
+ * Generated at: 2025-08-13T08:44:48.270Z
  */
 
 // Type for all translation keys in your library
-export type LibI18nPath =
+export type LibI18nPath = 
 	| '_meta.name'
 	| '_meta.englishName'
 	| '_meta.direction'

@@ -37,8 +37,8 @@ for (const [path, module] of Object.entries(translationModules)) {
 const config: UnifiedI18nConfig = {
 	namespace: 'app',
 	isMain: true, // This is the main app instance
-	defaultLocale: 'zh',
-	fallbackLocale: 'zh',
+	defaultLocale: 'en',
+	fallbackLocale: 'en',
 	translations,
 	interpolation: {
 		prefix: '{',

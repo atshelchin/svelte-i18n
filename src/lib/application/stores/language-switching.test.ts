@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { I18nStore } from './store.svelte';
-import type { I18nConfig } from '../../domain/models/types';
+import type { I18nConfig } from '../../domain/models/types.js';
 
 // Mock fetch for testing
 global.fetch = vi.fn();

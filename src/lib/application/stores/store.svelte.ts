@@ -133,8 +133,10 @@ export class I18nStore implements I18nInstance {
 					let source: string | undefined;
 					if (typeof window !== 'undefined') {
 						// Check if this is an auto-discovered language
+						// In SvelteKit, static files are served from the root, not /static
 						const basePath = window.location.origin;
 						const namespace = this.config.namespace || 'app';
+						// Static files in SvelteKit are served without the /static prefix
 						const translationsPath = `/translations/${namespace}/${locale}.json`;
 						source = `${basePath}${translationsPath}`;
 						console.log(`[setLocale] Attempting to load from: ${source}`);

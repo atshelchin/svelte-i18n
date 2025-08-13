@@ -35,15 +35,13 @@ export function loadBuiltInTranslationsSync(store: I18nInstance): void {
 		// App instance: load only app translations
 		if (globalRegistry.app) {
 			for (const [locale, translation] of Object.entries(globalRegistry.app)) {
-				store.loadLanguageSync(locale, translation as TranslationSchema);
+				(store as any).loadLanguageSync(locale, translation as TranslationSchema);
 			}
 		}
-	} else {
+	} else if (storeNamespace && globalRegistry[storeNamespace]) {
 		// Package instance: load only that package's translations
-		if (globalRegistry[storeNamespace]) {
-			for (const [locale, translation] of Object.entries(globalRegistry[storeNamespace])) {
-				store.loadLanguageSync(locale, translation as TranslationSchema);
-			}
+		for (const [locale, translation] of Object.entries(globalRegistry[storeNamespace])) {
+			(store as any).loadLanguageSync(locale, translation as TranslationSchema);
 		}
 	}
 }
@@ -70,12 +68,10 @@ export async function loadBuiltInTranslations(
 				loadedLocales.add(locale);
 			}
 		}
-	} else {
+	} else if (storeNamespace && globalRegistry[storeNamespace]) {
 		// Package instance: load only that package's translations
-		if (globalRegistry[storeNamespace]) {
-			for (const locale of Object.keys(globalRegistry[storeNamespace])) {
-				loadedLocales.add(locale);
-			}
+		for (const locale of Object.keys(globalRegistry[storeNamespace])) {
+			loadedLocales.add(locale);
 		}
 	}
 
