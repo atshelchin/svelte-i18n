@@ -92,7 +92,7 @@ import { i18n } from '../translations/i18n.js';
 
 export const load: LayoutServerLoad = async ({ cookies }) => {
 	const i18nData = await loadI18nSSR(i18n, cookies);
-	
+
 	return {
 		...i18nData,
 		// Add your custom data here
@@ -110,9 +110,9 @@ import { i18n } from '../translations/i18n.js';
 
 export const load: LayoutLoad = async ({ data }) => {
 	const i18nData = await loadI18nUniversal(i18n, data, browser);
-	
+
 	return {
-		...i18nData,
+		...i18nData
 		// Add your custom data here
 	};
 };
@@ -126,10 +126,10 @@ export const load: LayoutLoad = async ({ data }) => {
 	import { i18n, initI18n } from '../translations/i18n.js';
 
 	let { data, children } = $props();
-	
+
 	// Setup i18n synchronously to prevent flash
 	let isReady = $state(setupI18nClient(i18n, data));
-	
+
 	// Initialize on client mount
 	onMount(async () => {
 		await initI18nOnMount(i18n, data, {

@@ -45,7 +45,7 @@ export const DEFAULT_LANGUAGE_META: Record<string, LanguageMeta> = {
 	or: { name: 'ଓଡ଼ିଆ', flag: '🇮🇳', direction: 'ltr' },
 	my: { name: 'မြန်မာ', flag: '🇲🇲', direction: 'ltr' },
 	si: { name: 'සිංහල', flag: '🇱🇰', direction: 'ltr' },
-	
+
 	// European languages
 	nl: { name: 'Nederlands', flag: '🇳🇱', direction: 'ltr' },
 	sv: { name: 'Svenska', flag: '🇸🇪', direction: 'ltr' },
@@ -74,7 +74,7 @@ export const DEFAULT_LANGUAGE_META: Record<string, LanguageMeta> = {
 	ca: { name: 'Català', flag: '🇪🇸', direction: 'ltr' },
 	eu: { name: 'Euskara', flag: '🇪🇸', direction: 'ltr' },
 	gl: { name: 'Galego', flag: '🇪🇸', direction: 'ltr' },
-	
+
 	// Other Asian languages
 	id: { name: 'Bahasa Indonesia', flag: '🇮🇩', direction: 'ltr' },
 	ms: { name: 'Bahasa Melayu', flag: '🇲🇾', direction: 'ltr' },
@@ -92,7 +92,7 @@ export const DEFAULT_LANGUAGE_META: Record<string, LanguageMeta> = {
 	tk: { name: 'Türkmen', flag: '🇹🇲', direction: 'ltr' },
 	mn: { name: 'Монгол', flag: '🇲🇳', direction: 'ltr' },
 	ne: { name: 'नेपाली', flag: '🇳🇵', direction: 'ltr' },
-	
+
 	// African languages
 	sw: { name: 'Kiswahili', flag: '🇰🇪', direction: 'ltr' },
 	am: { name: 'አማርኛ', flag: '🇪🇹', direction: 'ltr' },
@@ -102,7 +102,7 @@ export const DEFAULT_LANGUAGE_META: Record<string, LanguageMeta> = {
 	zu: { name: 'isiZulu', flag: '🇿🇦', direction: 'ltr' },
 	xh: { name: 'isiXhosa', flag: '🇿🇦', direction: 'ltr' },
 	af: { name: 'Afrikaans', flag: '🇿🇦', direction: 'ltr' },
-	
+
 	// Middle Eastern languages
 	he: { name: 'עברית', flag: '🇮🇱', direction: 'rtl' },
 	iw: { name: 'עברית', flag: '🇮🇱', direction: 'rtl' }, // Deprecated code for Hebrew
@@ -121,12 +121,12 @@ export function getLanguageMeta(locale: string, customMeta?: LanguageMeta): Lang
 	if (customMeta) {
 		return customMeta;
 	}
-	
+
 	// Check exact match first
 	if (DEFAULT_LANGUAGE_META[locale]) {
 		return DEFAULT_LANGUAGE_META[locale];
 	}
-	
+
 	// Try base language code (e.g., 'en' for 'en-US')
 	const baseLocale = locale.split('-')[0];
 	if (DEFAULT_LANGUAGE_META[baseLocale]) {
@@ -141,7 +141,7 @@ export function getLanguageMeta(locale: string, customMeta?: LanguageMeta): Lang
 		else if (locale === 'es-AR') meta.flag = '🇦🇷';
 		return meta;
 	}
-	
+
 	// Fallback to generic metadata
 	return {
 		name: locale.toUpperCase(),
@@ -166,17 +166,17 @@ export function mergeLanguageMeta(
 	if (sources.custom) {
 		return sources.custom;
 	}
-	
+
 	// Translation file metadata has second priority
 	if (sources.fromFile) {
 		return sources.fromFile;
 	}
-	
+
 	// Use defaults if requested
 	if (sources.defaults) {
 		return getLanguageMeta(locale);
 	}
-	
+
 	// Final fallback
 	return {
 		name: locale,

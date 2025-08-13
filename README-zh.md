@@ -92,7 +92,7 @@ import { i18n } from '../translations/i18n.js';
 
 export const load: LayoutServerLoad = async ({ cookies }) => {
 	const i18nData = await loadI18nSSR(i18n, cookies);
-	
+
 	return {
 		...i18nData,
 		// 在这里添加你的自定义数据
@@ -110,9 +110,9 @@ import { i18n } from '../translations/i18n.js';
 
 export const load: LayoutLoad = async ({ data }) => {
 	const i18nData = await loadI18nUniversal(i18n, data, browser);
-	
+
 	return {
-		...i18nData,
+		...i18nData
 		// 添加你的自定义数据
 	};
 };
@@ -126,10 +126,10 @@ export const load: LayoutLoad = async ({ data }) => {
 	import { i18n, initI18n } from '../translations/i18n.js';
 
 	let { data, children } = $props();
-	
+
 	// 同步设置 i18n 以防止闪烁
 	let isReady = $state(setupI18nClient(i18n, data));
-	
+
 	// 在客户端挂载时初始化
 	onMount(async () => {
 		await initI18nOnMount(i18n, data, {

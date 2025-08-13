@@ -249,10 +249,13 @@ export class I18nStore implements I18nInstance {
 		}
 
 		// Validate translations against the default locale schema
+		console.log(`[loadLanguageSync] Validating ${locale}, default locale loaded: ${!!this.translations[this.config.defaultLocale]}`);
 		if (this.translations[this.config.defaultLocale] && locale !== this.config.defaultLocale) {
 			const errors = validateSchema(translationData, this.translations[this.config.defaultLocale]);
+			console.log(`[loadLanguageSync] ${locale}: found ${errors.length} errors`);
 			if (errors.length > 0) {
 				this.validationErrors[locale] = errors;
+				console.log(`[loadLanguageSync] Stored errors for ${locale}, total error locales:`, Object.keys(this.validationErrors));
 
 				// Show user-friendly warning in development
 				// Always show validation warnings for debugging
@@ -318,8 +321,12 @@ export class I18nStore implements I18nInstance {
 			// Always validate translations against the default locale schema
 			if (this.translations[this.config.defaultLocale] && locale !== this.config.defaultLocale) {
 				const errors = validateSchema(translations, this.translations[this.config.defaultLocale]);
+				console.log(`[Store] Validating ${locale}: found ${errors.length} errors`);
+				console.log(`[Store] Current validationErrors before:`, Object.keys(this.validationErrors));
 				if (errors.length > 0) {
 					this.validationErrors[locale] = errors;
+					console.log(`[Store] Stored ${errors.length} errors for ${locale}`);
+					console.log(`[Store] Current validationErrors after:`, Object.keys(this.validationErrors));
 
 					// Show user-friendly warning in development
 					// Always show validation warnings for debugging
@@ -603,6 +610,36 @@ export class I18nStore implements I18nInstance {
 	private loadRegisteredTranslations(): void {
 		// Load built-in translations synchronously for SSR
 		loadBuiltInTranslationsSync(this);
+		
+		// After all translations are loaded, revalidate non-default locales
+		// This ensures validation happens even if default locale wasn't loaded first
+		this.revalidateAllTranslations();
+	}
+	
+	/**
+	 * Revalidate all loaded translations against the default locale
+	 * This is needed when translations are loaded out of order
+	 */
+	private revalidateAllTranslations(): void {
+		const defaultLocale = this.config.defaultLocale;
+		if (!this.translations[defaultLocale]) {
+			console.warn(`[revalidateAllTranslations] Default locale ${defaultLocale} not loaded, skipping validation`);
+			return;
+		}
+		
+		console.log(`[revalidateAllTranslations] Revalidating all translations against ${defaultLocale}`);
+		for (const locale of Object.keys(this.translations)) {
+			if (locale !== defaultLocale) {
+				const errors = validateSchema(this.translations[locale], this.translations[defaultLocale]);
+				if (errors.length > 0) {
+					this.validationErrors[locale] = errors;
+					console.log(`[revalidateAllTranslations] ${locale}: ${errors.length} errors found`);
+				} else {
+					delete this.validationErrors[locale];
+				}
+			}
+		}
+		console.log(`[revalidateAllTranslations] Final error locales:`, Object.keys(this.validationErrors));
 	}
 
 	/**
