@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { getI18n } from '$lib/index.js';
+	import { getI18n } from '../../translations/i18n.js';
 	import { getRecentTasks, deleteTask, type TranslationTask } from './translation-cache.js';
 
 	const i18n = getI18n();

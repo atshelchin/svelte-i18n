@@ -308,7 +308,7 @@ describe('Config Inheritance for Validation', () => {
 		it('should display app errors when app instance is available', async () => {
 			// The instances are already created from previous tests
 			const appI18n = getI18nInstance('app');
-			const pkgI18n = getI18nInstance('@my-lib/components');
+			// const pkgI18n = getI18nInstance('@my-lib/components');
 
 			// App should have its own errors
 			expect(Object.keys(appI18n.errors).length).toBeGreaterThan(0);

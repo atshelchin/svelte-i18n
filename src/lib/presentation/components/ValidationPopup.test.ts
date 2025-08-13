@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
+import { describe, it, expect, beforeEach } from 'vitest';
+import { render } from '@testing-library/svelte';
 import ValidationPopup from './ValidationPopup.svelte';
-import { createI18nStore } from '../../application/stores/store.svelte.js';
+import { setupI18n } from '../../application/stores/store.svelte.js';
 import type { I18nInstance } from '../../domain/models/types.js';
 
 describe('ValidationPopup', () => {
@@ -9,20 +9,10 @@ describe('ValidationPopup', () => {
 
 	beforeEach(() => {
 		// Create a mock i18n instance with validation errors
-		mockI18n = createI18nStore({
+		mockI18n = setupI18n({
 			namespace: 'test',
 			defaultLocale: 'en',
-			fallbackLocale: 'en',
-			translations: {
-				en: {
-					welcome: 'Welcome',
-					demo: {
-						title: 'Demo',
-						features: 'Features',
-						formatting: 'Formatting'
-					}
-				}
-			}
+			fallbackLocale: 'en'
 		});
 
 		// Manually add validation errors for different languages

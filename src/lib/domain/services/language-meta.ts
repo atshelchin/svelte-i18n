@@ -5,29 +5,48 @@
 
 import type { LanguageMeta } from '../models/types.js';
 
+// Partial metadata that can be used as fallback
+type PartialLanguageMeta = {
+	name: string;
+	flag: string;
+	direction: 'ltr' | 'rtl';
+	englishName?: string;
+};
+
 /**
  * Default metadata for common languages
+ * These are partial and will be completed when used
  */
-export const DEFAULT_LANGUAGE_META: Record<string, LanguageMeta> = {
+const DEFAULT_LANGUAGE_META_PARTIAL: Record<string, PartialLanguageMeta> = {
 	// Major languages
-	en: { name: 'English', flag: '🇬🇧', direction: 'ltr' },
-	zh: { name: '中文', flag: '🇨🇳', direction: 'ltr' },
-	'zh-CN': { name: '简体中文', flag: '🇨🇳', direction: 'ltr' },
-	'zh-TW': { name: '繁體中文', flag: '🇹🇼', direction: 'ltr' },
-	'zh-HK': { name: '繁體中文 (香港)', flag: '🇭🇰', direction: 'ltr' },
-	es: { name: 'Español', flag: '🇪🇸', direction: 'ltr' },
-	hi: { name: 'हिन्दी', flag: '🇮🇳', direction: 'ltr' },
-	ar: { name: 'العربية', flag: '🇸🇦', direction: 'rtl' },
-	pt: { name: 'Português', flag: '🇵🇹', direction: 'ltr' },
-	'pt-BR': { name: 'Português (Brasil)', flag: '🇧🇷', direction: 'ltr' },
-	bn: { name: 'বাংলা', flag: '🇧🇩', direction: 'ltr' },
-	ru: { name: 'Русский', flag: '🇷🇺', direction: 'ltr' },
-	ja: { name: '日本語', flag: '🇯🇵', direction: 'ltr' },
-	pa: { name: 'ਪੰਜਾਬੀ', flag: '🇮🇳', direction: 'ltr' },
-	de: { name: 'Deutsch', flag: '🇩🇪', direction: 'ltr' },
-	jv: { name: 'Basa Jawa', flag: '🇮🇩', direction: 'ltr' },
-	ko: { name: '한국어', flag: '🇰🇷', direction: 'ltr' },
-	fr: { name: 'Français', flag: '🇫🇷', direction: 'ltr' },
+	en: { name: 'English', englishName: 'English', flag: '🇬🇧', direction: 'ltr' },
+	zh: { name: '中文', englishName: 'Chinese', flag: '🇨🇳', direction: 'ltr' },
+	'zh-CN': { name: '简体中文', englishName: 'Chinese (Simplified)', flag: '🇨🇳', direction: 'ltr' },
+	'zh-TW': { name: '繁體中文', englishName: 'Chinese (Traditional)', flag: '🇹🇼', direction: 'ltr' },
+	'zh-HK': {
+		name: '繁體中文 (香港)',
+		englishName: 'Chinese (Hong Kong)',
+		flag: '🇭🇰',
+		direction: 'ltr'
+	},
+	es: { name: 'Español', englishName: 'Spanish', flag: '🇪🇸', direction: 'ltr' },
+	hi: { name: 'हिन्दी', englishName: 'Hindi', flag: '🇮🇳', direction: 'ltr' },
+	ar: { name: 'العربية', englishName: 'Arabic', flag: '🇸🇦', direction: 'rtl' },
+	pt: { name: 'Português', englishName: 'Portuguese', flag: '🇵🇹', direction: 'ltr' },
+	'pt-BR': {
+		name: 'Português (Brasil)',
+		englishName: 'Portuguese (Brazil)',
+		flag: '🇧🇷',
+		direction: 'ltr'
+	},
+	bn: { name: 'বাংলা', englishName: 'Bengali', flag: '🇧🇩', direction: 'ltr' },
+	ru: { name: 'Русский', englishName: 'Russian', flag: '🇷🇺', direction: 'ltr' },
+	ja: { name: '日本語', englishName: 'Japanese', flag: '🇯🇵', direction: 'ltr' },
+	pa: { name: 'ਪੰਜਾਬੀ', englishName: 'Punjabi', flag: '🇮🇳', direction: 'ltr' },
+	de: { name: 'Deutsch', englishName: 'German', flag: '🇩🇪', direction: 'ltr' },
+	jv: { name: 'Basa Jawa', englishName: 'Javanese', flag: '🇮🇩', direction: 'ltr' },
+	ko: { name: '한국어', englishName: 'Korean', flag: '🇰🇷', direction: 'ltr' },
+	fr: { name: 'Français', englishName: 'French', flag: '🇫🇷', direction: 'ltr' },
 	te: { name: 'తెలుగు', flag: '🇮🇳', direction: 'ltr' },
 	mr: { name: 'मराठी', flag: '🇮🇳', direction: 'ltr' },
 	tr: { name: 'Türkçe', flag: '🇹🇷', direction: 'ltr' },
@@ -116,21 +135,31 @@ export const DEFAULT_LANGUAGE_META: Record<string, LanguageMeta> = {
  * @param customMeta Optional custom metadata to use
  * @returns Language metadata
  */
-export function getLanguageMeta(locale: string, customMeta?: LanguageMeta): LanguageMeta {
-	// Use custom metadata if provided
-	if (customMeta) {
-		return customMeta;
+export function getLanguageMeta(locale: string, customMeta?: Partial<LanguageMeta>): LanguageMeta {
+	// Use custom metadata if provided and complete
+	if (
+		customMeta &&
+		customMeta.code &&
+		customMeta.name &&
+		customMeta.englishName &&
+		customMeta.direction
+	) {
+		return customMeta as LanguageMeta;
 	}
 
-	// Check exact match first
-	if (DEFAULT_LANGUAGE_META[locale]) {
-		return DEFAULT_LANGUAGE_META[locale];
-	}
+	// Build complete metadata from partial data
+	const partial =
+		DEFAULT_LANGUAGE_META_PARTIAL[locale] || DEFAULT_LANGUAGE_META_PARTIAL[locale.split('-')[0]];
 
-	// Try base language code (e.g., 'en' for 'en-US')
-	const baseLocale = locale.split('-')[0];
-	if (DEFAULT_LANGUAGE_META[baseLocale]) {
-		const meta = { ...DEFAULT_LANGUAGE_META[baseLocale] };
+	if (partial) {
+		const meta: LanguageMeta = {
+			code: locale,
+			name: partial.name,
+			englishName: partial.englishName || partial.name, // Use name as fallback for englishName
+			direction: partial.direction,
+			flag: partial.flag
+		};
+
 		// Adjust flag for regional variants
 		if (locale === 'en-US') meta.flag = '🇺🇸';
 		else if (locale === 'en-GB') meta.flag = '🇬🇧';
@@ -139,14 +168,17 @@ export function getLanguageMeta(locale: string, customMeta?: LanguageMeta): Lang
 		else if (locale === 'fr-CA') meta.flag = '🇨🇦';
 		else if (locale === 'es-MX') meta.flag = '🇲🇽';
 		else if (locale === 'es-AR') meta.flag = '🇦🇷';
+
 		return meta;
 	}
 
 	// Fallback to generic metadata
 	return {
+		code: locale,
 		name: locale.toUpperCase(),
-		flag: '🌐',
-		direction: 'ltr'
+		englishName: locale.toUpperCase(),
+		direction: 'ltr',
+		flag: '🌐'
 	};
 }
 
@@ -179,7 +211,9 @@ export function mergeLanguageMeta(
 
 	// Final fallback
 	return {
+		code: locale,
 		name: locale,
+		englishName: locale,
 		flag: '🌐',
 		direction: 'ltr'
 	};
