@@ -1,9 +1,11 @@
 /**
- * Auto-generated TypeScript definitions for library translations
- * Generated from: src/lib/translations/@shelchin/svelte-i18n/*.json
+ * Auto-generated i18n type definitions
+ * Generated from: en.json
+ * Generated at: 2025-08-13T08:09:49.546Z
  */
 
-export type LibI18nPath =
+// Type for all translation keys in your library
+export type LibI18nPath = 
 	| '_meta.name'
 	| '_meta.englishName'
 	| '_meta.direction'
@@ -36,3 +38,8 @@ export type LibI18nPath =
 	| 'demo.clickToViewCode'
 	| 'demo.codeCopied'
 	| 'demo.copyCode';
+
+// Helper type for typed translation function
+export interface TypedTranslate {
+	(key: LibI18nPath, params?: Record<string, any>): string;
+}

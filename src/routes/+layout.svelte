@@ -15,7 +15,8 @@
 		const savedLocale = localStorage.getItem('i18n-locale');
 
 		// Determine target locale
-		let targetLocale = data.locale;
+		// After initI18n, i18n.locale should be 'zh' (the configured default)
+		let targetLocale = i18n.locale || data.locale || 'zh';
 
 		if (savedLocale && i18n.locales.includes(savedLocale)) {
 			// Use saved locale if available

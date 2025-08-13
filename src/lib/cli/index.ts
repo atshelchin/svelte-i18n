@@ -7,6 +7,7 @@
 import { extract } from './extract.js';
 import { validate } from './validate.js';
 import { generateTypes } from './generate-types.js';
+import { init } from './init.js';
 
 const command = process.argv[2];
 const args = process.argv.slice(3);
@@ -16,6 +17,9 @@ function showHelp() {
 @shelchin/svelte-i18n CLI
 
 Commands:
+  init
+    Initialize i18n in your project (creates config files and directories)
+    
   extract <srcDir> <outFile> [extensions...]
     Extract translation keys from source code
     
@@ -31,6 +35,7 @@ Commands:
       --no-validate          Skip validation of other language files
 
 Examples:
+  svelte-i18n init
   svelte-i18n extract ./src ./translations/template.json
   svelte-i18n validate ./static/translations --strict
   svelte-i18n generate-types
@@ -43,6 +48,10 @@ For more information, visit:
 }
 
 switch (command) {
+	case 'init':
+		init();
+		break;
+		
 	case 'extract':
 		if (args.length < 2) {
 			console.error('Usage: svelte-i18n extract <srcDir> <outFile> [extensions...]');
