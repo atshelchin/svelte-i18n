@@ -37,13 +37,21 @@
 		<div class="info">
 			<p>当前保存的语言设置 / Current saved locale:</p>
 			<ul>
-				<li>localStorage: <code>{typeof window !== 'undefined' ? (localStorage.getItem('i18n-locale') || 'none') : 'checking...'}</code></li>
+				<li>
+					localStorage: <code
+						>{typeof window !== 'undefined'
+							? localStorage.getItem('i18n-locale') || 'none'
+							: 'checking...'}</code
+					>
+				</li>
 				<li>
 					Cookie: <code
-						>{typeof window !== 'undefined' ? (document.cookie
-							.split(';')
-							.find((c) => c.trim().startsWith('i18n-locale='))
-							?.split('=')[1] || 'none') : 'checking...'}</code
+						>{typeof window !== 'undefined'
+							? document.cookie
+									.split(';')
+									.find((c) => c.trim().startsWith('i18n-locale='))
+									?.split('=')[1] || 'none'
+							: 'checking...'}</code
 					>
 				</li>
 			</ul>

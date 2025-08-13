@@ -4,7 +4,7 @@
 	import { base } from '$app/paths';
 	import { fuzzySearchLanguages, type LanguageInfo, type LanguageMeta } from '$lib/index.js';
 
-	import { getI18n } from '../../translations/i18n';
+	import { getI18n } from '../../translations/i18n.js';
 	import TaskHistory from './TaskHistory.svelte';
 	import {
 		type TranslationTask,
