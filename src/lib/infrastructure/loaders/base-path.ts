@@ -13,7 +13,7 @@ export function getAppBasePath(): string {
 	// 1. Try SvelteKit's runtime configuration (most reliable for SvelteKit apps)
 	try {
 		// SvelteKit generates a unique ID for each build, look for any __sveltekit_* global
-		const globalKeys = Object.keys(globalThis).filter(key => key.startsWith('__sveltekit_'));
+		const globalKeys = Object.keys(globalThis).filter((key) => key.startsWith('__sveltekit_'));
 		for (const key of globalKeys) {
 			const sveltekitConfig = (globalThis as any)[key];
 			if (sveltekitConfig?.base !== undefined) {
