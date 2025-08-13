@@ -12,5 +12,6 @@
 		"module": "NodeNext",
 		"moduleResolution": "NodeNext"
 	},
-	"include": ["src/**/*", "examples/**/*"]
+	"include": ["src/**/*"],
+	"exclude": ["examples/**/*"]
 }

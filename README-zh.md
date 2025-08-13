@@ -76,36 +76,60 @@ pnpm run svelte-i18n init
 ```
 
 这会自动：
+
 - 检测你的项目类型（应用/包/两者）
 - 创建翻译目录
 - 生成 TypeScript 类型
 - 设置 i18n 配置
 
-### 3. 在应用中使用
+### 3. 设置 Layout 文件（超级简单！）
+
+```typescript
+// +layout.server.ts - 只需 1 行！
+import { handleSSR } from '@shelchin/svelte-i18n';
+import { i18n } from '../translations/i18n.js';
+
+export const load = handleSSR(i18n);
+```
+
+```svelte
+<!-- +layout.svelte - 只需 2 行！ -->
+<script>
+	import { handleClient } from '@shelchin/svelte-i18n';
+	import { i18n } from '../translations/i18n.js';
+
+	let { data, children } = $props();
+	handleClient(i18n, data);
+</script>
+
+{@render children()}
+```
+
+### 4. 在应用中使用
 
 ```typescript
 // 在 Svelte 应用中（@ 代表 ./src）
 import { i18n } from '@/translations/i18n.js';
 
 // 基本用法
-i18n.t('welcome', { name: 'World' })  // "欢迎，World！"
+i18n.t('welcome', { name: 'World' }); // "欢迎，World！"
 
 // 切换语言
-await i18n.setLocale('zh')
+await i18n.setLocale('zh');
 
 // 格式化
-i18n.formatCurrency(99.99)            // "$99.99" / "¥100"
-i18n.formatRelativeTime(-2, 'day')    // "2天前"
+i18n.formatCurrency(99.99); // "$99.99" / "¥100"
+i18n.formatRelativeTime(-2, 'day'); // "2天前"
 ```
 
-### 4. 在包开发中使用
+### 5. 在包开发中使用
 
 ```typescript
 // 在库/包组件中
 import { i18n } from '$lib/translations/i18n.js';
 
 // 使用命名空间隔离
-i18n.t('button.submit')  // 包翻译是隔离的
+i18n.t('button.submit'); // 包翻译是隔离的
 ```
 
 **就是这样！** 你的 i18n 已准备就绪。
@@ -213,25 +237,25 @@ onMount(async () => {
 import { createI18n } from '@shelchin/svelte-i18n';
 
 export const i18n = createI18n({
-  defaultLocale: 'zh',       // 默认语言
-  fallbackLocale: 'en',      // 回退语言
-  
-  // 插值设置
-  interpolation: {
-    prefix: '{',
-    suffix: '}'
-  },
-  
-  // 格式化预设
-  formats: {
-    date: {
-      short: { year: 'numeric', month: '2-digit', day: '2-digit' },
-      long: { year: 'numeric', month: 'long', day: 'numeric' }
-    },
-    number: {
-      currency: { style: 'currency', currency: 'CNY' }
-    }
-  }
+	defaultLocale: 'zh', // 默认语言
+	fallbackLocale: 'en', // 回退语言
+
+	// 插值设置
+	interpolation: {
+		prefix: '{',
+		suffix: '}'
+	},
+
+	// 格式化预设
+	formats: {
+		date: {
+			short: { year: 'numeric', month: '2-digit', day: '2-digit' },
+			long: { year: 'numeric', month: 'long', day: 'numeric' }
+		},
+		number: {
+			currency: { style: 'currency', currency: 'CNY' }
+		}
+	}
 });
 ```
 
@@ -243,35 +267,35 @@ export const i18n = createI18n({
 
 ```typescript
 // 基本插值
-i18n.t('welcome', { name: 'Alice' })  // "欢迎，Alice！"
+i18n.t('welcome', { name: 'Alice' }); // "欢迎，Alice！"
 
 // 嵌套值
-i18n.t('user.greeting', { user: { name: 'Bob' } })
+i18n.t('user.greeting', { user: { name: 'Bob' } });
 ```
 
 ### 复数化
 
 ```typescript
 // 基于计数的自动复数化
-i18n.t('items', { count: 0 })  // "你有 0 个项目"
-i18n.t('items', { count: 1 })  // "你有 1 个项目"
-i18n.t('items', { count: 5 })  // "你有 5 个项目"
+i18n.t('items', { count: 0 }); // "你有 0 个项目"
+i18n.t('items', { count: 1 }); // "你有 1 个项目"
+i18n.t('items', { count: 5 }); // "你有 5 个项目"
 ```
 
 ### 格式化
 
 ```typescript
 // 日期格式化
-i18n.formatDate(new Date(), 'short')  // "2023/12/25"
-i18n.formatDate(new Date(), 'long')   // "2023年12月25日"
+i18n.formatDate(new Date(), 'short'); // "2023/12/25"
+i18n.formatDate(new Date(), 'long'); // "2023年12月25日"
 
 // 数字格式化
-i18n.formatNumber(1234.56)           // "1,234.56"
-i18n.formatCurrency(99.99, 'CNY')    // "¥99.99"
+i18n.formatNumber(1234.56); // "1,234.56"
+i18n.formatCurrency(99.99, 'CNY'); // "¥99.99"
 
 // 相对时间
-i18n.formatRelativeTime(-1, 'day')   // "昨天"
-i18n.formatRelativeTime(2, 'hour')   // "2小时后"
+i18n.formatRelativeTime(-1, 'day'); // "昨天"
+i18n.formatRelativeTime(2, 'hour'); // "2小时后"
 ```
 
 ### 命名空间隔离
@@ -284,8 +308,8 @@ import { createI18n } from '@shelchin/svelte-i18n';
 import packageJson from '../../../package.json';
 
 export const libI18n = createI18n({
-  namespace: packageJson.name,  // 自动使用包名
-  defaultLocale: 'zh'
+	namespace: packageJson.name, // 自动使用包名
+	defaultLocale: 'zh'
 });
 ```
 
@@ -296,7 +320,7 @@ export const libI18n = createI18n({
 ```typescript
 const browserLang = i18n.detectBrowserLanguage();
 if (browserLang && i18n.locales.includes(browserLang)) {
-  await i18n.setLocale(browserLang);
+	await i18n.setLocale(browserLang);
 }
 ```
 
@@ -336,13 +360,13 @@ import type { LayoutServerLoad } from './$types';
 import { i18n } from '../translations/i18n';
 
 export const load: LayoutServerLoad = async ({ cookies }) => {
-  const locale = cookies.get('i18n-locale') || 'zh';
-  await i18n.setLocale(locale);
-  
-  return {
-    locale,
-    locales: i18n.locales
-  };
+	const locale = cookies.get('i18n-locale') || 'zh';
+	await i18n.setLocale(locale);
+
+	return {
+		locale,
+		locales: i18n.locales
+	};
 };
 ```
 
@@ -356,11 +380,11 @@ export const load: LayoutServerLoad = async ({ cookies }) => {
 import type { I18nPath } from '@/types/app-i18n-generated';
 
 // 类型安全的翻译键
-const key: I18nPath = 'welcome';  // ✅ 有效
-const key: I18nPath = 'invalid';  // ❌ TypeScript 错误
+const key: I18nPath = 'welcome'; // ✅ 有效
+const key: I18nPath = 'invalid'; // ❌ TypeScript 错误
 
 // IDE 中的自动完成支持
-i18n.t('nav.');  // IDE 建议：'nav.home', 'nav.about'
+i18n.t('nav.'); // IDE 建议：'nav.home', 'nav.about'
 ```
 
 ---

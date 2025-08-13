@@ -42,7 +42,8 @@
 			"Bash(node:*)",
 			"Bash(npm run test:e2e:*)",
 			"WebFetch(domain:localhost)",
-			"Bash(npm run test:*)"
+			"Bash(npm run test:*)",
+			"Bash(npm test:*)"
 		],
 		"deny": []
 	}

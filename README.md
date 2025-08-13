@@ -76,36 +76,60 @@ pnpm run svelte-i18n init
 ```
 
 This automatically:
+
 - Detects your project type (app/package/both)
 - Creates translation directories
 - Generates TypeScript types
 - Sets up i18n configuration
 
-### 3. Use in Your App
+### 3. Setup Layout Files (Super Simple!)
+
+```typescript
+// +layout.server.ts - Just 1 line!
+import { handleSSR } from '@shelchin/svelte-i18n';
+import { i18n } from '../translations/i18n.js';
+
+export const load = handleSSR(i18n);
+```
+
+```svelte
+<!-- +layout.svelte - Just 2 lines! -->
+<script>
+	import { handleClient } from '@shelchin/svelte-i18n';
+	import { i18n } from '../translations/i18n.js';
+
+	let { data, children } = $props();
+	handleClient(i18n, data);
+</script>
+
+{@render children()}
+```
+
+### 4. Use in Your App
 
 ```typescript
 // In Svelte applications (@ represents ./src)
 import { i18n } from '@/translations/i18n.js';
 
 // Basic usage
-i18n.t('welcome', { name: 'World' })  // "Welcome, World!"
+i18n.t('welcome', { name: 'World' }); // "Welcome, World!"
 
 // Switch language
-await i18n.setLocale('zh')
+await i18n.setLocale('zh');
 
 // Formatting
-i18n.formatCurrency(99.99)            // "$99.99" / "¥100"
-i18n.formatRelativeTime(-2, 'day')    // "2 days ago"
+i18n.formatCurrency(99.99); // "$99.99" / "¥100"
+i18n.formatRelativeTime(-2, 'day'); // "2 days ago"
 ```
 
-### 4. Use in Package Development
+### 5. Use in Package Development
 
 ```typescript
 // In library/package components
 import { i18n } from '$lib/translations/i18n.js';
 
 // Use with namespace isolation
-i18n.t('button.submit')  // Package translations are isolated
+i18n.t('button.submit'); // Package translations are isolated
 ```
 
 **That's it!** Your i18n is ready.

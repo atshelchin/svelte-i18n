@@ -11,17 +11,20 @@ test.describe('Comprehensive i18n check', () => {
 
 		await page.goto('/');
 
-		// Wait for page to load
-		await page.waitForTimeout(2000);
+		// Wait for page to load and auto-discovery
+		await page.waitForLoadState('networkidle');
+		await page.waitForTimeout(3000);
 
-		// Check if LanguageSwitcher exists
-		const languageSwitcher = page.locator('.language-switcher');
+		// Check if LanguageSwitcher exists (use select.language-switcher)
+		const languageSwitcher = page.locator('select.language-switcher');
 		const switcherExists = (await languageSwitcher.count()) > 0;
 		console.log('LanguageSwitcher exists:', switcherExists);
 
+		let count = 0;
+
 		if (switcherExists) {
 			const options = languageSwitcher.locator('option');
-			const count = await options.count();
+			count = await options.count();
 			console.log('Number of languages in switcher:', count);
 
 			// List all languages
@@ -75,6 +78,6 @@ test.describe('Comprehensive i18n check', () => {
 		console.log('\n=== Summary ===');
 		console.log('Languages found:', count);
 		console.log('ValidationPopup indicator:', indicatorExists ? 'visible' : 'not visible');
-		console.log('UI shows keys:', hasKey || hasI18nKeys ? 'YES (bug)' : 'NO (good)');
+		console.log('UI shows keys:', hasI18nKeys ? 'YES (bug)' : 'NO (good)');
 	});
 });

@@ -1,118 +1,31 @@
 <script lang="ts">
 	import '../app.css';
 	import { onMount } from 'svelte';
+	import { setupI18nClient, initI18nOnMount } from '$lib/index.js';
 	import { i18n, initI18n } from '../app/i18n.js';
 	import type { LayoutData } from './$types.js';
 
 	let { children, data } = $props<{ children: import('svelte').Snippet; data: LayoutData }>();
 
-	// Track if we're ready to render (to prevent flash in CSR)
-	let isReady = $state(false);
+	// Setup i18n synchronously to prevent flash during hydration
+	let isReady = $state(
+		setupI18nClient(i18n, data, {
+			defaultLocale: i18n.locale
+		})
+	);
 
-	// Initialize with the locale from server (which includes cookie value)
-	let initialLocale = data.locale || 'zh';
-
-	// Check if we're in SSR or CSR mode
-	const isSSR =
-		data.ssrTranslations !== undefined ||
-		data.translationsPreloaded ||
-		i18n.locales.includes(initialLocale);
-
-	// For SSR with auto-discovered languages, load SSR translations immediately
-	if (
-		data.isAutoDiscovered &&
-		data.ssrTranslations &&
-		i18n.loadLanguageSync &&
-		i18n.setLocaleSync
-	) {
-		// Load the SSR translations synchronously to prevent flash
-		console.log(`[+layout.svelte] Loading SSR translations for ${initialLocale}`);
-		i18n.loadLanguageSync(initialLocale, data.ssrTranslations);
-		// Set locale immediately after loading translations
-		i18n.setLocaleSync(initialLocale);
-		isReady = true; // SSR is ready
-	} else if (data.translationsPreloaded) {
-		// Translations were preloaded in +layout.ts
-		console.log('[+layout.svelte] Using preloaded translations');
-		isReady = true;
-	} else if (
-		i18n.locale !== initialLocale &&
-		i18n.locales.includes(initialLocale) &&
-		i18n.setLocaleSync
-	) {
-		// Set initial locale immediately to prevent flash for built-in languages
-		// This will be synchronous if translations are already loaded
-		i18n.setLocaleSync(initialLocale);
-		isReady = true; // Built-in language is ready
-	} else if (typeof window !== 'undefined' && !isSSR) {
-		// CSR mode - translations should have been preloaded in +layout.ts
-		// This is a fallback in case preloading didn't work
-		console.log('[+layout.svelte] CSR mode fallback - loading translations');
-
-		// Check if current locale matches target
-		if (i18n.locale === initialLocale && i18n.locales.includes(initialLocale)) {
-			// Already loaded and set
-			isReady = true;
-		} else {
-			// Load translations immediately in CSR mode
-			(async () => {
-				// Get saved locale from localStorage
-				const savedLocale = localStorage.getItem('i18n-locale');
-				const targetLocale = savedLocale || initialLocale;
-
-				// Initialize i18n and load all translations
-				await initI18n(i18n);
-
-				// Set the target locale
-				if (i18n.locales.includes(targetLocale)) {
-					await i18n.setLocale(targetLocale);
-				}
-
-				// Now ready to render
-				isReady = true;
-			})();
-		}
-	} else {
-		// SSR or already loaded
-		isReady = true;
-	}
-
-	// On client side, handle locale changes
+	// Handle client-side initialization
 	onMount(async () => {
-		// If we already initialized in CSR mode, skip
-		if (!isSSR && isReady) {
-			console.log('[+layout.svelte] Already initialized in CSR mode');
-			return;
-		}
-
-		// Initialize app i18n instance (this loads auto-discovered translations)
-		await initI18n(i18n);
-
-		// Get saved locale from localStorage (takes precedence over cookie)
-		const savedLocale = localStorage.getItem('i18n-locale');
-
-		// Determine final target locale
-		let targetLocale = initialLocale; // Use initialLocale from SSR
-
-		if (savedLocale && i18n.locales.includes(savedLocale)) {
-			// localStorage takes precedence
-			targetLocale = savedLocale;
-		}
-
-		// Set the locale - this should work now that auto-discovered translations are loaded
-		if (i18n.locale !== targetLocale && i18n.locales.includes(targetLocale)) {
-			await i18n.setLocale(targetLocale);
-		}
-
-		// Log for debugging
-		console.log('Locale initialization:', {
-			dataLocale: data.locale,
-			savedLocale,
-			configuredDefault: 'zh',
-			currentLocale: i18n.locale,
-			targetLocale,
-			availableLocales: i18n.locales
+		await initI18nOnMount(i18n, data, {
+			initFunction: async (inst) => {
+				await initI18n(inst);
+			},
+			defaultLocale: i18n.locale
 		});
+		// Set ready after initialization
+		if (!isReady) {
+			isReady = true;
+		}
 	});
 </script>
 

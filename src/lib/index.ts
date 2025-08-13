@@ -54,12 +54,16 @@ export {
 	i18nServerLoad,
 	i18nUniversalLoad,
 	i18nClientInit,
-	i18nIsReady,
-	// One-liner helpers
-	handleSSR,
-	handleClient,
-	handleUniversal
+	i18nIsReady
 } from './helpers/layout-helpers.js';
+
+// Simplified layout helpers - balance flexibility and simplicity
+export {
+	loadI18nSSR,
+	loadI18nUniversal,
+	setupI18nClient,
+	initI18nOnMount
+} from './helpers/layout-load.js';
 
 // Auto-discovery exports
 export {

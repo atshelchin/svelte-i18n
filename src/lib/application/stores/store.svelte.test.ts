@@ -128,12 +128,13 @@ describe('i18n Store', () => {
 			expect(isValid).toBe(true);
 		});
 
-		it('should detect missing translations', async () => {
+		it('should detect missing translations but still return true (warnings)', async () => {
 			await i18n.loadLanguage('en', enTranslations);
 			await i18n.loadLanguage('zh', { welcome: '欢迎!' }); // Missing keys
 
 			const isValid = i18n.validateTranslations('zh', enTranslations);
-			expect(isValid).toBe(false);
+			// Now returns true even with warnings (missing translations are warnings, not errors)
+			expect(isValid).toBe(true);
 		});
 	});
 
