@@ -4,8 +4,8 @@ import { browser } from '$app/environment';
 import { i18n } from '../translations/i18n.js';
 
 // Disable prerendering to allow dynamic SSR with cookies
-export const prerender = false;
-export const ssr = true;
+export const prerender = true;
+export const ssr = false;
 
 // Simple i18n setup - all complex logic handled by loadI18nUniversal
 export const load: LayoutLoad = async ({ data }) => {
