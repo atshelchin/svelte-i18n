@@ -16,6 +16,7 @@ import {
 	detectBrowserLanguage as detectLang,
 	mergeTranslations
 } from '../../domain/services/utils.js';
+import { getLanguageMeta } from '../../domain/services/language-meta.js';
 import { autoDiscoverTranslations as autoDiscoverV2 } from '../../infrastructure/loaders/auto-discovery-v2.js';
 import {
 	loadBuiltInTranslations,
@@ -81,7 +82,14 @@ export class I18nStore implements I18nInstance {
 	}
 
 	get meta() {
-		return this.languageMeta;
+		// Return a proxy that provides default metadata for languages without explicit metadata
+		return new Proxy(this.languageMeta, {
+			get: (target, locale: string) => {
+				if (typeof locale !== 'string') return undefined;
+				// Return existing metadata or generate default
+				return target[locale] || getLanguageMeta(locale);
+			}
+		});
 	}
 
 	constructor(config: I18nConfig) {

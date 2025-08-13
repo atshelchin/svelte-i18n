@@ -239,7 +239,6 @@
 						onchange={selectLanguage}
 					>
 						{#each Object.entries(errors) as [locale, localeErrors] (locale)}
-						{console.log(555,uiI18n.meta[locale])}
 							<option value={locale}>
 								{uiI18n.t('validationPopup.controls.languageOption', {
 									flag: uiI18n.meta[locale]?.flag || '🌐',
