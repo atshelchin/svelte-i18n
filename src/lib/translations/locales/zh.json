@@ -45,5 +45,11 @@
 			"todoTranslate": "[待办：翻译为{language}]"
 		},
 		"testOverride": "这是内置版本 (来自 src/translations/@shelchin/svelte-i18n/zh.json)"
+	},
+	"demo": {
+		"clickToCollapse": "点击收起",
+		"clickToViewCode": "点击查看代码",
+		"codeCopied": "已复制！",
+		"copyCode": "复制代码"
 	}
 }

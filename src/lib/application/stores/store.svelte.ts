@@ -17,7 +17,7 @@ import {
 	mergeTranslations
 } from '../../domain/services/utils.js';
 import { autoDiscoverTranslations as autoDiscoverV2 } from '../../infrastructure/loaders/auto-discovery-v2.js';
-import { loadBuiltInTranslations } from '../../infrastructure/loaders/built-in.js';
+import { loadBuiltInTranslations, loadBuiltInTranslationsSync } from '../../infrastructure/loaders/built-in.js';
 // Universal persistence is used instead
 // import { saveLocale, getInitialLocale } from '../../infrastructure/persistence/persistence.js';
 import {
@@ -88,6 +88,11 @@ export class I18nStore implements I18nInstance {
 		// For SSR, locale should be set via serverLoad or clientLoad
 		// Set default locale initially
 		this.currentLocale = config.defaultLocale;
+		console.log(`[I18nStore] Created with namespace: ${config.namespace}, defaultLocale: ${config.defaultLocale}, currentLocale: ${this.currentLocale}`);
+
+		// Load registered translations immediately for SSR
+		// This ensures translations are available during server-side rendering
+		this.loadRegisteredTranslations();
 
 		// Note: Auto-discovery is now handled in clientLoad() to avoid duplicate calls
 		// Don't call setupAutoDiscovery here anymore
@@ -534,6 +539,16 @@ export class I18nStore implements I18nInstance {
 	}
 
 	/**
+	 * Load registered translations synchronously (for SSR)
+	 * This ensures translations are available during server-side rendering
+	 */
+	private loadRegisteredTranslations(): void {
+		// Load built-in translations synchronously for SSR
+		loadBuiltInTranslationsSync(this);
+		console.log(`[SSR] Loaded translations for ${this.config.namespace}, locales: ${this.availableLocales.join(', ')}`);
+	}
+
+	/**
 	 * Client-side method to automatically load all available languages
 	 * This method handles:
 	 * - Checking if languages are already loaded
@@ -597,6 +612,13 @@ export class I18nStore implements I18nInstance {
 
 let globalInstance: I18nStore | null = null;
 const namespacedInstances = new SvelteMap<string, I18nStore>();
+// Store main app config for inheritance
+let mainAppConfig: I18nConfig | null = null;
+
+// Make instances globally accessible for library components
+if (typeof globalThis !== 'undefined') {
+	(globalThis as any).__i18n_instances = namespacedInstances;
+}
 
 export function setupI18n(config: I18nConfig): I18nInstance {
 	// If this is a namespaced instance, create a separate instance for it
@@ -605,7 +627,25 @@ export function setupI18n(config: I18nConfig): I18nInstance {
 		if (existing) {
 			return existing;
 		}
-		const instance = new I18nStore(config);
+
+		// Inherit configuration from main app if available
+		let effectiveConfig = config;
+		if (mainAppConfig) {
+			effectiveConfig = {
+				...config,
+				// Inherit locale settings from main app
+				defaultLocale: mainAppConfig.defaultLocale,
+				fallbackLocale: mainAppConfig.fallbackLocale,
+				// Inherit formatting and interpolation settings
+				interpolation: config.interpolation || mainAppConfig.interpolation,
+				formats: config.formats || mainAppConfig.formats,
+				pluralization: config.pluralization || mainAppConfig.pluralization,
+				// Keep the package's namespace
+				namespace: config.namespace
+			};
+		}
+
+		const instance = new I18nStore(effectiveConfig);
 		namespacedInstances.set(config.namespace, instance);
 		return instance;
 	}
@@ -615,11 +655,33 @@ export function setupI18n(config: I18nConfig): I18nInstance {
 	if (globalInstance) {
 		return globalInstance;
 	}
+
+	// Store as main app config for inheritance
+	mainAppConfig = config;
 	globalInstance = new I18nStore(config);
+
+	// Also store the global instance in namespacedInstances with 'app' key
+	// This allows library components to access it via __i18n_instances
+	if (config.namespace === 'app') {
+		namespacedInstances.set('app', globalInstance);
+	}
+
 	return globalInstance;
 }
 
-export function getI18n(): I18nInstance {
+export function getI18n(namespace?: string): I18nInstance {
+	// If namespace is provided, get the namespaced instance
+	if (namespace) {
+		const instance = namespacedInstances.get(namespace);
+		if (!instance) {
+			throw new Error(
+				`i18n instance for namespace "${namespace}" not found. Call setupI18n with this namespace first.`
+			);
+		}
+		return instance;
+	}
+
+	// Otherwise, return the global instance
 	if (!globalInstance) {
 		throw new Error('i18n not initialized. Call setupI18n first.');
 	}

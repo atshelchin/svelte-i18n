@@ -1,7 +1,9 @@
 <script lang="ts">
 	import { getI18n } from '../translations/i18n.js';
 	import { LanguageSwitcher, ValidationPopup } from '$lib/index.js';
+	import { getEffectiveLibI18n } from '$lib/translations/i18n.js';
 	import { base } from '$app/paths';
+	import { onMount } from 'svelte';
 	const i18n = getI18n();
 
 	// Demo states
@@ -14,6 +16,38 @@
 	const sampleNumber = 1234567.89;
 	const price = 9999.99;
 	const largeNumber = 123456789;
+
+	// Debug configuration inheritance
+	onMount(() => {
+		const libI18n = getEffectiveLibI18n();
+		console.group('🔍 Configuration Inheritance Debug');
+		console.log('App i18n config:', {
+			namespace: (i18n as any).getNamespace?.() || 'unknown',
+			locale: i18n.locale,
+			locales: i18n.locales
+		});
+		console.log('Library i18n config:', {
+			namespace: (libI18n as any).getNamespace?.() || 'unknown',
+			locale: libI18n.locale,
+			locales: libI18n.locales
+		});
+
+		// Test formatting inheritance
+		const testDate = new Date('2024-01-15');
+		console.log('Date formatting test:');
+		console.log('  App:', i18n.formatDate(testDate));
+		console.log('  Library:', libI18n.formatDate(testDate));
+
+		console.log('Currency formatting test:');
+		console.log('  App:', i18n.formatCurrency(100));
+		console.log('  Library:', libI18n.formatCurrency(100));
+
+		console.log('Inheritance verified:', {
+			localeMatch: libI18n.locale === i18n.locale,
+			formatMatch: libI18n.formatDate(testDate) === i18n.formatDate(testDate)
+		});
+		console.groupEnd();
+	});
 
 	// Check if translations are loaded
 	const hasTranslations = $derived(i18n.locales.length > 0);
@@ -132,7 +166,7 @@ i18n.formatRelativeTime(-2, 'day');
 
 			<!-- Language showcase -->
 			<div class="language-showcase">
-				{#each i18n.locales.slice(0, 8) as locale (locale)}
+				{#each i18n.locales as locale (locale)}
 					<button
 						class="lang-pill"
 						class:active={i18n.locale === locale}

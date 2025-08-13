@@ -5,8 +5,16 @@
  * This is an EXAMPLE showing how applications should use the library
  */
 
-import { createTypedI18n } from '$lib/typed-export.js';
+import { createTypedUnifiedI18n, type UnifiedI18nConfig } from '$lib/index.js';
 import type { I18nPath } from '../types/app-i18n-generated.js';
 
-// Create typed versions with app-specific types
-export const { getI18n, setupI18n } = createTypedI18n<I18nPath>();
+// Example configuration
+const config: UnifiedI18nConfig = {
+	namespace: 'app',
+	isMain: true,
+	defaultLocale: 'en',
+	fallbackLocale: 'en'
+};
+
+// Create typed i18n instance with app-specific types
+export const i18n = createTypedUnifiedI18n<I18nPath>(config);

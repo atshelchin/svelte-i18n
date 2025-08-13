@@ -1,68 +1,45 @@
 /**
  * Application i18n configuration and translations
  * This file handles all translation imports and i18n setup
+ *
+ * Using unified API with type safety for translation keys
  */
 
-import { registerBuiltInTranslations, createTypedI18n } from '$lib/index.js';
+import { createTypedUnifiedI18n, type UnifiedI18nConfig } from '$lib/typed-unified.js';
 import type { I18nPath } from '../types/app-i18n-generated.js';
 
-// Create typed versions with app-specific types
-export const { getI18n, setupI18n } = createTypedI18n<I18nPath>();
 // ============================================
-// Import all translation JSON files
+// Auto-scan and import translations from locales directories
 // ============================================
 
-// App translations
-import appEn from './app/en.json' with { type: 'json' };
-import appZh from './app/zh.json' with { type: 'json' };
-import appJa from './app/ja.json' with { type: 'json' };
-import appFr from './app/fr.json' with { type: 'json' };
-import appDe from './app/de.json' with { type: 'json' };
-import appAr from './app/ar.json' with { type: 'json' };
-import appZhTW from './app/zh-TW.json' with { type: 'json' };
+// App translations - auto-scan locales directory
+const appTranslationModules = import.meta.glob('./locales/*.json', {
+	eager: true,
+	import: 'default'
+});
 
-// Package translations (@shelchin/svelte-i18n)
-import pkgEn from '$lib/translations/@shelchin/svelte-i18n/en.json' with { type: 'json' };
-import pkgZh from '$lib/translations/@shelchin/svelte-i18n/zh.json' with { type: 'json' };
-import pkgJa from '$lib/translations/@shelchin/svelte-i18n/ja.json' with { type: 'json' };
+const appTranslations: Record<string, any> = {};
 
-// ============================================
-// Organize translations by namespace
-// ============================================
-
-const builtInTranslations = {
-	// Application translations (no namespace prefix)
-	app: {
-		en: appEn,
-		zh: appZh,
-		ja: appJa,
-		fr: appFr,
-		de: appDe,
-		ar: appAr,
-		'zh-TW': appZhTW
-	},
-	// Package translations (with namespace prefix)
-	'@shelchin/svelte-i18n': {
-		en: pkgEn,
-		zh: pkgZh,
-		ja: pkgJa
+// Extract language code from file path and build translations object
+for (const [path, module] of Object.entries(appTranslationModules)) {
+	// Extract language code from path like './locales/en.json'
+	const match = path.match(/\/([^/]+)\.json$/);
+	if (match && match[1]) {
+		const langCode = match[1];
+		appTranslations[langCode] = module;
 	}
-};
+}
 
 // ============================================
-// Register translations
+// Configure and initialize i18n using unified API
 // ============================================
 
-// Register all built-in translations globally
-registerBuiltInTranslations(builtInTranslations);
-
-// ============================================
-// Configure and initialize i18n
-// ============================================
-
-const i18nConfig = {
-	defaultLocale: 'en',
-	fallbackLocale: 'en',
+const config: UnifiedI18nConfig = {
+	namespace: 'app', // Main application namespace
+	isMain: true, // This is the main app instance
+	defaultLocale: 'zh',
+	fallbackLocale: 'zh',
+	translations: appTranslations,
 	interpolation: {
 		prefix: '{',
 		suffix: '}'
@@ -75,34 +52,17 @@ const i18nConfig = {
 	}
 };
 
-// Create and initialize i18n instance
-function createI18nInstance() {
-	const instance = setupI18n(i18nConfig);
-
-	// Load built-in translations synchronously
-	for (const [locale, translations] of Object.entries(builtInTranslations.app)) {
-		// @ts-expect-error - loadLanguageSync is not in the interface but exists on the implementation
-		instance.loadLanguageSync(locale, translations);
-	}
-
-	return instance;
-}
-
-// Export a getter function that returns the instance
-// On client-side, this will return the same cached instance
-// On server-side, we'll create a new instance per request in +layout.server.ts
-export const i18n = createI18nInstance();
-
-// ============================================
-// Client-side auto-discovery
-// ============================================
-
-// Don't auto-load on client side - let +layout.svelte handle it
-// This prevents conflict with server-provided locale
+// Create main app i18n instance with type safety
+// Now i18n.t() will only accept valid keys from I18nPath
+export const i18n = createTypedUnifiedI18n<I18nPath>(config);
 
 // ============================================
 // Export for use in application
 // ============================================
 
-export { builtInTranslations, createI18nInstance };
+// Export getI18n function for typed access
+export function getI18n() {
+	return i18n;
+}
+
 export default i18n;

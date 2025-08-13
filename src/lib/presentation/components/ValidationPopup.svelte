@@ -1,24 +1,29 @@
 <script lang="ts">
-	import { DEV } from '../../utils/env.js';
-	import { getI18n } from '../../application/stores/store.svelte.js';
+	import { getI18nInstance } from '../../unified.js';
+	import { libI18n, getEffectiveLibI18n } from '../../translations/i18n.js';
 	import type { I18nInstance } from '../../domain/models/types.js';
-	import { getValidationPopupI18n } from './validation-popup-i18n.js';
-	import { onMount } from 'svelte';
 
 	interface Props {
 		class?: string;
+		i18n?: I18nInstance; // Optional: allow passing a specific i18n instance
 	}
 
-	let { class: className = '' }: Props = $props();
+	let { class: className = '', i18n: propI18n }: Props = $props();
 
-	const i18n = getI18n();
-	const errors = $derived(i18n.errors);
+	// Use provided i18n or try to get the main app instance, fallback to libI18n
+	let appI18n: I18nInstance | undefined;
+	try {
+		appI18n = getI18nInstance('app');
+	} catch (e) {
+		// App instance not found, will fallback to libI18n
+	}
+
+	// For error detection, use app instance. For UI text, use effective lib i18n
+	const errorI18n = propI18n || appI18n || libI18n;
+	const uiI18n = getEffectiveLibI18n();
+	const errors = $derived(errorI18n.errors);
 	const hasErrors = $derived(Object.keys(errors).length > 0);
 	const errorCount = $derived(Object.values(errors).reduce((sum, errs) => sum + errs.length, 0));
-
-	// Namespaced i18n for this component
-	let popupI18n = $state<I18nInstance | null>(null);
-	let popupLocale = $state('en');
 
 	let isOpen = $state(false);
 	let hasBeenDismissed = $state(false);
@@ -92,10 +97,10 @@
 				}
 
 				// Set the final value
-				const langName = i18n.meta[selectedLocale]?.name || selectedLocale;
-				current[parts[parts.length - 1]] = popupI18n
-					? popupI18n.t('validationPopup.report.todoTranslate', { language: langName })
-					: `[TODO: Translate to ${langName}]`;
+				const langName = uiI18n.meta[selectedLocale]?.name || selectedLocale;
+				current[parts[parts.length - 1]] = uiI18n.t('validationPopup.report.todoTranslate', {
+					language: langName
+				});
 			}
 		});
 
@@ -123,18 +128,12 @@
 	function exportAsText() {
 		if (!selectedLocale || !errors[selectedLocale]) return;
 
-		const langName = i18n.meta[selectedLocale]?.name || selectedLocale;
-		let text = popupI18n
-			? `${popupI18n.t('validationPopup.report.title')}\n`
-			: `Missing Translations Report\n`;
-		text += popupI18n
-			? `${popupI18n.t('validationPopup.report.language', { name: langName, code: selectedLocale })}\n`
-			: `Language: ${langName} (${selectedLocale})\n`;
+		const langName = uiI18n.meta[selectedLocale]?.name || selectedLocale;
+		let text = `${uiI18n.t('validationPopup.report.title')}\n`;
+		text += `${uiI18n.t('validationPopup.report.language', { name: langName, code: selectedLocale })}\n`;
 		text += `${'='.repeat(60)}\n\n`;
-		text += popupI18n
-			? `${popupI18n.t('validationPopup.report.totalMissing', { count: errors[selectedLocale].length })}\n\n`
-			: `Total missing keys: ${errors[selectedLocale].length}\n\n`;
-		text += popupI18n ? `${popupI18n.t('validationPopup.report.details')}\n` : `Details:\n`;
+		text += `${uiI18n.t('validationPopup.report.totalMissing', { count: errors[selectedLocale].length })}\n\n`;
+		text += `${uiI18n.t('validationPopup.report.details')}\n`;
 		text += `${'─'.repeat(60)}\n\n`;
 
 		errors[selectedLocale].forEach((error, index) => {
@@ -143,9 +142,7 @@
 
 		text += `\n${'='.repeat(60)}\n`;
 		const dateStr = new Date().toLocaleString();
-		text += popupI18n
-			? `${popupI18n.t('validationPopup.report.generatedAt', { date: dateStr })}\n`
-			: `Generated at: ${dateStr}\n`;
+		text += `${uiI18n.t('validationPopup.report.generatedAt', { date: dateStr })}\n`;
 
 		const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
 		const url = URL.createObjectURL(blob);
@@ -170,9 +167,7 @@
 			const btn = document.querySelector('.export-option:last-child') as HTMLElement;
 			if (btn) {
 				const originalText = btn.innerHTML;
-				const copiedText = popupI18n
-					? popupI18n.t('validationPopup.exportMenu.copied')
-					: 'Copied to clipboard!';
+				const copiedText = uiI18n.t('validationPopup.exportMenu.copied');
 				btn.innerHTML = `<span class="option-icon">✅</span>${copiedText}`;
 				setTimeout(() => {
 					btn.innerHTML = originalText;
@@ -182,38 +177,6 @@
 
 		showExportMenu = false;
 	}
-
-	onMount(async () => {
-		// Initialize the namespaced i18n (auto-discovery is built-in)
-		popupI18n = await getValidationPopupI18n();
-
-		// Sync with main i18n locale
-		if (popupI18n) {
-			// The i18n instance will auto-discover translations when setting locale
-			await popupI18n.setLocale(i18n.locale);
-			popupLocale = i18n.locale;
-
-			// Debug: Check if translations are working
-			if (DEV) {
-				console.log('ValidationPopup i18n test:', popupI18n.t('validationPopup.header.title'));
-			}
-		}
-
-		if (hasErrors) {
-			setTimeout(() => {
-				isOpen = true;
-			}, 500);
-		}
-	});
-
-	// Watch for main i18n locale changes
-	$effect(() => {
-		if (popupI18n && i18n.locale !== popupLocale) {
-			// Auto-discovery happens automatically in setLocale
-			void popupI18n.setLocale(i18n.locale);
-			popupLocale = i18n.locale;
-		}
-	});
 </script>
 
 {#if hasErrors && isOpen}
@@ -233,30 +196,24 @@
 				<div class="header-content">
 					<span class="header-icon">🔍</span>
 					<h2 class="header-title">
-						{popupI18n
-							? popupI18n.t('validationPopup.header.title')
-							: 'Translation Validation Report'}
+						{uiI18n.t('validationPopup.header.title')}
 					</h2>
 					<div class="header-stats">
 						<span class="stat-badge error-count">
-							{popupI18n
-								? popupI18n.t('validationPopup.header.issues', { count: errorCount })
-								: `${errorCount} issues`}
+							{uiI18n.t('validationPopup.header.issues', { count: errorCount })}
 						</span>
 						<span class="stat-badge lang-count">
-							{popupI18n
-								? popupI18n.t('validationPopup.header.languages', {
-										count: Object.keys(errors).length
-									})
-								: `${Object.keys(errors).length} languages`}
+							{uiI18n.t('validationPopup.header.languages', {
+								count: Object.keys(errors).length
+							})}
 						</span>
 					</div>
 				</div>
 				<button
 					class="close-btn"
 					onclick={dismiss}
-					title={popupI18n ? popupI18n.t('validationPopup.header.close') : 'Close'}
-					aria-label={popupI18n ? popupI18n.t('validationPopup.header.close') : 'Close'}
+					title={uiI18n.t('validationPopup.header.close')}
+					aria-label={uiI18n.t('validationPopup.header.close')}
 				>
 					<svg width="20" height="20" viewBox="0 0 20 20" fill="none">
 						<path
@@ -273,7 +230,7 @@
 			<div class="controls-bar">
 				<div class="language-selector">
 					<label for="language-select">
-						{popupI18n ? popupI18n.t('validationPopup.controls.languageLabel') : 'Language:'}
+						{uiI18n.t('validationPopup.controls.languageLabel')}
 					</label>
 					<select
 						id="language-select"
@@ -283,13 +240,11 @@
 					>
 						{#each Object.entries(errors) as [locale, localeErrors] (locale)}
 							<option value={locale}>
-								{popupI18n
-									? popupI18n.t('validationPopup.controls.languageOption', {
-											flag: i18n.meta[locale]?.flag || '🌐',
-											name: i18n.meta[locale]?.name || locale,
-											count: localeErrors.length
-										})
-									: `${i18n.meta[locale]?.flag || '🌐'} ${i18n.meta[locale]?.name || locale} (${localeErrors.length} errors)`}
+								{uiI18n.t('validationPopup.controls.languageOption', {
+									flag: uiI18n.meta[locale]?.flag || '🌐',
+									name: uiI18n.meta[locale]?.name || locale,
+									count: localeErrors.length
+								})}
 							</option>
 						{/each}
 					</select>
@@ -310,28 +265,22 @@
 								stroke-linejoin="round"
 							/>
 						</svg>
-						{popupI18n ? popupI18n.t('validationPopup.controls.export') : 'Export'}
+						{uiI18n.t('validationPopup.controls.export')}
 					</button>
 
 					{#if showExportMenu}
 						<div class="export-menu">
 							<button class="export-option" onclick={exportAsJSON}>
 								<span class="option-icon">📄</span>
-								{popupI18n
-									? popupI18n.t('validationPopup.exportMenu.downloadJSON')
-									: 'Download JSON'}
+								{uiI18n.t('validationPopup.exportMenu.downloadJSON')}
 							</button>
 							<button class="export-option" onclick={exportAsText}>
 								<span class="option-icon">📝</span>
-								{popupI18n
-									? popupI18n.t('validationPopup.exportMenu.downloadText')
-									: 'Download Text Report'}
+								{uiI18n.t('validationPopup.exportMenu.downloadText')}
 							</button>
 							<button class="export-option" onclick={copyMissingKeysJSON}>
 								<span class="option-icon">📋</span>
-								{popupI18n
-									? popupI18n.t('validationPopup.exportMenu.copyJSON')
-									: 'Copy JSON to Clipboard'}
+								{uiI18n.t('validationPopup.exportMenu.copyJSON')}
 							</button>
 						</div>
 					{/if}
@@ -344,12 +293,10 @@
 					<div class="content-header">
 						{#if totalPages > 1}
 							<div class="pagination-compact">
-								{popupI18n
-									? popupI18n.t('validationPopup.pagination.page', {
-											current: currentPage,
-											total: totalPages
-										})
-									: `Page ${currentPage} / ${totalPages}`}
+								{uiI18n.t('validationPopup.pagination.page', {
+									current: currentPage,
+									total: totalPages
+								})}
 							</div>
 						{/if}
 					</div>
@@ -387,7 +334,7 @@
 										stroke-linejoin="round"
 									/>
 								</svg>
-								{popupI18n ? popupI18n.t('validationPopup.pagination.previous') : 'Previous'}
+								{uiI18n.t('validationPopup.pagination.previous')}
 							</button>
 
 							<div class="page-numbers">
@@ -412,7 +359,7 @@
 								onclick={nextPage}
 								disabled={currentPage === totalPages}
 							>
-								{popupI18n ? popupI18n.t('validationPopup.pagination.next') : 'Next'}
+								{uiI18n.t('validationPopup.pagination.next')}
 								<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
 									<path
 										d="M6 12L10 8L6 4"
@@ -430,18 +377,14 @@
 				<div class="empty-state">
 					<span class="empty-icon">📊</span>
 					<p>
-						{popupI18n
-							? popupI18n.t('validationPopup.emptyState.selectLanguage')
-							: 'Please select a language from the dropdown above'}
+						{uiI18n.t('validationPopup.emptyState.selectLanguage')}
 					</p>
 				</div>
 			{:else}
 				<div class="empty-state">
 					<span class="empty-icon">✅</span>
 					<p>
-						{popupI18n
-							? popupI18n.t('validationPopup.emptyState.noErrors')
-							: 'No validation errors for this language'}
+						{uiI18n.t('validationPopup.emptyState.noErrors')}
 					</p>
 				</div>
 			{/if}
@@ -460,9 +403,7 @@
 		<span class="indicator-icon">⚠️</span>
 		<span class="indicator-count">{errorCount}</span>
 		<span class="indicator-text">
-			{popupI18n
-				? popupI18n.t('validationPopup.floatingIndicator.translationIssues')
-				: 'Translation Issues'}
+			{uiI18n.t('validationPopup.floatingIndicator.translationIssues')}
 		</span>
 	</button>
 {/if}

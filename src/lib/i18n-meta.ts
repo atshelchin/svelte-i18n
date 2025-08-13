@@ -12,4 +12,4 @@ export const I18N_META = {
 };
 
 // Re-export generated types
-export type { I18nPath, I18nKeys, I18N_PATHS } from './types/library-i18n-generated.js';
+export type { LibI18nPath } from './types/lib-i18n-generated.js';

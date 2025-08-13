@@ -83,12 +83,8 @@ export {
 } from './infrastructure/formatters/formatter.js';
 
 // Component exports
-export { default as Trans } from './presentation/components/Trans.svelte';
 export { default as LanguageSwitcher } from './presentation/components/LanguageSwitcher.svelte';
-export { default as ValidationStatus } from './presentation/components/ValidationStatus.svelte';
 export { default as ValidationPopup } from './presentation/components/ValidationPopup.svelte';
-export { default as TypeSafetyDemo } from './presentation/components/TypeSafetyDemo.svelte';
-export { default as CodeExample } from './presentation/components/CodeExample.svelte';
 
 // Built-in loader exports
 export {
@@ -117,5 +113,19 @@ export {
 	type TypedI18nInstance
 } from './application/services/typed-wrapper.js';
 
-// Type-safe factory for creating typed i18n instances
-export { createTypedI18n } from './typed-export.js';
+// Unified API for consistent usage in packages and apps
+export {
+	createI18n,
+	getI18nInstance,
+	initI18n,
+	type UnifiedI18nConfig,
+	type I18n
+} from './unified.js';
+
+// Type-safe unified API
+export {
+	createTypedUnifiedI18n,
+	getTypedUnifiedI18n,
+	initTypedI18n,
+	type TypedUnifiedI18nInstance
+} from './typed-unified.js';

@@ -1,6 +1,8 @@
 <script lang="ts">
-	import { getI18n } from '../../application/stores/store.svelte.js';
+	import { getI18nInstance } from '../../unified.js';
 	import { getAppSupportedLanguages } from '../../infrastructure/loaders/app-languages.js';
+	import { getEffectiveLibI18n } from '../../translations/i18n.js';
+	import type { I18nInstance } from '../../domain/models/types.js';
 	import { onMount } from 'svelte';
 
 	interface Props {
@@ -9,6 +11,7 @@
 		showLabel?: boolean;
 		localeNames?: Record<string, string>;
 		localeFlags?: Record<string, string>;
+		i18n?: I18nInstance; // Optional: allow passing a specific i18n instance
 	}
 
 	let {
@@ -16,18 +19,42 @@
 		showFlags = false,
 		showLabel = true,
 		localeNames: customLocaleNames,
-		localeFlags: customLocaleFlags
+		localeFlags: customLocaleFlags,
+		i18n: propI18n
 	}: Props = $props();
 
-	const i18n = getI18n();
+	// Use provided i18n or try to get the main app instance, fallback to libI18n
+	let appI18n: I18nInstance | undefined;
+	try {
+		appI18n = getI18nInstance('app');
+		console.log('✅ Found app i18n instance');
+	} catch (e) {
+		console.log('❌ Could not find app i18n instance:', e instanceof Error ? e.message : String(e));
+	}
 
+	const i18n = $derived(propI18n || appI18n || getEffectiveLibI18n());
 	const currentLocale = $derived(i18n.locale);
 
-	let availableLocales = $state(i18n.locales);
+	let availableLocales = $state<string[]>([]);
 	const languageMeta = $derived(i18n.meta);
+
 	// On mount, get all app-supported languages (including those from index.json)
 	onMount(async () => {
-		const allSupportedLanguages = await getAppSupportedLanguages(i18n);
+		// Initialize with current i18n locales
+		if (availableLocales.length === 0) {
+			availableLocales = i18n.locales;
+		}
+
+		console.log('🔍 LanguageSwitcher checking languages:');
+		console.log('  Current i18n.locales:', i18n.locales);
+		console.log(
+			'  i18n namespace:',
+			(i18n as any).namespace || (i18n as any).config?.namespace || 'unknown'
+		);
+
+		// Then load all supported languages (built-in + auto-discovered)
+		const allSupportedLanguages = await getAppSupportedLanguages(i18n as any);
+		console.log('  All supported languages:', allSupportedLanguages);
 		availableLocales = allSupportedLanguages;
 	});
 

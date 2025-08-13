@@ -24,6 +24,31 @@ export function registerBuiltInTranslations(translations: TranslationRegistry) {
 }
 
 /**
+ * Load built-in translations into the store synchronously
+ * Used during SSR to ensure translations are available immediately
+ */
+export function loadBuiltInTranslationsSync(store: I18nInstance): void {
+	const storeNamespace = store.getNamespace();
+	
+	// Determine which translations to load based on namespace
+	if (storeNamespace === 'app') {
+		// App instance: load only app translations
+		if (globalRegistry.app) {
+			for (const [locale, translation] of Object.entries(globalRegistry.app)) {
+				store.loadLanguageSync(locale, translation as TranslationSchema);
+			}
+		}
+	} else {
+		// Package instance: load only that package's translations
+		if (globalRegistry[storeNamespace]) {
+			for (const [locale, translation] of Object.entries(globalRegistry[storeNamespace])) {
+				store.loadLanguageSync(locale, translation as TranslationSchema);
+			}
+		}
+	}
+}
+
+/**
  * Load built-in translations into the store
  */
 export async function loadBuiltInTranslations(
@@ -37,7 +62,8 @@ export async function loadBuiltInTranslations(
 	const loadedLocales = new Set<string>();
 
 	// Determine which translations to load based on namespace
-	if (!storeNamespace || storeNamespace === 'app') {
+	// Handle 'app' namespace consistently
+	if (storeNamespace === 'app') {
 		// App instance: load only app translations
 		if (globalRegistry.app) {
 			for (const locale of Object.keys(globalRegistry.app)) {

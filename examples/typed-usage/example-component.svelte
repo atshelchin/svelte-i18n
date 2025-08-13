@@ -1,9 +1,7 @@
 <script lang="ts">
 	// This is how external applications should use the library
 	// Import from YOUR app's i18n module, not from @shelchin/svelte-i18n directly
-	import { getI18n } from './app-i18n.js';
-
-	const i18n = getI18n();
+	import { i18n } from './app-i18n.js';
 
 	// Full type safety! Your editor will:
 	// 1. Show autocomplete for all available keys

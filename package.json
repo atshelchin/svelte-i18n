@@ -21,6 +21,7 @@
 		"prepack": "svelte-kit sync && svelte-package && npm run build:cli && publint",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"check:types": "tsc --noEmit scripts/check-type-safety.ts",
 		"i18n:types": "node --loader ts-node/esm src/lib/cli/generate-types.ts",
 		"i18n:validate": "node --loader ts-node/esm src/lib/cli/generate-types.ts",
 		"format": "prettier --write .",
@@ -30,7 +31,8 @@
 		"test:e2e": "playwright test",
 		"cli:extract": "node dist/cli/extract.js",
 		"cli:validate": "node dist/cli/validate.js",
-		"cli:generate-types": "node dist/cli/generate-types.js"
+		"cli:generate-types": "node dist/cli/generate-types.js",
+		"svelte-i18n": "node dist/cli/index.js"
 	},
 	"bin": {
 		"svelte-i18n": "./dist/cli/index.js"
@@ -54,16 +56,12 @@
 			"types": "./dist/index.d.ts",
 			"svelte": "./dist/index.js"
 		},
-		"./typed": {
-			"types": "./dist/typed.d.ts",
-			"svelte": "./dist/typed.js"
-		},
 		"./cli": {
 			"types": "./dist/cli/index.d.ts",
 			"default": "./dist/cli/index.js"
 		},
 		"./i18n-types": {
-			"types": "./dist/types/library-i18n-generated.d.ts",
+			"types": "./dist/types/lib-i18n-generated.d.ts",
 			"default": "./dist/i18n-meta.js"
 		}
 	},

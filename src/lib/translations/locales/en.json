@@ -44,5 +44,11 @@
 			"generatedAt": "Generated at: {date}",
 			"todoTranslate": "[TODO: Translate to {language}]"
 		}
+	},
+	"demo": {
+		"clickToCollapse": "Click to collapse",
+		"clickToViewCode": "Click to view code",
+		"codeCopied": "Copied!",
+		"copyCode": "Copy code"
 	}
 }
