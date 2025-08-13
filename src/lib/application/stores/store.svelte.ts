@@ -627,7 +627,7 @@ export class I18nStore implements I18nInstance {
 	/**
 	 * Revalidate all loaded translations against the default locale
 	 * This is needed when translations are loaded out of order
-	 * 
+	 *
 	 * Note: Uses config.defaultLocale which can be any language (not just 'en')
 	 * This allows users to use Chinese, Japanese, or any other language as their reference
 	 */
