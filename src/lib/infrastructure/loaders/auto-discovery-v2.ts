@@ -5,7 +5,6 @@
 
 import { DEV } from '../../utils/env.js';
 import type { I18nInstance, TranslationSchema } from '../../domain/models/types.js';
-import { getAppBasePath } from './base-path.js';
 
 export interface AutoDiscoveryConfig {
 	app?: string[];
@@ -56,12 +55,12 @@ export async function loadAutoDiscoveryConfig(
 	}
 
 	// Start loading
-	const basePath = getAppBasePath();
-	const indexUrl = `${basePath ? basePath : ''}${translationsPath}/${indexFile}`;
+	const { buildAssetUrl } = await import('./base-path.js');
+	const indexPath = `${translationsPath}/${indexFile}`;
 	const absoluteIndexUrl =
-		typeof window !== 'undefined' && !indexUrl.startsWith('http')
-			? new URL(indexUrl, window.location.origin).href
-			: indexUrl;
+		typeof window !== 'undefined' && !indexPath.startsWith('http')
+			? window.location.origin + buildAssetUrl(indexPath)
+			: indexPath;
 
 	indexConfigPromise = (async () => {
 		try {
@@ -89,7 +88,6 @@ export async function autoDiscoverTranslations(
 	i18n: I18nInstance,
 	options: AutoDiscoveryOptions = {}
 ): Promise<void> {
-	// const basePath = getAppBasePath();
 	const {
 		translationsPath = '/translations', // Don't include base path here
 		indexFile = 'index.json',
@@ -220,9 +218,11 @@ export async function autoDiscoverTranslations(
 
 					// Create a promise for this fetch
 					const fetchPromise = (async () => {
+						// Use buildAssetUrl to handle base path correctly
+						const { buildAssetUrl } = await import('./base-path.js');
 						const absoluteUrl =
 							typeof window !== 'undefined' && !filePath.startsWith('http')
-								? new URL(filePath, window.location.href).href
+								? window.location.origin + buildAssetUrl(filePath)
 								: filePath;
 
 						console.log(`[Auto-discovery] Fetching ${locale} from: ${absoluteUrl}`);
@@ -299,12 +299,12 @@ export async function isAutoDiscoveryAvailable(
 	translationsPath = '/translations'
 ): Promise<boolean> {
 	try {
-		const basePath = getAppBasePath();
-		const indexUrl = `${basePath ? basePath : ''}${translationsPath}/index.json`;
+		const { buildAssetUrl } = await import('./base-path.js');
+		const indexPath = `${translationsPath}/index.json`;
 		const absoluteIndexUrl =
-			typeof window !== 'undefined' && !indexUrl.startsWith('http')
-				? new URL(indexUrl, window.location.origin).href
-				: indexUrl;
+			typeof window !== 'undefined' && !indexPath.startsWith('http')
+				? window.location.origin + buildAssetUrl(indexPath)
+				: indexPath;
 
 		const response = await fetch(absoluteIndexUrl, { method: 'HEAD' });
 		return response.ok;
