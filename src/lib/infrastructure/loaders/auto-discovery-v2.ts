@@ -89,7 +89,7 @@ export async function autoDiscoverTranslations(
 	i18n: I18nInstance,
 	options: AutoDiscoveryOptions = {}
 ): Promise<void> {
-	const basePath = getAppBasePath();
+	// const basePath = getAppBasePath();
 	const {
 		translationsPath = '/translations', // Don't include base path here
 		indexFile = 'index.json',
