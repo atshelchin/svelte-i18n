@@ -1,6 +1,9 @@
 import type { LayoutServerLoad } from './$types.js';
 import { i18n } from '../translations/i18n.js';
-import { loadServerTranslations, isAutoDiscoveredLocale } from '../lib/infrastructure/loaders/server-loader.js';
+import {
+	loadServerTranslations,
+	isAutoDiscoveredLocale
+} from '../lib/infrastructure/loaders/server-loader.js';
 
 export const load: LayoutServerLoad = async ({ cookies }) => {
 	// Read the language preference from cookie during SSR
@@ -33,18 +36,18 @@ export const load: LayoutServerLoad = async ({ cookies }) => {
 	// Return all available locales including auto-discovered ones
 	// The client will load auto-discovered translations if needed
 	const allLocales = [...i18n.locales];
-	
+
 	// Also check for other auto-discovered locales to include in the list
 	if (typeof window === 'undefined') {
 		try {
 			const fs = await import('fs');
 			const path = await import('path');
 			const indexPath = path.join(process.cwd(), 'static', 'translations', 'index.json');
-			
+
 			if (fs.existsSync(indexPath)) {
 				const indexContent = fs.readFileSync(indexPath, 'utf-8');
 				const config = JSON.parse(indexContent);
-				
+
 				if (config.autoDiscovery?.app) {
 					for (const lang of config.autoDiscovery.app) {
 						if (!allLocales.includes(lang)) {

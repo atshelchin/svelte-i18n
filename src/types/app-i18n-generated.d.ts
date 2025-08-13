@@ -5,7 +5,7 @@
  */
 
 // Type for all translation keys in your application
-export type I18nPath = 
+export type I18nPath =
 	| '_meta.name'
 	| '_meta.englishName'
 	| '_meta.direction'

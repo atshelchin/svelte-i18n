@@ -14,7 +14,7 @@
 	let appI18n: I18nInstance | undefined;
 	try {
 		appI18n = getI18nInstance('app');
-	} catch (e) {
+	} catch {
 		// App instance not found, will fallback to libI18n
 	}
 

@@ -141,7 +141,7 @@ export class I18nStore implements I18nInstance {
 						source = `${basePath}${translationsPath}`;
 						console.log(`[setLocale] Attempting to load from: ${source}`);
 					}
-					
+
 					await this.loadLanguage(locale, source);
 					this.currentLocale = locale;
 					saveLocaleUniversal(locale, {
@@ -343,8 +343,14 @@ export class I18nStore implements I18nInstance {
 					this.availableLocales.push(locale);
 				}
 			}
-			console.log(`[loadLanguage] After loading ${locale}, translations keys:`, Object.keys(this.translations));
-			console.log(`[loadLanguage] After loading ${locale}, availableLocales:`, this.availableLocales);
+			console.log(
+				`[loadLanguage] After loading ${locale}, translations keys:`,
+				Object.keys(this.translations)
+			);
+			console.log(
+				`[loadLanguage] After loading ${locale}, availableLocales:`,
+				this.availableLocales
+			);
 		} catch (error) {
 			console.error(`Failed to load language ${locale}:`, error);
 			throw error;
@@ -604,7 +610,7 @@ export class I18nStore implements I18nInstance {
 		console.log('[clientLoad] Starting client load...');
 		console.log('[clientLoad] Current locales:', this.locales);
 		console.log('[clientLoad] Namespace:', this.config.namespace);
-		
+
 		// Step 1: Load built-in translations if not already loaded
 		if (this.locales.length === 0) {
 			console.log('[clientLoad] Loading built-in translations...');

@@ -28,7 +28,6 @@ describe('Type Safety for Library i18n', () => {
 
 	it('should have correct type for libI18n.t() method', () => {
 		// Test that the method signature is correct
-		type LibI18nTMethod = typeof libI18n.t;
 		type ExpectedSignature = (key: LibI18nPath, params?: any) => string;
 
 		// This will cause a compile error if types don't match
@@ -59,7 +58,6 @@ describe('Type Safety for App i18n', () => {
 
 	it('should have correct type for app i18n.t() method', () => {
 		// Test that the method signature is correct
-		type AppI18nTMethod = typeof i18n.t;
 		type ExpectedSignature = (key: I18nPath, params?: any) => string;
 
 		// This will cause a compile error if types don't match
@@ -182,4 +180,5 @@ type LibKeysTest = AssertEqual<
 >;
 
 // This will cause a compile error if the types don't match
-const _libKeysTest: LibKeysTest = true;
+// const _libKeysTest: LibKeysTest = true;
+void true satisfies LibKeysTest;

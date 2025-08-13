@@ -230,7 +230,10 @@ export async function autoDiscoverTranslations(
 
 						if (response.ok) {
 							const translations = await response.json();
-							console.log(`[Auto-discovery] Successfully fetched ${locale}, keys:`, Object.keys(translations));
+							console.log(
+								`[Auto-discovery] Successfully fetched ${locale}, keys:`,
+								Object.keys(translations)
+							);
 							translationCache.set(cacheKey, translations);
 							return translations;
 						} else if (response.status === 404) {
@@ -255,7 +258,9 @@ export async function autoDiscoverTranslations(
 					const translations = await fetchPromise;
 					if (translations) {
 						const isOverride = i18n.locales.includes(locale);
-						console.log(`[Auto-discovery] Loading ${locale} for ${target.type}, override=${isOverride}`);
+						console.log(
+							`[Auto-discovery] Loading ${locale} for ${target.type}, override=${isOverride}`
+						);
 						await i18n.loadLanguage(locale, translations as TranslationSchema);
 						console.log(`[Auto-discovery] Successfully loaded ${locale} into i18n store`);
 						onLoaded(target.type, locale);

@@ -24,19 +24,19 @@ export const load: LayoutLoad = async ({ data }) => {
 		// In CSR mode, preload the target locale to prevent flash
 		if (!data?.ssrTranslations && locale) {
 			console.log('[+layout.ts] CSR mode - preloading locale:', locale);
-			
+
 			// Check if locale needs loading
 			if (!i18n.locales.includes(locale)) {
 				// Check if it's an auto-discovered locale
 				if (data?.locales && data.locales.includes(locale)) {
 					console.log('[+layout.ts] Loading auto-discovered locale:', locale);
-					
+
 					try {
 						// Load the auto-discovered language
 						const basePath = window.location.origin;
 						const translationsPath = `/translations/app/${locale}.json`;
 						const source = `${basePath}${translationsPath}`;
-						
+
 						const response = await fetch(source);
 						if (response.ok) {
 							const translations = await response.json();
@@ -56,7 +56,7 @@ export const load: LayoutLoad = async ({ data }) => {
 				// Locale already loaded
 				translationsLoaded = true;
 			}
-			
+
 			// Set the locale if it's available
 			if (i18n.locales.includes(locale)) {
 				if (i18n.setLocaleSync) {

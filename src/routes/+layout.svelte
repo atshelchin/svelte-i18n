@@ -8,15 +8,23 @@
 
 	// Track if we're ready to render (to prevent flash in CSR)
 	let isReady = $state(false);
-	
+
 	// Initialize with the locale from server (which includes cookie value)
 	let initialLocale = data.locale || 'zh';
 
 	// Check if we're in SSR or CSR mode
-	const isSSR = data.ssrTranslations !== undefined || data.translationsPreloaded || i18n.locales.includes(initialLocale);
+	const isSSR =
+		data.ssrTranslations !== undefined ||
+		data.translationsPreloaded ||
+		i18n.locales.includes(initialLocale);
 
 	// For SSR with auto-discovered languages, load SSR translations immediately
-	if (data.isAutoDiscovered && data.ssrTranslations && i18n.loadLanguageSync && i18n.setLocaleSync) {
+	if (
+		data.isAutoDiscovered &&
+		data.ssrTranslations &&
+		i18n.loadLanguageSync &&
+		i18n.setLocaleSync
+	) {
 		// Load the SSR translations synchronously to prevent flash
 		console.log(`[+layout.svelte] Loading SSR translations for ${initialLocale}`);
 		i18n.loadLanguageSync(initialLocale, data.ssrTranslations);
@@ -27,7 +35,11 @@
 		// Translations were preloaded in +layout.ts
 		console.log('[+layout.svelte] Using preloaded translations');
 		isReady = true;
-	} else if (i18n.locale !== initialLocale && i18n.locales.includes(initialLocale) && i18n.setLocaleSync) {
+	} else if (
+		i18n.locale !== initialLocale &&
+		i18n.locales.includes(initialLocale) &&
+		i18n.setLocaleSync
+	) {
 		// Set initial locale immediately to prevent flash for built-in languages
 		// This will be synchronous if translations are already loaded
 		i18n.setLocaleSync(initialLocale);
@@ -36,7 +48,7 @@
 		// CSR mode - translations should have been preloaded in +layout.ts
 		// This is a fallback in case preloading didn't work
 		console.log('[+layout.svelte] CSR mode fallback - loading translations');
-		
+
 		// Check if current locale matches target
 		if (i18n.locale === initialLocale && i18n.locales.includes(initialLocale)) {
 			// Already loaded and set
@@ -47,15 +59,15 @@
 				// Get saved locale from localStorage
 				const savedLocale = localStorage.getItem('i18n-locale');
 				const targetLocale = savedLocale || initialLocale;
-				
+
 				// Initialize i18n and load all translations
 				await initI18n(i18n);
-				
+
 				// Set the target locale
 				if (i18n.locales.includes(targetLocale)) {
 					await i18n.setLocale(targetLocale);
 				}
-				
+
 				// Now ready to render
 				isReady = true;
 			})();
@@ -80,7 +92,7 @@
 		const savedLocale = localStorage.getItem('i18n-locale');
 
 		// Determine final target locale
-		let targetLocale = initialLocale;  // Use initialLocale from SSR
+		let targetLocale = initialLocale; // Use initialLocale from SSR
 
 		if (savedLocale && i18n.locales.includes(savedLocale)) {
 			// localStorage takes precedence
@@ -141,7 +153,11 @@
 	}
 
 	@keyframes spin {
-		0% { transform: rotate(0deg); }
-		100% { transform: rotate(360deg); }
+		0% {
+			transform: rotate(0deg);
+		}
+		100% {
+			transform: rotate(360deg);
+		}
 	}
 </style>

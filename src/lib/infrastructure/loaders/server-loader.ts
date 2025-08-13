@@ -5,7 +5,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import type { I18nInstance, TranslationSchema } from '../../domain/models/types.js';
+import type { I18nInstance } from '../../domain/models/types.js';
 
 /**
  * Load translations from the file system during SSR
@@ -37,17 +37,10 @@ export function loadServerTranslations(
 		const translations = JSON.parse(fileContent);
 
 		// Extract metadata if present
-		let translationData: TranslationSchema;
 		if (translations._meta) {
 			// Store metadata
 			(i18n as any).languageMeta = (i18n as any).languageMeta || {};
 			(i18n as any).languageMeta[locale] = translations._meta;
-			
-			// Remove _meta from translations
-			const { _meta, ...rest } = translations;
-			translationData = rest as TranslationSchema;
-		} else {
-			translationData = translations as TranslationSchema;
 		}
 
 		// Use the i18n store's loadLanguageSync method to properly load translations

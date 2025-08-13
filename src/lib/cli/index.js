@@ -2,7 +2,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
+// import { fileURLToPath } from 'url';
 
 // ANSI color codes for terminal output
 const colors = {
@@ -143,7 +143,10 @@ const translations: Record<string, any> = {};
 // Extract language code from file path and build translations object
 for (const [path, module] of Object.entries(translationModules)) {
 	// Extract language code from path like './locales/en.json'
-	const match = path.match(/\/([^/]+)\.json$/);
+	// Use string methods instead of regex to avoid escape issues
+	const parts = path.split('/');
+	const filename = parts[parts.length - 1];
+	const match = filename && filename.endsWith('.json') ? [null, filename.slice(0, -5)] : null;
 	if (match && match[1]) {
 		const langCode = match[1];
 		translations[langCode] = module;
