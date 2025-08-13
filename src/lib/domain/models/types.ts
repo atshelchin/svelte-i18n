@@ -78,11 +78,13 @@ export interface I18nInstance<TKeys extends string = string> {
 	errors: Record<string, string[]>;
 	meta: Record<string, LanguageMeta>;
 	t: <K extends TKeys>(key: K, params?: InterpolationParams) => string;
-	setLocale: (locale: string) => void;
+	setLocale: (locale: string) => Promise<void>;
+	setLocaleSync?: (locale: string) => void;
 	loadLanguage: (
 		locale: string,
 		source?: string | TranslationSchema | TranslationFile
 	) => Promise<void>;
+	loadLanguageSync?: (locale: string, translations: TranslationSchema | TranslationFile) => void;
 	validateTranslations: (locale: string, schema?: TranslationSchema) => boolean;
 	formatDate: (date: Date | number | string, preset?: string) => string;
 	formatTime: (date: Date | number | string, preset?: string) => string;

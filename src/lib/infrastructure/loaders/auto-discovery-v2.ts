@@ -112,9 +112,8 @@ export async function autoDiscoverTranslations(
 			return;
 		}
 
-		if (DEV) {
-			console.log('Auto-discovery config loaded:', config.autoDiscovery);
-		}
+		console.log('[Auto-discovery] Config loaded:', config.autoDiscovery);
+		console.log('[Auto-discovery] Looking for namespace:', namespace);
 
 		// Step 3: Determine what to discover
 		const discoveryTargets: Array<{ type: string; languages: string[] }> = [];
@@ -133,7 +132,18 @@ export async function autoDiscoverTranslations(
 		// If this is for the main app (no namespace)
 		else if (!namespace && config.autoDiscovery.app) {
 			console.log(
-				'Auto-discovery: Found app translations with languages:',
+				'[Auto-discovery] Found app translations with languages:',
+				config.autoDiscovery.app
+			);
+			discoveryTargets.push({
+				type: 'app',
+				languages: config.autoDiscovery.app
+			});
+		}
+		// IMPORTANT: namespace 'app' should also match app translations
+		else if (namespace === 'app' && config.autoDiscovery.app) {
+			console.log(
+				'[Auto-discovery] Found app translations for namespace "app" with languages:',
 				config.autoDiscovery.app
 			);
 			discoveryTargets.push({
@@ -142,7 +152,7 @@ export async function autoDiscoverTranslations(
 			});
 		} else {
 			console.log(
-				'Auto-discovery: No matching targets found. Namespace:',
+				'[Auto-discovery] No matching targets found. Namespace:',
 				namespace,
 				'Has app config:',
 				!!config.autoDiscovery.app
@@ -215,14 +225,19 @@ export async function autoDiscoverTranslations(
 								? new URL(filePath, window.location.href).href
 								: filePath;
 
+						console.log(`[Auto-discovery] Fetching ${locale} from: ${absoluteUrl}`);
 						const response = await fetch(absoluteUrl);
 
 						if (response.ok) {
 							const translations = await response.json();
+							console.log(`[Auto-discovery] Successfully fetched ${locale}, keys:`, Object.keys(translations));
 							translationCache.set(cacheKey, translations);
 							return translations;
 						} else if (response.status === 404) {
 							// Expected - language declared but file not yet added
+							console.warn(
+								`[Auto-discovery] ${locale} declared for ${target.type} but file not found at ${absoluteUrl} (404)`
+							);
 							if (DEV) {
 								console.debug(
 									`Auto-discovery: ${locale} declared for ${target.type} but file not found at ${filePath}`
@@ -230,6 +245,7 @@ export async function autoDiscoverTranslations(
 							}
 							return null;
 						} else {
+							console.error(`[Auto-discovery] Failed to fetch ${locale}: HTTP ${response.status}`);
 							throw new Error(`HTTP ${response.status}`);
 						}
 					})();
@@ -239,7 +255,9 @@ export async function autoDiscoverTranslations(
 					const translations = await fetchPromise;
 					if (translations) {
 						const isOverride = i18n.locales.includes(locale);
+						console.log(`[Auto-discovery] Loading ${locale} for ${target.type}, override=${isOverride}`);
 						await i18n.loadLanguage(locale, translations as TranslationSchema);
+						console.log(`[Auto-discovery] Successfully loaded ${locale} into i18n store`);
 						onLoaded(target.type, locale);
 
 						if (DEV) {

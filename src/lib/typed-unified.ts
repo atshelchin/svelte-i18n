@@ -15,6 +15,9 @@ export type { UnifiedI18nConfig } from './unified.js';
 export interface TypedUnifiedI18nInstance<TPath extends string = string>
 	extends Omit<I18nInstance, 't'> {
 	t(key: TPath, params?: InterpolationParams): string;
+	// Include sync methods from base interface
+	setLocaleSync?: (locale: string) => void;
+	loadLanguageSync?: (locale: string, translations: any) => void;
 }
 
 /**

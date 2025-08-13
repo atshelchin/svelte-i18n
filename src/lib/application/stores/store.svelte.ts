@@ -332,14 +332,19 @@ export class I18nStore implements I18nInstance {
 			// Merge with existing translations to allow overriding
 			// This ensures auto-discovered translations can override built-in ones
 			if (this.translations[locale]) {
+				console.log(`[loadLanguage] Merging translations for ${locale}`);
 				this.translations[locale] = mergeTranslations(this.translations[locale], translations);
 			} else {
+				console.log(`[loadLanguage] Adding new translations for ${locale}`);
 				this.translations[locale] = translations;
 				// Add locale to available locales if not already present
 				if (!this.availableLocales.includes(locale)) {
+					console.log(`[loadLanguage] Adding ${locale} to availableLocales`);
 					this.availableLocales.push(locale);
 				}
 			}
+			console.log(`[loadLanguage] After loading ${locale}, translations keys:`, Object.keys(this.translations));
+			console.log(`[loadLanguage] After loading ${locale}, availableLocales:`, this.availableLocales);
 		} catch (error) {
 			console.error(`Failed to load language ${locale}:`, error);
 			throw error;
@@ -596,8 +601,13 @@ export class I18nStore implements I18nInstance {
 	 * @returns Promise that resolves when loading is complete
 	 */
 	async clientLoad(options?: { initialLocale?: string }): Promise<void> {
+		console.log('[clientLoad] Starting client load...');
+		console.log('[clientLoad] Current locales:', this.locales);
+		console.log('[clientLoad] Namespace:', this.config.namespace);
+		
 		// Step 1: Load built-in translations if not already loaded
 		if (this.locales.length === 0) {
+			console.log('[clientLoad] Loading built-in translations...');
 			try {
 				await loadBuiltInTranslations(this, {
 					onLoaded: (locale) => console.log(`✓ Loaded built-in ${locale}`),
@@ -606,11 +616,14 @@ export class I18nStore implements I18nInstance {
 			} catch (error) {
 				console.warn('Failed to load built-in translations:', error);
 			}
+		} else {
+			console.log('[clientLoad] Built-in translations already loaded');
 		}
 
 		// Step 2: ALWAYS try auto-discovery system (based on index.json configuration)
 		// This is important because auto-discovered translations can add new locales
 		// or override existing built-in translations
+		console.log('[clientLoad] Starting auto-discovery...');
 		try {
 			await autoDiscoverV2(this, {
 				namespace: this.config.namespace,
