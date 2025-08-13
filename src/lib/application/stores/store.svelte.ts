@@ -88,7 +88,6 @@ export class I18nStore implements I18nInstance {
 		// For SSR, locale should be set via serverLoad or clientLoad
 		// Set default locale initially
 		this.currentLocale = config.defaultLocale;
-		console.log(`[I18nStore] Created with namespace: ${config.namespace}, defaultLocale: ${config.defaultLocale}, currentLocale: ${this.currentLocale}`);
 
 		// Load registered translations immediately for SSR
 		// This ensures translations are available during server-side rendering
@@ -545,7 +544,6 @@ export class I18nStore implements I18nInstance {
 	private loadRegisteredTranslations(): void {
 		// Load built-in translations synchronously for SSR
 		loadBuiltInTranslationsSync(this);
-		console.log(`[SSR] Loaded translations for ${this.config.namespace}, locales: ${this.availableLocales.join(', ')}`);
 	}
 
 	/**
