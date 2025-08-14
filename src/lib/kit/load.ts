@@ -6,7 +6,7 @@
 // ============================================
 // SSR functions (+layout.server.ts)
 // ============================================
-export { 
+export {
 	loadI18nSSR,
 	i18nServerLoad // @deprecated
 } from './ssr-load.js';
@@ -14,7 +14,7 @@ export {
 // ============================================
 // Universal functions (+layout.ts)
 // ============================================
-export { 
+export {
 	loadI18nUniversal,
 	i18nUniversalLoad // @deprecated
 } from './universal-load.js';
@@ -22,7 +22,7 @@ export {
 // ============================================
 // Client functions (+layout.svelte)
 // ============================================
-export { 
+export {
 	setupI18nClient,
 	initI18nOnMount,
 	i18nIsReady,

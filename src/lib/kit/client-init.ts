@@ -9,7 +9,7 @@ import { browser } from '$app/environment';
 /**
  * Setup i18n on client with SSR data
  * Handles hydration of SSR translations
- * 
+ *
  * @param i18n - The i18n instance
  * @param data - SSR data from server
  * @param options - Configuration options
@@ -65,7 +65,7 @@ export function setupI18nClient<T = I18nInstance>(
 /**
  * Initialize i18n on mount (client-side only)
  * Use this in your +layout.svelte onMount
- * 
+ *
  * @param i18n - The i18n instance
  * @param data - SSR data
  * @param options - Configuration options
@@ -123,7 +123,7 @@ export async function initI18nOnMount<T = I18nInstance>(
 
 /**
  * Check if i18n is ready (translations loaded)
- * 
+ *
  * @param i18n - The i18n instance
  * @param data - SSR data
  */
@@ -150,7 +150,7 @@ export async function i18nClientInit<T = I18nInstance>(
 ) {
 	// Setup client first
 	setupI18nClient(i18n, data, options);
-	
+
 	// Then run mount initialization if in browser
 	if (browser) {
 		await initI18nOnMount(i18n, data, options);

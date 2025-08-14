@@ -9,7 +9,7 @@ import { browser } from '$app/environment';
 /**
  * Universal load function for i18n
  * Use this in your +layout.ts file
- * 
+ *
  * @param i18n - The i18n instance
  * @param data - Data from parent layout (server data)
  * @param url - Optional URL for pathname detection
