@@ -4,15 +4,15 @@ import { browser } from '$app/environment';
 import { i18n } from '../translations/i18n.js';
 
 // Build mode configuration:
-// 
-// Development (npm run dev): 
+//
+// Development (npm run dev):
 //   - Always uses SSR for better pathname locale detection
-// 
+//
 // Production builds:
 //   - npm run build:static  -> Static prerendering for GitHub Pages
 //   - npm run build:ssr     -> SSR mode for server deployment
 //   - npm run build         -> Default to static for GitHub Pages
-// 
+//
 // You can also set VITE_BUILD_MODE environment variable:
 //   - 'static': Forces static prerendering (prerender=true, ssr=false)
 //   - 'ssr': Forces SSR mode (prerender=false, ssr=true)

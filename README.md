@@ -695,6 +695,7 @@ npm run build
 ```
 
 **Build Mode Configuration:**
+
 - Development (`npm run dev`): Always uses SSR for better pathname locale detection
 - Production builds:
   - `build:static`: Static prerendering for GitHub Pages
