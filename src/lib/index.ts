@@ -146,3 +146,6 @@ export {
 	initTypedI18n,
 	type TypedUnifiedI18nInstance
 } from './typed-unified.js';
+
+// URL locale utilities
+export { deLocalizeUrl } from './infrastructure/utils/url-locale.js';
