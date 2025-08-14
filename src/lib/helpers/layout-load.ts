@@ -15,8 +15,8 @@ import type { Cookies } from '@sveltejs/kit';
  * import { loadI18nSSR } from '$lib/index.js';
  * import { i18n } from '../translations/i18n.js';
  *
- * export const load: LayoutServerLoad = async ({ cookies }) => {
- *   const i18nData = await loadI18nSSR(i18n, cookies);
+ * export const load: LayoutServerLoad = async ({ cookies, url }) => {
+ *   const i18nData = await loadI18nSSR(i18n, cookies, url);
  *
  *   return {
  *     ...i18nData,
@@ -29,23 +29,35 @@ import type { Cookies } from '@sveltejs/kit';
 export async function loadI18nSSR(
 	i18n: any,
 	cookies: Cookies,
+	url?: URL | { pathname: string },
 	options?: {
 		cookieName?: string;
 		defaultLocale?: string;
 	}
 ) {
+	// Import pathname locale utilities
+	const { getBestLocale } = await import('../infrastructure/utils/pathname-locale.js');
+
 	const cookieName = options?.cookieName || 'i18n-locale';
 	const defaultLocale = options?.defaultLocale || i18n.locale || 'zh';
 	const namespace = (i18n as any).config?.namespace || 'app';
+	const pathname = url?.pathname || '/';
 
 	// Get locale from cookie
 	const cookieLocale = cookies.get(cookieName);
-	const locale = cookieLocale || defaultLocale;
 
-	console.log(`[loadI18nSSR] Cookie locale: ${cookieLocale}, determined locale: ${locale}`);
+	// Determine best locale based on priority:
+	// 1. Pathname locale (if valid and supported)
+	// 2. Cookie locale
+	// 3. Default locale
+	const locale = getBestLocale(pathname, i18n, cookieLocale, defaultLocale);
+
+	console.log(
+		`[loadI18nSSR] Pathname: ${pathname}, Cookie locale: ${cookieLocale}, determined locale: ${locale}`
+	);
 
 	// Try to load and set the locale
-	if (cookieLocale && !i18n.locales.includes(cookieLocale)) {
+	if (locale && !i18n.locales.includes(locale)) {
 		// Try loading as auto-discovered locale
 		if (typeof window === 'undefined') {
 			try {
@@ -53,21 +65,21 @@ export async function loadI18nSSR(
 					'../infrastructure/loaders/server-loader.js'
 				);
 
-				if (isAutoDiscoveredLocale(cookieLocale, namespace)) {
-					console.log(`[loadI18nSSR] Loading auto-discovered locale: ${cookieLocale}`);
-					const loaded = loadServerTranslations(i18n as any, cookieLocale, namespace);
+				if (isAutoDiscoveredLocale(locale, namespace)) {
+					console.log(`[loadI18nSSR] Loading auto-discovered locale: ${locale}`);
+					const loaded = loadServerTranslations(i18n as any, locale, namespace);
 					if (loaded) {
-						console.log(`[loadI18nSSR] Successfully loaded ${cookieLocale} for SSR`);
-						await i18n.setLocale(cookieLocale);
+						console.log(`[loadI18nSSR] Successfully loaded ${locale} for SSR`);
+						await i18n.setLocale(locale);
 					}
 				}
 			} catch (error) {
 				console.error('[loadI18nSSR] Error loading server utilities:', error);
 			}
 		}
-	} else if (cookieLocale && i18n.locales.includes(cookieLocale)) {
+	} else if (locale && i18n.locales.includes(locale)) {
 		// Locale is already loaded, just set it
-		await i18n.setLocale(cookieLocale);
+		await i18n.setLocale(locale);
 	}
 
 	// Get all available locales including auto-discovered ones
@@ -142,8 +154,8 @@ export async function loadI18nSSR(
  * import { i18n } from '../translations/i18n.js';
  * import { browser } from '$app/environment';
  *
- * export const load: LayoutLoad = async ({ data }) => {
- *   const i18nData = await loadI18nUniversal(i18n, data, browser);
+ * export const load: LayoutLoad = async ({ data, url }) => {
+ *   const i18nData = await loadI18nUniversal(i18n, data, browser, url);
  *
  *   return {
  *     ...i18nData,
@@ -157,27 +169,33 @@ export async function loadI18nUniversal(
 	i18n: any,
 	data: any,
 	browser: boolean,
+	url?: URL | { pathname: string },
 	options?: {
 		storageKey?: string;
 		defaultLocale?: string;
 	}
 ) {
+	// Import pathname locale utilities
+	const { getBestLocale } = await import('../infrastructure/utils/pathname-locale.js');
+
 	const storageKey = options?.storageKey || 'i18n-locale';
 	const defaultLocale = options?.defaultLocale || 'zh';
+	const pathname = url?.pathname || (browser ? window.location.pathname : '/');
 
-	// Use locale from server if available (includes cookie value)
+	// Use locale from server if available (includes cookie value and pathname locale)
 	let locale = data?.locale || i18n.locale || defaultLocale;
 	let translationsLoaded = false;
 
-	// In browser, check localStorage which takes precedence
+	// In browser, determine best locale based on priority
 	if (browser) {
 		const savedLocale = localStorage.getItem(storageKey);
-		if (savedLocale) {
-			locale = savedLocale;
-		} else if (!data?.locale) {
-			// No saved locale and no cookie, use default
-			locale = defaultLocale;
-		}
+
+		// Priority:
+		// 1. Pathname locale (if valid and supported)
+		// 2. localStorage
+		// 3. Server locale (from data, which includes cookie)
+		// 4. Default locale
+		locale = getBestLocale(pathname, i18n, savedLocale || data?.locale, defaultLocale);
 
 		// In CSR mode, preload the target locale to prevent flash
 		if (!data?.ssrTranslations && locale) {
@@ -341,9 +359,13 @@ export async function initI18nOnMount(
 		defaultLocale?: string;
 	}
 ) {
+	// Import pathname locale utilities
+	const { getBestLocale } = await import('../infrastructure/utils/pathname-locale.js');
+
 	const storageKey = options?.storageKey || 'i18n-locale';
 	const defaultLocale = options?.defaultLocale || 'zh';
 	const initFunction = options?.initFunction;
+	const pathname = window.location.pathname;
 	const initialLocale = data?.locale || defaultLocale;
 
 	// Check if we're in SSR or CSR mode
@@ -354,11 +376,13 @@ export async function initI18nOnMount(
 
 	// If we're in CSR mode and not ready, initialize now
 	if (typeof window !== 'undefined' && !isSSR) {
-		if (i18n.locale !== initialLocale || !i18n.locales.includes(initialLocale)) {
-			// Get saved locale from localStorage
-			const savedLocale = localStorage.getItem(storageKey);
-			const targetLocale = savedLocale || initialLocale;
+		// Get saved locale from localStorage
+		const savedLocale = localStorage.getItem(storageKey);
 
+		// Determine target locale with pathname priority
+		const targetLocale = getBestLocale(pathname, i18n, savedLocale || initialLocale, defaultLocale);
+
+		if (i18n.locale !== targetLocale || !i18n.locales.includes(targetLocale)) {
 			// Initialize i18n and load all translations
 			if (initFunction) {
 				await initFunction(i18n);
@@ -377,16 +401,15 @@ export async function initI18nOnMount(
 		await initFunction(i18n);
 	}
 
-	// Get saved locale from localStorage (takes precedence over cookie)
+	// Get saved locale from localStorage
 	const savedLocale = localStorage.getItem(storageKey);
 
-	// Determine final target locale
-	let targetLocale = initialLocale; // Use initialLocale from SSR
-
-	if (savedLocale && i18n.locales.includes(savedLocale)) {
-		// localStorage takes precedence
-		targetLocale = savedLocale;
-	}
+	// Determine final target locale based on priority:
+	// 1. Pathname locale (if valid and supported)
+	// 2. localStorage
+	// 3. Initial locale from SSR (includes cookie)
+	// 4. Default locale
+	const targetLocale = getBestLocale(pathname, i18n, savedLocale || initialLocale, defaultLocale);
 
 	// Set the locale - this should work now that auto-discovered translations are loaded
 	if (i18n.locale !== targetLocale && i18n.locales.includes(targetLocale)) {

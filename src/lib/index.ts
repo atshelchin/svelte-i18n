@@ -149,3 +149,9 @@ export {
 
 // URL locale utilities
 export { deLocalizeUrl } from './infrastructure/utils/url-locale.js';
+export {
+	extractLocaleFromPathname,
+	extractSupportedLocaleFromPathname,
+	getBestLocale,
+	shouldUsePathnameLocale
+} from './infrastructure/utils/pathname-locale.js';

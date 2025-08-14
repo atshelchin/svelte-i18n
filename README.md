@@ -177,6 +177,78 @@ i18n.t('button.submit'); // Package translations are isolated
 
 ---
 
+## 🔗 URL-Based Language Detection (NEW!)
+
+**Automatic language detection from URL pathname** - Support for locale-prefixed URLs like `/zh/about` or `/en-US/products`.
+
+### How It Works
+
+The library now automatically detects and uses language codes from URL pathnames with the following priority:
+
+1. **URL pathname** (e.g., `/zh/about`, `/en-US/products`)
+2. **localStorage** (client-side) or **cookies** (server-side)
+3. **Default locale**
+
+### Setup with Pathname Detection
+
+```typescript
+// +layout.server.ts
+import type { LayoutServerLoad } from './$types.js';
+import { loadI18nSSR } from '@shelchin/svelte-i18n';
+import { i18n } from '../translations/i18n.js';
+
+export const load: LayoutServerLoad = async ({ cookies, url }) => {
+	// Pass url to enable pathname locale detection
+	const i18nData = await loadI18nSSR(i18n, cookies, url);
+	return i18nData;
+};
+```
+
+```typescript
+// +layout.ts
+import type { LayoutLoad } from './$types.js';
+import { loadI18nUniversal } from '@shelchin/svelte-i18n';
+import { browser } from '$app/environment';
+import { i18n } from '../translations/i18n.js';
+
+export const load: LayoutLoad = async ({ data, url }) => {
+	// Pass url to enable pathname locale detection
+	const i18nData = await loadI18nUniversal(i18n, data, browser, url);
+	return i18nData;
+};
+```
+
+### Supported Language Codes
+
+The library recognizes **368+ language codes** including:
+
+- **ISO 639-1**: 2-letter codes (e.g., `en`, `zh`, `fr`)
+- **ISO 639-2/3**: 3-letter codes (e.g., `eng`, `chi`, `fra`)
+- **BCP 47**: Regional variants (e.g., `en-US`, `zh-CN`, `zh-TW`)
+- **All UN member states and recognized regions**
+
+### URL Management Utilities
+
+```typescript
+import { deLocalizeUrl, extractLocaleFromPathname } from '@shelchin/svelte-i18n';
+
+// Remove language code from URL
+const url = new URL('https://example.com/zh/about');
+const cleanUrl = deLocalizeUrl(url); // https://example.com/about
+
+// Extract language code from pathname
+const locale = extractLocaleFromPathname('/zh/about'); // 'zh'
+```
+
+### Benefits
+
+- **SEO-friendly** URLs with language prefixes
+- **Shareable links** that preserve language selection
+- **Automatic language switching** based on URL
+- **Backwards compatible** with existing cookie/localStorage approach
+
+---
+
 ## 🔍 Auto-Discovery: Add Languages Without Touching Code
 
 **Revolutionary for teams:** Translators can add new languages by simply dropping JSON files in `/static/translations/`. No code changes, no rebuilds, no deployments.

@@ -177,6 +177,78 @@ i18n.t('button.submit'); // 包翻译是隔离的
 
 ---
 
+## 🔗 基于 URL 的语言检测（新功能！）
+
+**自动从 URL 路径名检测语言** - 支持带语言前缀的 URL，如 `/zh/about` 或 `/en-US/products`。
+
+### 工作原理
+
+该库现在会自动从 URL 路径名中检测并使用语言代码，优先级如下：
+
+1. **URL 路径名**（例如：`/zh/about`、`/en-US/products`）
+2. **localStorage**（客户端）或 **cookies**（服务端）
+3. **默认语言**
+
+### 配置路径名检测
+
+```typescript
+// +layout.server.ts
+import type { LayoutServerLoad } from './$types.js';
+import { loadI18nSSR } from '@shelchin/svelte-i18n';
+import { i18n } from '../translations/i18n.js';
+
+export const load: LayoutServerLoad = async ({ cookies, url }) => {
+	// 传递 url 以启用路径名语言检测
+	const i18nData = await loadI18nSSR(i18n, cookies, url);
+	return i18nData;
+};
+```
+
+```typescript
+// +layout.ts
+import type { LayoutLoad } from './$types.js';
+import { loadI18nUniversal } from '@shelchin/svelte-i18n';
+import { browser } from '$app/environment';
+import { i18n } from '../translations/i18n.js';
+
+export const load: LayoutLoad = async ({ data, url }) => {
+	// 传递 url 以启用路径名语言检测
+	const i18nData = await loadI18nUniversal(i18n, data, browser, url);
+	return i18nData;
+};
+```
+
+### 支持的语言代码
+
+该库识别 **368+ 种语言代码**，包括：
+
+- **ISO 639-1**：2 字母代码（如 `en`、`zh`、`fr`）
+- **ISO 639-2/3**：3 字母代码（如 `eng`、`chi`、`fra`）
+- **BCP 47**：地区变体（如 `en-US`、`zh-CN`、`zh-TW`）
+- **所有联合国成员国和认可地区**
+
+### URL 管理工具
+
+```typescript
+import { deLocalizeUrl, extractLocaleFromPathname } from '@shelchin/svelte-i18n';
+
+// 从 URL 中移除语言代码
+const url = new URL('https://example.com/zh/about');
+const cleanUrl = deLocalizeUrl(url); // https://example.com/about
+
+// 从路径名中提取语言代码
+const locale = extractLocaleFromPathname('/zh/about'); // 'zh'
+```
+
+### 优势
+
+- **SEO 友好的** 带语言前缀的 URL
+- **可共享的链接** 保留语言选择
+- **基于 URL 的自动语言切换**
+- **向后兼容** 现有的 cookie/localStorage 方法
+
+---
+
 ## 🛠️ CLI 命令
 
 ### 生成 TypeScript 类型
