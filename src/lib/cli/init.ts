@@ -125,7 +125,7 @@ const translationModules = import.meta.glob('./locales/*.json', {
 	import: 'default'
 });
 
-const translations: Record<string, any> = {};
+const translations: Record<string, unknown> = {};
 
 // Extract language code from file path and build translations object
 for (const [path, module] of Object.entries(translationModules)) {

@@ -154,7 +154,7 @@ export type ${typePrefix} = ${
 
 // Helper type for typed translation function
 export interface TypedTranslate {
-	(key: ${typePrefix}, params?: Record<string, any>): string;
+	(key: ${typePrefix}, params?: Record<string, unknown>): string;
 }
 `;
 

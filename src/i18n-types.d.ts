@@ -10,7 +10,7 @@ declare module '@shelchin/svelte-i18n' {
 		/**
 		 * Type-safe translation function with autocomplete
 		 */
-		t(key: I18nPath, params?: Record<string, any>): string;
+		t(key: I18nPath, params?: Record<string, unknown>): string;
 	}
 }
 
@@ -22,12 +22,12 @@ declare module '$lib' {
 		locales: string[];
 		isLoading: boolean;
 		errors: Record<string, string[]>;
-		meta: Record<string, any>;
+		meta: Record<string, unknown>;
 
 		/**
 		 * Type-safe translation function with autocomplete
 		 */
-		t(key: I18nPath, params?: Record<string, any>): string;
+		t(key: I18nPath, params?: Record<string, unknown>): string;
 
 		setLocale: (locale: string) => Promise<void>;
 		loadLanguage: (locale: string, source?: any) => Promise<void>;

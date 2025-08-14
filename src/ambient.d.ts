@@ -8,12 +8,12 @@ import type { I18nPath } from './types/app-i18n-generated';
 // Override the global module augmentation
 declare module '$lib' {
 	interface I18nInstance {
-		t(key: I18nPath, params?: Record<string, any>): string;
+		t(key: I18nPath, params?: Record<string, unknown>): string;
 	}
 }
 
 declare module '$lib/index' {
 	interface I18nInstance {
-		t(key: I18nPath, params?: Record<string, any>): string;
+		t(key: I18nPath, params?: Record<string, unknown>): string;
 	}
 }

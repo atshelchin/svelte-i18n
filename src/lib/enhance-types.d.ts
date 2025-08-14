@@ -14,6 +14,6 @@ declare module './domain/models/types' {
 		 * @param key - Translation key (with autocomplete when types are generated!)
 		 * @param params - Parameters for interpolation
 		 */
-		t(key: I18nPath, params?: Record<string, any>): string;
+		t(key: I18nPath, params?: Record<string, unknown>): string;
 	}
 }

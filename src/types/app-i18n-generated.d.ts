@@ -178,5 +178,5 @@ export type I18nPath =
 
 // Helper type for typed translation function
 export interface TypedTranslate {
-	(key: I18nPath, params?: Record<string, any>): string;
+	(key: I18nPath, params?: Record<string, unknown>): string;
 }

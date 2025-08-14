@@ -41,5 +41,5 @@ export type LibI18nPath =
 
 // Helper type for typed translation function
 export interface TypedTranslate {
-	(key: LibI18nPath, params?: Record<string, any>): string;
+	(key: LibI18nPath, params?: Record<string, unknown>): string;
 }
