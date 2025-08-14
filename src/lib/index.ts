@@ -48,22 +48,19 @@ export {
 } from '$lib/domain/services/utils.js';
 export { getAppBasePath, buildAssetUrl } from '$lib/infrastructure/loaders/base-path.js';
 
-// Layout helper exports for simplified integration
+// Layout helper exports - unified from kit/load
 export {
 	// Main helper functions
 	i18nServerLoad,
 	i18nUniversalLoad,
 	i18nClientInit,
-	i18nIsReady
-} from '$lib/helpers/layout-helpers.js';
-
-// Simplified layout helpers - balance flexibility and simplicity
-export {
+	i18nIsReady,
+	// Simplified layout helpers
 	loadI18nSSR,
 	loadI18nUniversal,
 	setupI18nClient,
 	initI18nOnMount
-} from '$lib/helpers/layout-load.js';
+} from '$lib/kit/load.js';
 
 // Auto-discovery exports
 export {
