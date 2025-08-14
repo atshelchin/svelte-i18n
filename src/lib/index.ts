@@ -94,8 +94,8 @@ export {
 } from '$lib/core/formatter.js';
 
 // Component exports
-export { default as LanguageSwitcher } from '$lib/presentation/components/LanguageSwitcher.svelte';
-export { default as ValidationPopup } from '$lib/presentation/components/ValidationPopup.svelte';
+export { default as LanguageSwitcher } from '$lib/components/LanguageSwitcher.svelte';
+export { default as ValidationPopup } from '$lib/components/ValidationPopup.svelte';
 
 // Built-in loader exports
 export {
@@ -122,7 +122,7 @@ export {
 	getTranslationKey,
 	type TypedTranslate,
 	type TypedI18nInstance
-} from '$lib/application/services/typed-wrapper.js';
+} from '$lib/utils/typed-wrapper.js';
 
 // Unified API with optional type safety
 export {

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { render } from '@testing-library/svelte';
-import ValidationPopup from '$lib/presentation/components/ValidationPopup.svelte';
+import ValidationPopup from '$lib/components/ValidationPopup.svelte';
 import { setupI18n } from '$lib/core/store.svelte.js';
 import type { I18nInstance } from '$lib/core/types.js';
 
