@@ -2,7 +2,7 @@
  * URL locale utilities for handling locale codes in URLs
  */
 
-import { isValidLanguageCode } from '$lib/infrastructure/utils/language-search.js';
+import { isValidLanguageCode } from '$lib/utils/language-search.js';
 
 /**
  * Remove locale code from URL pathname if it exists

@@ -4,7 +4,7 @@
  */
 
 import type { LanguageMeta } from '$lib/domain/models/types.js';
-import { commonLanguages } from '$lib/infrastructure/utils/language-search.js';
+import { commonLanguages } from '$lib/utils/language-search.js';
 
 // Partial metadata that can be used as fallback
 type PartialLanguageMeta = {

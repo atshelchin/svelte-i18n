@@ -27,19 +27,58 @@ export async function loadI18nUniversal<T = I18nInstance>(
 ) {
 	const storageKey = options?.storageKey || 'i18n-locale';
 
-	// On client, try to restore locale from localStorage
+	// On client, first ensure auto-discovery is completed
 	if (browser && typeof window !== 'undefined') {
+		// FIRST: Ensure auto-discovered languages are registered
+		// This must happen BEFORE attempting to set any locale
+		if ('clientLoad' in i18n && typeof (i18n as any).clientLoad === 'function') {
+			console.log('[loadI18nUniversal] Running clientLoad to register auto-discovered languages');
+			try {
+				// Call clientLoad with skipLocaleRestore=true to only load translations
+				// We'll handle locale restoration ourselves after
+				await (i18n as any).clientLoad({ skipLocaleRestore: true });
+			} catch (error) {
+				console.warn('[loadI18nUniversal] clientLoad failed:', error);
+			}
+		}
+
+		// THEN: Try to restore locale from localStorage
 		try {
 			const storedLocale = localStorage.getItem(storageKey);
-			if (storedLocale && i18n.locales.includes(storedLocale)) {
-				// Use stored locale if valid
+			console.log(
+				`[loadI18nUniversal] localStorage locale: ${storedLocale}, server data locale: ${data?.locale}`
+			);
+			console.log(`[loadI18nUniversal] Available locales after clientLoad:`, i18n.locales);
+
+			// Priority: localStorage > server data > current locale
+			if (storedLocale) {
+				// Wait a tiny bit to ensure all async operations in clientLoad are complete
+				// This is a workaround for potential race conditions
+				await new Promise((resolve) => setTimeout(resolve, 10));
+
+				// Try to set the stored locale - setLocale will handle loading if needed
+				console.log(
+					`[loadI18nUniversal] Attempting to restore locale from localStorage: ${storedLocale}`
+				);
+				console.log(`[loadI18nUniversal] Available locales before setLocale:`, i18n.locales);
 				await i18n.setLocale(storedLocale);
-			} else if (data?.locale && i18n.locales.includes(data.locale)) {
-				// Use server-provided locale
+			} else if (data?.locale && data.locale !== i18n.locale) {
+				// Use server-provided locale only if different from current
+				console.log(`[loadI18nUniversal] Using server locale: ${data.locale}`);
 				await i18n.setLocale(data.locale);
+			} else {
+				console.log(`[loadI18nUniversal] Keeping current locale: ${i18n.locale}`);
 			}
 		} catch (e) {
 			console.warn('[loadI18nUniversal] Failed to restore locale:', e);
+			// Fall back to server locale if available
+			if (data?.locale) {
+				try {
+					await i18n.setLocale(data.locale);
+				} catch {
+					// Ignore fallback error
+				}
+			}
 		}
 	} else if (data?.locale) {
 		// On server or during SSR, use data from server

@@ -15,19 +15,19 @@ import {
 	validateSchema,
 	detectBrowserLanguage as detectLang,
 	mergeTranslations
-} from '$lib/domain/services/utils.js';
-import { getLanguageMeta } from '$lib/domain/services/language-meta.js';
-import { autoDiscoverTranslations as autoDiscoverV2 } from '$lib/infrastructure/loaders/auto-discovery-v2.js';
+} from '$lib/utils/translation-utils.js';
+import { getLanguageMeta } from '$lib/utils/language-meta.js';
 import {
-	loadBuiltInTranslations,
-	loadBuiltInTranslationsSync
-} from '$lib/infrastructure/loaders/built-in.js';
+	autoDiscoverTranslations as autoDiscoverV2,
+	loadAutoDiscoveryConfig
+} from '$lib/services/discovery.js';
+import { loadBuiltInTranslations, loadBuiltInTranslationsSync } from '$lib/services/loader.js';
 // Universal persistence is used instead
-// import { saveLocale, getInitialLocale } from '$lib/infrastructure/persistence/persistence.js';
+// import { saveLocale, getInitialLocale } from '$lib/services/persistence.js';
 import {
 	saveLocaleUniversal,
 	getInitialLocaleUniversal
-} from '$lib/infrastructure/persistence/universal-persistence.js';
+} from '$lib/services/universal-persistence.js';
 import {
 	formatNumber as fmtNumber,
 	formatCurrency as fmtCurrency,
@@ -36,7 +36,7 @@ import {
 	formatRelativeTime as fmtRelativeTime,
 	formatList as fmtList,
 	FORMATS
-} from '$lib/infrastructure/formatters/formatter.js';
+} from '$lib/services/formatter.js';
 
 // Simple validation popup controller to prevent multiple popups
 class ValidationPopupController {
@@ -158,7 +158,7 @@ export class I18nStore implements I18nInstance {
 	async setLocale(locale: string): Promise<void> {
 		console.log(`[setLocale] Attempting to set locale to: ${locale}`);
 		console.log(`[setLocale] Available translations:`, Object.keys(this.translations));
-		console.log(`[setLocale] Available locales:`, this.availableLocales);
+		console.log(`[setLocale] Available locales:`, [...this.availableLocales]);
 
 		if (this.translations[locale]) {
 			this.currentLocale = locale;
@@ -716,10 +716,15 @@ export class I18nStore implements I18nInstance {
 	 * @param options Optional configuration for loading
 	 * @returns Promise that resolves when loading is complete
 	 */
-	async clientLoad(options?: { initialLocale?: string }): Promise<void> {
+	async clientLoad(options?: {
+		initialLocale?: string;
+		skipLocaleRestore?: boolean;
+	}): Promise<void> {
 		console.log('[clientLoad] Starting client load...');
+		console.log('[clientLoad] Current locale:', this.currentLocale);
 		console.log('[clientLoad] Current locales:', this.locales);
 		console.log('[clientLoad] Namespace:', this.config.namespace);
+		console.log('[clientLoad] Options:', options);
 
 		// Step 1: Load built-in translations if not already loaded
 		if (this.locales.length === 0) {
@@ -750,8 +755,38 @@ export class I18nStore implements I18nInstance {
 					console.error(`Failed to auto-discover ${locale} for ${target}:`, error);
 				}
 			});
+
+			// After auto-discovery, add all discovered locales to availableLocales
+			// This ensures we know which languages can be loaded on demand
+			const config = await loadAutoDiscoveryConfig();
+			if (config?.autoDiscovery) {
+				const namespace = this.config.namespace || 'app';
+				let discoveredLocales: string[] = [];
+
+				if (namespace === 'app' && config.autoDiscovery.app) {
+					discoveredLocales = config.autoDiscovery.app;
+				} else if (config.autoDiscovery.packages?.[namespace]) {
+					discoveredLocales = config.autoDiscovery.packages[namespace];
+				}
+
+				// Add discovered locales to availableLocales
+				for (const locale of discoveredLocales) {
+					if (!this.availableLocales.includes(locale)) {
+						this.availableLocales.push(locale);
+						console.log(`[clientLoad] Added ${locale} to available locales`);
+					}
+				}
+				console.log(`[clientLoad] Available locales after discovery:`, [...this.availableLocales]);
+			}
 		} catch (error) {
 			console.error('Auto-discovery error:', error);
+		}
+
+		// Skip locale restoration if requested (e.g., when already set by loadI18nUniversal)
+		// This means the locale was already restored and set
+		if (options?.skipLocaleRestore) {
+			console.log('[clientLoad] Skipping locale restoration (already handled by caller)');
+			return;
 		}
 
 		// Use provided initial locale or get from cookies/localStorage
@@ -765,6 +800,10 @@ export class I18nStore implements I18nInstance {
 					storageKey: this.config.storageKey
 				}
 			);
+
+		console.log(`[clientLoad] Client locale from storage: ${clientLocale}`);
+		console.log(`[clientLoad] Loaded locales:`, this.locales);
+		console.log(`[clientLoad] Available locales:`, [...this.availableLocales]);
 
 		// Set locale if available, otherwise fallback
 		if (this.locales.includes(clientLocale)) {

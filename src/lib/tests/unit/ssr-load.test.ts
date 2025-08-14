@@ -1,10 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { loadI18nSSR, i18nServerLoad } from '$lib/kit/ssr-load.js';
 import { setupI18n, clearAllInstances } from '$lib/application/stores/store.svelte.js';
-import {
-	registerBuiltInTranslations,
-	clearRegisteredTranslations
-} from '$lib/infrastructure/loaders/built-in.js';
+import { registerBuiltInTranslations, clearRegisteredTranslations } from '$lib/services/loader.js';
 
 // Helper to load translations synchronously in tests
 function loadTranslationsSync(i18n: any, translations: Record<string, any>) {
@@ -23,7 +20,7 @@ function loadTranslationsSync(i18n: any, translations: Record<string, any>) {
 }
 
 // Mock the server-loader module
-vi.mock('$lib/infrastructure/loaders/server-loader.js', () => ({
+vi.mock('$lib/services/server-loader.js', () => ({
 	isAutoDiscoveredLocale: vi.fn((locale: string, namespace: string) => {
 		// Mock auto-discovered locales for testing
 		if (namespace === 'app') {

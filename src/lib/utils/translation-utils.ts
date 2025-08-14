@@ -1,4 +1,4 @@
-import type { TranslationSchema, InterpolationParams, I18nConfig } from '../models/types.js';
+import type { TranslationSchema, InterpolationParams, I18nConfig } from '../domain/models/types.js';
 
 export function getNestedValue(obj: unknown, path: string): unknown {
 	const result = path

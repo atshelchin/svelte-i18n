@@ -7,7 +7,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { createI18n, getI18nInstance } from '$lib/unified.js';
 import type { UnifiedI18nConfig } from '$lib/unified.js';
 import { configManager } from '$lib/application/stores/config-manager.js';
-import { clearRegisteredTranslations } from '$lib/infrastructure/loaders/built-in.js';
+import { clearRegisteredTranslations } from '$lib/services/loader.js';
 import { clearAllInstances } from '$lib/application/stores/store.svelte.js';
 
 describe('Unified I18n Integration', () => {
@@ -177,9 +177,7 @@ describe('Unified I18n Integration', () => {
 
 		it('should work with getAppSupportedLanguages function', async () => {
 			// Import the function we're testing
-			const { getAppSupportedLanguages } = await import(
-				'$lib/infrastructure/loaders/app-languages.js'
-			);
+			const { getAppSupportedLanguages } = await import('$lib/utils/app-languages.js');
 
 			// Create app with many languages
 			const appI18n = createI18n({
@@ -324,9 +322,7 @@ describe('Unified I18n Integration', () => {
 			]);
 
 			// Import the helper function
-			const { getAppSupportedLanguages } = await import(
-				'$lib/infrastructure/loaders/app-languages.js'
-			);
+			const { getAppSupportedLanguages } = await import('$lib/utils/app-languages.js');
 
 			// When LanguageSwitcher component gets languages
 			const availableLanguages = await getAppSupportedLanguages(libI18n);

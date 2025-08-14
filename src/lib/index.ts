@@ -38,15 +38,15 @@ export {
 	loadSavedLocale,
 	clearSavedLocale,
 	getInitialLocale
-} from '$lib/infrastructure/persistence/persistence.js';
+} from '$lib/services/persistence.js';
 
 // Utility exports
 export {
 	validateSchema,
 	detectBrowserLanguage,
 	mergeTranslations
-} from '$lib/domain/services/utils.js';
-export { getAppBasePath, buildAssetUrl } from '$lib/infrastructure/loaders/base-path.js';
+} from '$lib/utils/translation-utils.js';
+export { getAppBasePath, buildAssetUrl } from '$lib/utils/base-path.js';
 
 // Layout helper exports - unified from kit/load
 export {
@@ -69,13 +69,10 @@ export {
 	getCachedAutoDiscoveryConfig,
 	type AutoDiscoveryConfig,
 	type AutoDiscoveryOptions
-} from '$lib/infrastructure/loaders/auto-discovery-v2.js';
+} from '$lib/services/discovery.js';
 
 // App language helpers
-export {
-	getAppSupportedLanguages,
-	isAppLanguageSupported
-} from '$lib/infrastructure/loaders/app-languages.js';
+export { getAppSupportedLanguages, isAppLanguageSupported } from '$lib/utils/app-languages.js';
 
 // Language search utilities
 export {
@@ -83,7 +80,7 @@ export {
 	getLanguageInfo,
 	getAllLanguages,
 	type LanguageInfo
-} from '$lib/infrastructure/utils/language-search.js';
+} from '$lib/utils/language-search.js';
 
 // Formatter exports
 export {
@@ -94,7 +91,7 @@ export {
 	formatRelativeTime,
 	formatList,
 	FORMATS
-} from '$lib/infrastructure/formatters/formatter.js';
+} from '$lib/services/formatter.js';
 
 // Component exports
 export { default as LanguageSwitcher } from '$lib/presentation/components/LanguageSwitcher.svelte';
@@ -106,7 +103,7 @@ export {
 	loadBuiltInTranslations,
 	registerPackageTranslations,
 	type TranslationRegistry
-} from '$lib/infrastructure/loaders/built-in.js';
+} from '$lib/services/loader.js';
 
 // Translation utility exports
 export {
@@ -116,7 +113,7 @@ export {
 	isLocaleAvailable,
 	getNamespaces,
 	getNamespaceLocales
-} from '$lib/infrastructure/loaders/translation-utils.js';
+} from '$lib/utils/translation-loader-utils.js';
 
 // Typed wrapper exports
 export {
@@ -145,10 +142,10 @@ export {
 } from '$lib/typed-unified.js';
 
 // URL locale utilities
-export { deLocalizeUrl } from '$lib/infrastructure/utils/url-locale.js';
+export { deLocalizeUrl } from '$lib/utils/url-locale.js';
 export {
 	extractLocaleFromPathname,
 	extractSupportedLocaleFromPathname,
 	getBestLocale,
 	shouldUsePathnameLocale
-} from '$lib/infrastructure/utils/pathname-locale.js';
+} from '$lib/utils/pathname-locale.js';

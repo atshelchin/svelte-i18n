@@ -5,7 +5,7 @@
 
 import { DEV } from '$lib/utils/env.js';
 import type { I18nInstance } from '$lib/domain/models/types.js';
-import { loadAutoDiscoveryConfig } from '$lib/infrastructure/loaders/auto-discovery-v2.js';
+import { loadAutoDiscoveryConfig } from '$lib/services/discovery.js';
 
 /**
  * Get all languages that the app supports (for language switching)

@@ -6,7 +6,7 @@ import {
 	validateSchema,
 	detectBrowserLanguage,
 	mergeTranslations
-} from '$lib/domain/services/utils.js';
+} from '$lib/utils/translation-utils.js';
 
 describe('Utils', () => {
 	describe('getNestedValue', () => {

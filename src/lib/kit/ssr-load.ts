@@ -5,7 +5,7 @@
 
 import type { Cookies } from '@sveltejs/kit';
 import type { I18nInstance, TranslationSchema } from '$lib/domain/models/types.js';
-import { extractLocaleFromPathname } from '$lib/infrastructure/utils/pathname-locale.js';
+import { extractLocaleFromPathname } from '$lib/utils/pathname-locale.js';
 
 // Extended interface for i18n instances with additional methods
 interface I18nInstanceExtended extends I18nInstance {
@@ -53,7 +53,7 @@ export async function loadI18nSSR<T = I18nInstance>(
 	let isAutoDiscoveredLocale: IsAutoDiscoveredLocale | undefined;
 
 	if (typeof window === 'undefined') {
-		const serverLoader = await import('$lib/infrastructure/loaders/server-loader.js');
+		const serverLoader = await import('$lib/services/server-loader.js');
 		loadServerTranslations = serverLoader.loadServerTranslations;
 		isAutoDiscoveredLocale = serverLoader.isAutoDiscoveredLocale;
 	}

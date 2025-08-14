@@ -5,7 +5,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 // import LanguageSwitcher from '$lib/presentation/components/LanguageSwitcher.svelte';
 
 // Mock the app languages module
-vi.mock('$lib/infrastructure/loaders/app-languages.js', () => ({
+vi.mock('$lib/utils/app-languages.js', () => ({
 	getAppSupportedLanguages: vi.fn().mockResolvedValue(['en', 'zh', 'ja', 'fr', 'de', 'ar', 'zh-TW'])
 }));
 

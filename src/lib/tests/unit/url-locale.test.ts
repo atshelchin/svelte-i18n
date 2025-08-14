@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { deLocalizeUrl } from '$lib/infrastructure/utils/url-locale.js';
+import { deLocalizeUrl } from '$lib/utils/url-locale.js';
 
 describe('deLocalizeUrl', () => {
 	it('should remove ISO 639-1 language codes (2 letters)', () => {

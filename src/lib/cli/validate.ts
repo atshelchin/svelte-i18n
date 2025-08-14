@@ -7,7 +7,7 @@
 
 import { readFileSync, readdirSync, statSync } from 'fs';
 import { join, basename } from 'path';
-import { validateSchema } from '../domain/services/utils.js';
+import { validateSchema } from '../utils/translation-utils.js';
 import type { TranslationSchema } from '../domain/models/types.js';
 
 interface ValidateOptions {

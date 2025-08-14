@@ -2,7 +2,7 @@
  * Extract locale from URL pathname and validate it
  */
 
-import { isValidLanguageCode } from '$lib/infrastructure/utils/language-search.js';
+import { isValidLanguageCode } from '$lib/utils/language-search.js';
 
 // Minimal interface for i18n instance - only need locales for pathname detection
 interface I18nLocales {

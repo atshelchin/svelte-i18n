@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { commonLanguages, isValidLanguageCode } from '$lib/infrastructure/utils/language-search.js';
+import { commonLanguages, isValidLanguageCode } from '$lib/utils/language-search.js';
 
 describe('Language Search Utils', () => {
 	describe('commonLanguages data integrity', () => {

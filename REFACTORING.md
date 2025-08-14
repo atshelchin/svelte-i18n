@@ -83,20 +83,58 @@ src/lib/
   ✅ 9. 删除 layout-helpers.ts 和 layout-load.ts (999行)
   ✅ 10. 创建完整的 kit 目录结构
 
-### 第二步：创建 tests 目录并移动测试文件 ⏸️
+### 第二步：创建 tests 目录并移动测试文件 ✅
 
 **目标**：将所有测试文件移到独立的 tests 目录
-**状态**：待开始
+**状态**：已完成
 
-### 第三步：扁平化 domain/services 到 utils ⏸️
+#### 进度
+
+✅ 1. 创建组织良好的测试目录结构：
+
+- `src/lib/tests/unit/` - 单元测试
+- `src/lib/tests/integration/` - 集成测试
+- `src/lib/tests/components/` - 组件测试
+  ✅ 2. 移动了18个测试文件到合适的目录
+  ✅ 3. 更新了所有测试导入路径
+  ✅ 4. 所有测试通过
+
+### 第三步：扁平化 domain/services 到 utils ✅
 
 **目标**：减少目录嵌套，将 domain/services 的内容移到 utils
-**状态**：待开始
+**状态**：已完成
 
-### 第四步：重组 infrastructure 到 services ⏸️
+#### 进度
+
+✅ 1. 移动 `domain/services/utils.ts` → `utils/translation-utils.ts`
+✅ 2. 移动 `domain/services/language-meta.ts` → `utils/language-meta.ts`
+✅ 3. 更新所有导入路径（3个文件）
+✅ 4. 删除空的 `domain/services` 目录
+✅ 5. 所有测试通过
+
+### 第四步：重组 infrastructure 到 services ✅
 
 **目标**：将 infrastructure 下的内容重组到 services 和 utils
-**状态**：待开始
+**状态**：已完成
+
+#### 进度
+
+✅ 1. 创建 `services` 目录
+✅ 2. 迁移文件：
+
+- `infrastructure/loaders/auto-discovery-v2.ts` → `services/discovery.ts`
+- `infrastructure/loaders/built-in.ts` → `services/loader.ts`
+- `infrastructure/persistence/*.ts` → `services/`
+- `infrastructure/formatters/formatter.ts` → `services/formatter.ts`
+- `infrastructure/loaders/server-loader.ts` → `services/server-loader.ts`
+  ✅ 3. 迁移到 utils：
+- `infrastructure/loaders/base-path.ts` → `utils/base-path.ts`
+- `infrastructure/loaders/app-languages.ts` → `utils/app-languages.ts`
+- `infrastructure/loaders/translation-utils.ts` → `utils/translation-loader-utils.ts`
+- `infrastructure/utils/*.ts` → `utils/`
+  ✅ 4. 更新所有导入路径（19个文件，33处引用）
+  ✅ 5. 删除空的 `infrastructure` 目录
+  ✅ 6. 所有测试通过（154个测试）
 
 ### 第五步：创建 core 目录并重组核心逻辑 ⏸️
 
