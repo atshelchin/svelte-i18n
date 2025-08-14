@@ -186,4 +186,70 @@ describe('Pathname Locale Utils', () => {
 			expect(getBestLocale('/xyz/page', i18n, 'zh-TW', 'en')).toBe('zh-TW');
 		});
 	});
+
+	describe('SSR Auto-discovery Support', () => {
+		it('should detect auto-discovered locale from pathname', () => {
+			const i18n = createMockI18n(['en', 'zh', 'fr']); // ko not loaded yet
+			const availableLocales = ['en', 'zh', 'fr', 'ko', 'ja']; // ko, ja are auto-discovered
+
+			// Should recognize ko from pathname even though not loaded
+			const result = getBestLocale('/ko/about', i18n, null, 'en', availableLocales);
+			expect(result).toBe('ko');
+		});
+
+		it('should prioritize pathname over cookie for auto-discovered locales', () => {
+			const i18n = createMockI18n(['en', 'zh']);
+			const availableLocales = ['en', 'zh', 'ko', 'ja'];
+
+			// Cookie says zh, but pathname says ko (auto-discovered)
+			const result = getBestLocale('/ko/products', i18n, 'zh', 'en', availableLocales);
+			expect(result).toBe('ko');
+		});
+
+		it('should use auto-discovered locale from cookie when no pathname locale', () => {
+			const i18n = createMockI18n(['en', 'zh']);
+			const availableLocales = ['en', 'zh', 'ko', 'ja'];
+
+			// No pathname locale, cookie has auto-discovered locale
+			const result = getBestLocale('/about', i18n, 'ko', 'en', availableLocales);
+			expect(result).toBe('ko');
+		});
+
+		it('should handle region codes with auto-discovered base locale', () => {
+			const i18n = createMockI18n(['en', 'zh']);
+			const availableLocales = ['en', 'zh', 'es', 'pt'];
+
+			// es-MX should fall back to es (auto-discovered)
+			const result = getBestLocale('/es-MX/contact', i18n, 'en', 'zh', availableLocales);
+			expect(result).toBe('es');
+		});
+
+		it('should reject invalid locales even with availableLocales', () => {
+			const i18n = createMockI18n(['en', 'zh']);
+			const availableLocales = ['en', 'zh', 'ko', 'ja'];
+
+			// xyz is not a valid locale code
+			const result = getBestLocale('/xyz/page', i18n, 'ja', 'en', availableLocales);
+			expect(result).toBe('ja'); // Falls back to cookie
+		});
+
+		it('should handle complex SSR priority scenarios', () => {
+			const i18n = createMockI18n(['en', 'zh']);
+			const availableLocales = ['en', 'zh', 'ko', 'ja', 'fr', 'de'];
+
+			// Test various SSR scenarios
+			expect(getBestLocale('/ja/page', i18n, 'ko', 'en', availableLocales)).toBe('ja'); // pathname wins
+			expect(getBestLocale('/page', i18n, 'ko', 'en', availableLocales)).toBe('ko'); // cookie wins
+			expect(getBestLocale('/page', i18n, 'es', 'en', availableLocales)).toBe('en'); // default wins (es not available)
+			expect(getBestLocale('/fr/page', i18n, null, 'zh', availableLocales)).toBe('fr'); // auto-discovered pathname
+		});
+
+		it('should work without availableLocales parameter (backward compatibility)', () => {
+			const i18n = createMockI18n(['en', 'zh', 'fr']);
+
+			// Should work as before when availableLocales not provided
+			expect(getBestLocale('/zh/page', i18n, 'en', 'fr')).toBe('zh');
+			expect(getBestLocale('/ko/page', i18n, 'en', 'fr')).toBe('en'); // ko not supported
+		});
+	});
 });

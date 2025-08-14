@@ -84,6 +84,7 @@ export function extractSupportedLocaleFromPathname(
  * @param i18n - The i18n instance
  * @param fallbackLocale - The fallback locale from cookie/localStorage
  * @param defaultLocale - The default locale
+ * @param availableLocales - Optional array of all available locales (including auto-discovered)
  * @returns The best locale based on priority
  *
  * @example
@@ -95,17 +96,32 @@ export function getBestLocale(
 	pathname: string,
 	i18n: I18nLocales,
 	fallbackLocale: string | null | undefined,
-	defaultLocale: string
+	defaultLocale: string,
+	availableLocales?: string[]
 ): string {
+	// Combine loaded locales with available locales
+	const allLocales = availableLocales || i18n.locales;
+
 	// Priority 1: Check pathname for locale
-	const pathnameLocale = extractSupportedLocaleFromPathname(pathname, i18n);
+	const pathnameLocale = extractLocaleFromPathname(pathname);
 	if (pathnameLocale) {
-		console.log(`[getBestLocale] Using locale from pathname: ${pathnameLocale}`);
-		return pathnameLocale;
+		// Check if it's supported (either loaded or available)
+		if (allLocales.includes(pathnameLocale)) {
+			console.log(`[getBestLocale] Using locale from pathname: ${pathnameLocale}`);
+			return pathnameLocale;
+		}
+		// Check for base language if locale has region
+		if (pathnameLocale.includes('-')) {
+			const baseLocale = pathnameLocale.split('-')[0];
+			if (allLocales.includes(baseLocale)) {
+				console.log(`[getBestLocale] Using base locale from pathname: ${baseLocale}`);
+				return baseLocale;
+			}
+		}
 	}
 
 	// Priority 2: Use fallback locale if available and supported
-	if (fallbackLocale && i18n.locales.includes(fallbackLocale)) {
+	if (fallbackLocale && allLocales.includes(fallbackLocale)) {
 		console.log(`[getBestLocale] Using fallback locale: ${fallbackLocale}`);
 		return fallbackLocale;
 	}
