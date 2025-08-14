@@ -33,6 +33,8 @@
 		"test:unit:node": "vitest run",
 		"test:unit:browser": "vitest run --config vitest.config.browser.ts",
 		"test:unit:all": "pnpm run test:unit:node && pnpm run test:unit:browser",
+		"test:cli": "vitest run src/lib/tests/cli/",
+		"test:cli:watch": "vitest watch src/lib/tests/cli/",
 		"test": "pnpm run test:unit:all && pnpm run test:e2e",
 		"test:e2e": "playwright test",
 		"cli:extract": "node dist/cli/extract.js",
