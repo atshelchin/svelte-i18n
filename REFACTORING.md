@@ -196,20 +196,23 @@ src/lib/
 #### 进度
 
 🚧 1. 删除死代码
-   - ✅ 删除 `src/lib/application/services/namespace-example.ts`（未使用）
-   - ✅ 删除 `src/lib/application/services/namespace.ts`（未使用）
-   - ✅ 移动 `src/lib/application/services/typed-wrapper.ts` → `src/lib/utils/typed-wrapper.ts`
-   - ✅ 删除空的 `application` 目录
+
+- ✅ 删除 `src/lib/application/services/namespace-example.ts`（未使用）
+- ✅ 删除 `src/lib/application/services/namespace.ts`（未使用）
+- ✅ 移动 `src/lib/application/services/typed-wrapper.ts` → `src/lib/utils/typed-wrapper.ts`
+- ✅ 删除空的 `application` 目录
 
 🚧 2. 打平组件目录
-   - ✅ 移动 `src/lib/presentation/components/` → `src/lib/components/`
-   - ✅ 更新所有组件导入路径（3个文件）
-   - ✅ 删除空的 `presentation` 目录
+
+- ✅ 移动 `src/lib/presentation/components/` → `src/lib/components/`
+- ✅ 更新所有组件导入路径（3个文件）
+- ✅ 删除空的 `presentation` 目录
 
 ⏸️ 3. 测试验证
-   - ✅ 所有单元测试通过（154个测试）
-   - ❌ 2个e2e测试失败（语言持久化问题，之前已存在）
-   - ⏸️ 需要修复语言持久化问题
+
+- ✅ 所有单元测试通过（154个测试）
+- ❌ 2个e2e测试失败（语言持久化问题，之前已存在）
+- ⏸️ 需要修复语言持久化问题
 
 ## 进度记录
 

@@ -22,12 +22,12 @@ export function detectBrowserLanguage(): string | null {
 	}
 
 	const nav = window.navigator as ExtendedNavigator;
-	
+
 	// Check navigator.languages first (preferred)
 	if (nav.languages && nav.languages.length > 0) {
 		return nav.languages[0];
 	}
-	
+
 	const browserLang = nav.language || nav.userLanguage || nav.browserLanguage || nav.systemLanguage;
 
 	return browserLang || null;
@@ -40,7 +40,7 @@ export function detectBrowserLanguage(): string | null {
  */
 export function getBrowserLocale(availableLocales?: string[]): string | null {
 	const browserLang = detectBrowserLanguage();
-	
+
 	if (!browserLang) {
 		return null;
 	}
@@ -62,10 +62,10 @@ export function getBrowserLocale(availableLocales?: string[]): string | null {
 	}
 
 	// Try to find a locale that starts with the same language code
-	const matchingLocale = availableLocales.find(locale => 
+	const matchingLocale = availableLocales.find((locale) =>
 		locale.toLowerCase().startsWith(langCode.toLowerCase())
 	);
-	
+
 	if (matchingLocale) {
 		return matchingLocale;
 	}

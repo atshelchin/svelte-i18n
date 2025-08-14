@@ -109,7 +109,7 @@ export {
 	loadBuiltInTranslations,
 	registerPackageTranslations,
 	type TranslationRegistry
-} from '$lib/services/loader.js';
+} from '$lib/services/built-in-loader.js';
 
 // Translation utility exports
 export {
@@ -120,7 +120,6 @@ export {
 	getNamespaces,
 	getNamespaceLocales
 } from '$lib/utils/registry-utils.js';
-
 
 // Unified API with optional type safety
 export {

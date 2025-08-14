@@ -3,7 +3,10 @@
  */
 import { describe, it, expect, beforeEach } from 'vitest';
 import { setupI18n, clearAllInstances } from '$lib/core/store.svelte.js';
-import { registerBuiltInTranslations, clearRegisteredTranslations } from '$lib/services/loader.js';
+import {
+	registerBuiltInTranslations,
+	clearRegisteredTranslations
+} from '$lib/services/built-in-loader.js';
 import { tick } from 'svelte';
 
 describe('Global Locale Synchronization (Browser)', () => {

@@ -21,13 +21,11 @@ import {
 	autoDiscoverTranslations as autoDiscoverV2,
 	loadAutoDiscoveryConfig
 } from '$lib/services/discovery.js';
-import { loadBuiltInTranslations, loadBuiltInTranslationsSync } from '$lib/services/loader.js';
-// Universal persistence is used instead
-// import { saveLocale, getInitialLocale } from '$lib/services/persistence.js';
 import {
-	saveLocaleUniversal,
-	getInitialLocaleUniversal
-} from '$lib/services/universal-persistence.js';
+	loadBuiltInTranslations,
+	loadBuiltInTranslationsSync
+} from '$lib/services/built-in-loader.js';
+import { saveLocaleUniversal, getInitialLocaleUniversal } from '$lib/services/persistence.js';
 import {
 	formatNumber as fmtNumber,
 	formatCurrency as fmtCurrency,

@@ -3,7 +3,7 @@
  * These functions help organize and access translations
  */
 
-import type { TranslationRegistry } from '$lib/services/loader.js';
+import type { TranslationRegistry } from '$lib/services/built-in-loader.js';
 
 /**
  * Get all available locales from a translation registry

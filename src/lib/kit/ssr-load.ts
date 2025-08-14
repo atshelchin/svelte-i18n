@@ -53,7 +53,7 @@ export async function loadI18nSSR<T = I18nInstance>(
 	let isAutoDiscoveredLocale: IsAutoDiscoveredLocale | undefined;
 
 	if (typeof window === 'undefined') {
-		const serverLoader = await import('$lib/services/server-loader.js');
+		const serverLoader = await import('$lib/services/ssr-file-loader.js');
 		loadServerTranslations = serverLoader.loadServerTranslations;
 		isAutoDiscoveredLocale = serverLoader.isAutoDiscoveredLocale;
 	}

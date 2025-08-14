@@ -11,7 +11,7 @@ import type {
 } from '$lib/core/types.js';
 import { setupI18n, getI18n } from '$lib/core/store.svelte.js';
 import { configManager } from '$lib/core/config-manager.js';
-import { registerPackageTranslations } from '$lib/services/loader.js';
+import { registerPackageTranslations } from '$lib/services/built-in-loader.js';
 
 export interface UnifiedI18nConfig extends Partial<I18nConfig> {
 	/**
