@@ -3,7 +3,7 @@
  * Handles browser-specific initialization and hydration
  */
 
-import type { I18nInstance, TranslationSchema } from '$lib/domain/models/types.js';
+import type { I18nInstance } from '$lib/domain/models/types.js';
 import { browser } from '$app/environment';
 
 /**
@@ -82,7 +82,6 @@ export async function initI18nOnMount<T = I18nInstance>(
 	if (!browser) return;
 
 	const storageKey = options?.storageKey || 'i18n-locale';
-	const defaultLocale = options?.defaultLocale || data?.locale || i18n.locale || 'en';
 
 	// Run custom initialization if provided
 	if (options?.initFunction) {

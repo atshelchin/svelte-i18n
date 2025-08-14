@@ -1,6 +1,5 @@
 import type { LayoutLoad } from './$types.js';
 import { loadI18nUniversal } from '$lib/index.js';
-import { browser } from '$app/environment';
 import { i18n } from '../translations/i18n.js';
 
 // Build mode configuration:

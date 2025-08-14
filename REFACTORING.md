@@ -52,7 +52,7 @@ src/lib/
 ### 第一步：合并重复的 layout helper 文件 ✅
 
 **目标**：将 `layout-helpers.ts`, `layout-load.ts`, `simple-layout.ts`, `layout-svelte-helper.ts` 合并
-**状态**：部分完成
+**状态**：已完成
 
 #### 分析
 
@@ -79,7 +79,9 @@ src/lib/
 - 保留了pathname检测功能
 - 保持向后兼容
   ✅ 7. 所有测试通过（142个单元测试，14个e2e测试）
-  ⏸️ 8. 下一步：迁移其他函数到 kit 目录
+  ✅ 8. 完成所有函数迁移到 kit 目录
+  ✅ 9. 删除 layout-helpers.ts 和 layout-load.ts (999行)
+  ✅ 10. 创建完整的 kit 目录结构
 
 ### 第二步：创建 tests 目录并移动测试文件 ⏸️
 

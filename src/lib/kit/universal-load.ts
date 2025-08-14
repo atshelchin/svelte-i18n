@@ -26,7 +26,6 @@ export async function loadI18nUniversal<T = I18nInstance>(
 	}
 ) {
 	const storageKey = options?.storageKey || 'i18n-locale';
-	const defaultLocale = options?.defaultLocale || data?.locale || i18n.locale || 'en';
 
 	// On client, try to restore locale from localStorage
 	if (browser && typeof window !== 'undefined') {
