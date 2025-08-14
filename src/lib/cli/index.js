@@ -126,7 +126,7 @@ if (command === 'init') {
  * Using unified API with type safety for translation keys
  */
 
-import { createTypedUnifiedI18n, type UnifiedI18nConfig } from '@shelchin/svelte-i18n';
+import { createTypedUnifiedI18n, type UnifiedI18nConfig,TranslationSchema } from '@shelchin/svelte-i18n';
 import type { I18nPath } from '../types/app-i18n-generated';
 
 // ============================================
@@ -138,7 +138,7 @@ const translationModules = import.meta.glob('./locales/*.json', {
 	import: 'default'
 });
 
-const translations: Record<string, unknown> = {};
+const translations: Record<string, TranslationSchema> = {};
 
 // Extract language code from file path and build translations object
 for (const [path, module] of Object.entries(translationModules)) {
