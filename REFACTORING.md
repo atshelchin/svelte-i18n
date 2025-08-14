@@ -46,23 +46,28 @@ src/lib/
 
 ## 重构步骤
 
-### 第一步：合并重复的 layout helper 文件 ⏳
+### 第一步：合并重复的 layout helper 文件 ✅
 **目标**：将 `layout-helpers.ts`, `layout-load.ts`, `simple-layout.ts`, `layout-svelte-helper.ts` 合并
-**状态**：进行中
+**状态**：部分完成
 
 #### 分析
-- `layout-helpers.ts` - 基础的 layout helper 函数（被导出使用）
-- `layout-load.ts` - 主要的 loadI18nSSR 和 loadI18nClient 函数（被导出使用）
-- `simple-layout.ts` - 简化版的 load 函数（未被导出）
-- `layout-svelte-helper.ts` - Svelte 组件的 helper（未被导出）
+- `layout-helpers.ts` - 基础的 layout helper 函数（被导出使用）- 512行
+- `layout-load.ts` - 主要的 loadI18nSSR 和 loadI18nClient 函数（被导出使用）- 488行
+- `simple-layout.ts` - 简化版的 load 函数（未被导出）- 420行
+- `layout-svelte-helper.ts` - Svelte 组件的 helper（未被导出）- 179行
 
 这些文件有很多重复逻辑，可以合并成一个统一的文件。
 
 #### 进度
 ✅ 1. 创建新的 `kit/load.ts` 文件作为统一入口
 ✅ 2. 更新 `index.ts` 使用新的 `kit/load.ts`
-✅ 3. 所有测试通过（142个单元测试）
-⏳ 4. 下一步：将实际实现移到 `kit/load.ts`，删除重复代码
+✅ 3. 删除未使用的文件：
+   - `simple-layout.ts` (420行)
+   - `layout-svelte-helper.ts` (179行)
+   - 共删除 599 行未使用代码
+✅ 4. 所有测试通过（142个单元测试）
+✅ 5. 创建功能分析文档 `docs/helper-analysis.md`
+⏸️ 6. 下一步：合并 `layout-helpers.ts` 和 `layout-load.ts` 的重复功能（需要更谨慎）
 
 ### 第二步：创建 tests 目录并移动测试文件 ⏸️
 **目标**：将所有测试文件移到独立的 tests 目录
@@ -97,6 +102,10 @@ src/lib/
 ### 2025-01-14
 - 创建重构计划文档
 - 开始第一步：分析 layout helper 文件
+- 创建 `kit/load.ts` 作为统一入口
+- 删除2个未使用的 helper 文件（599行代码）
+- 创建 helper 功能分析文档
+- **成果**：删除了599行未使用的代码，保持所有测试通过
 
 ---
 *每完成一步都会更新此文档*
