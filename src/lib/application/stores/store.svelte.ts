@@ -773,6 +773,18 @@ export class I18nStore implements I18nInstance {
 			if (this.isMainInstance) {
 				globalLocaleManager.setLocale(clientLocale, this.config.namespace || 'app');
 			}
+		} else if (this.availableLocales.includes(clientLocale)) {
+			// The locale is available (auto-discovered) but not loaded yet
+			// Try to load and set it
+			console.log(`[clientLoad] Attempting to load saved locale: ${clientLocale}`);
+			try {
+				await this.setLocale(clientLocale);
+			} catch (error) {
+				console.error(`[clientLoad] Failed to load saved locale ${clientLocale}:`, error);
+				// Fallback to default locale
+				const fallbackLocale = this.locales[0] || 'en';
+				await this.setLocale(fallbackLocale);
+			}
 		} else if (!this.locales.includes(this.currentLocale)) {
 			const fallbackLocale = this.locales[0] || 'en';
 			await this.setLocale(fallbackLocale);

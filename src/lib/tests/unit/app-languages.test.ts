@@ -6,7 +6,7 @@ import {
 import type { I18nInstance } from '$lib/domain/models/types.js';
 
 // Mock the auto-discovery loader
-vi.mock('./auto-discovery-v2.js', () => ({
+vi.mock('$lib/infrastructure/loaders/auto-discovery-v2.js', () => ({
 	loadAutoDiscoveryConfig: vi.fn()
 }));
 
@@ -178,7 +178,7 @@ describe('App Languages', () => {
 			]);
 
 			// Mock no auto-discovery
-			vi.mocked(loadAutoDiscoveryConfig).mockRejectedValue(new Error('Not found'));
+			(loadAutoDiscoveryConfig as any).mockRejectedValue(new Error('Not found'));
 
 			// When library component calls this function
 			const result = await getAppSupportedLanguages(libI18n);

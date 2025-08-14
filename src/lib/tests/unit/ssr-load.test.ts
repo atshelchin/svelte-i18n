@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { loadI18nSSR, i18nServerLoad } from './ssr-load.js';
+import { loadI18nSSR, i18nServerLoad } from '$lib/kit/ssr-load.js';
 import { setupI18n, clearAllInstances } from '$lib/application/stores/store.svelte.js';
 import {
 	registerBuiltInTranslations,
