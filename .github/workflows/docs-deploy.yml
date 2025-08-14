@@ -55,7 +55,7 @@ jobs:
       - name: Build documentation site
         run: |
           echo "Building documentation site..."
-          pnpm vite build
+          pnpm run build:ghpages
         env:
           BASE_PATH: '/${{ github.event.repository.name }}'
           PUBLIC_DOCS_MODE: 'true'

@@ -668,17 +668,40 @@ git clone https://github.com/yourusername/svelte-i18n.git
 cd svelte-i18n
 
 # Install dependencies
-npm install
+pnpm install
 
-# Start dev server
+# Start dev server (with SSR enabled)
 npm run dev
 
 # Run tests
 npm test
+```
 
-# Build for production
+### Build Modes
+
+The demo app supports both static and SSR build modes:
+
+```bash
+# Build for GitHub Pages (static prerendering)
+npm run build:ghpages
+# or
+npm run build:static
+
+# Build with SSR support (for server deployment)
+npm run build:ssr
+
+# Default build (static for GitHub Pages)
 npm run build
 ```
+
+**Build Mode Configuration:**
+- Development (`npm run dev`): Always uses SSR for better pathname locale detection
+- Production builds:
+  - `build:static`: Static prerendering for GitHub Pages
+  - `build:ssr`: SSR mode for server deployment
+  - `build`: Defaults to static mode
+
+You can also set the `VITE_BUILD_MODE` environment variable in `.env` file.
 
 ---
 

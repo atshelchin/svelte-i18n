@@ -3,9 +3,30 @@ import { loadI18nUniversal } from '$lib/index.js';
 import { browser } from '$app/environment';
 import { i18n } from '../translations/i18n.js';
 
-// Enable SSR for pathname locale detection
-export const prerender = false;
-export const ssr = true;
+// Build mode configuration:
+// 
+// Development (npm run dev): 
+//   - Always uses SSR for better pathname locale detection
+// 
+// Production builds:
+//   - npm run build:static  -> Static prerendering for GitHub Pages
+//   - npm run build:ssr     -> SSR mode for server deployment
+//   - npm run build         -> Default to static for GitHub Pages
+// 
+// You can also set VITE_BUILD_MODE environment variable:
+//   - 'static': Forces static prerendering (prerender=true, ssr=false)
+//   - 'ssr': Forces SSR mode (prerender=false, ssr=true)
+//   - undefined/other: Defaults to static mode for safety
+const buildMode = import.meta.env.VITE_BUILD_MODE;
+const isDevelopment = import.meta.env.DEV;
+
+// Development always uses SSR, production depends on build mode
+const isSSRMode = isDevelopment || buildMode === 'ssr';
+const isStaticMode = !isDevelopment && buildMode !== 'ssr';
+
+// Configure based on mode
+export const prerender = isStaticMode;
+export const ssr = isSSRMode;
 
 /**
  * Universal load function with pathname locale detection
