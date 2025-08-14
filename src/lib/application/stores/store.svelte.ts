@@ -63,6 +63,8 @@ export class I18nStore implements I18nInstance {
 	private validationErrors = $state<Record<string, string[]>>({});
 	// Store available locales as a reactive array
 	private availableLocales = $state<string[]>([]);
+	// Track if this is the main app instance
+	private isMainInstance: boolean;
 
 	// On server-side, $derived doesn't work, so we need getters
 	get locale() {
@@ -95,6 +97,7 @@ export class I18nStore implements I18nInstance {
 	constructor(config: I18nConfig) {
 		this.config = config;
 		this.namespacePrefix = config.namespace ? `${config.namespace}:` : '';
+		this.isMainInstance = !config.namespace || config.namespace === 'app';
 
 		// For SSR, locale should be set via serverLoad or clientLoad
 		// Set default locale initially
@@ -104,8 +107,43 @@ export class I18nStore implements I18nInstance {
 		// This ensures translations are available during server-side rendering
 		this.loadRegisteredTranslations();
 
+		// Set up locale synchronization with global state
+		this.setupLocaleSync();
+
 		// Note: Auto-discovery is now handled in clientLoad() to avoid duplicate calls
 		// Don't call setupAutoDiscovery here anymore
+	}
+
+	/**
+	 * Set up locale synchronization with global state
+	 */
+	private setupLocaleSync(): void {
+		// Only set up sync on client side
+		if (typeof window === 'undefined') return;
+
+		// Subscribe to global locale changes using a simple subscription pattern
+		// This will be called by GlobalLocaleManager when locale changes
+		const namespace = this.config.namespace || 'app';
+		globalLocaleManager.subscribe(namespace, (globalLocale: string) => {
+			// Only sync if global locale is different from current
+			if (globalLocale && globalLocale !== this.currentLocale) {
+				// Check if this instance has the locale loaded
+				if (this.translations[globalLocale]) {
+					console.log(`[${namespace}] Syncing to global locale: ${globalLocale}`);
+					this.currentLocale = globalLocale;
+				} else if (this.availableLocales.includes(globalLocale)) {
+					// If locale is available but not loaded, load it
+					console.log(`[${namespace}] Loading locale for sync: ${globalLocale}`);
+					this.loadLanguage(globalLocale)
+						.then(() => {
+							this.currentLocale = globalLocale;
+						})
+						.catch((error) => {
+							console.error(`[${namespace}] Failed to load locale ${globalLocale}:`, error);
+						});
+				}
+			}
+		});
 	}
 
 	/**
@@ -124,6 +162,10 @@ export class I18nStore implements I18nInstance {
 
 		if (this.translations[locale]) {
 			this.currentLocale = locale;
+			// Update global locale state to sync all instances
+			if (this.isMainInstance) {
+				globalLocaleManager.setLocale(locale, this.config.namespace || 'app');
+			}
 			// Persist to both cookie and localStorage
 			saveLocaleUniversal(locale, {
 				cookieName: this.config.cookieName,
@@ -152,6 +194,10 @@ export class I18nStore implements I18nInstance {
 
 					await this.loadLanguage(locale, source);
 					this.currentLocale = locale;
+					// Update global locale state to sync all instances
+					if (this.isMainInstance) {
+						globalLocaleManager.setLocale(locale, this.config.namespace || 'app');
+					}
 					saveLocaleUniversal(locale, {
 						cookieName: this.config.cookieName,
 						storageKey: this.config.storageKey
@@ -723,6 +769,10 @@ export class I18nStore implements I18nInstance {
 		// Set locale if available, otherwise fallback
 		if (this.locales.includes(clientLocale)) {
 			this.currentLocale = clientLocale;
+			// Initialize global locale if this is the main instance
+			if (this.isMainInstance) {
+				globalLocaleManager.setLocale(clientLocale, this.config.namespace || 'app');
+			}
 		} else if (!this.locales.includes(this.currentLocale)) {
 			const fallbackLocale = this.locales[0] || 'en';
 			await this.setLocale(fallbackLocale);
@@ -744,9 +794,67 @@ export function clearAllInstances() {
 // Store main app config for inheritance
 let mainAppConfig: I18nConfig | null = null;
 
+// Global locale state for synchronization across all instances
+// This acts as the single source of truth for locale across all i18n instances
+class GlobalLocaleManager {
+	private static instance: GlobalLocaleManager;
+	private locale = $state<string>('');
+	private syncEnabled = true;
+	private subscribers = new Map<string, (locale: string) => void>();
+
+	static getInstance(): GlobalLocaleManager {
+		if (!GlobalLocaleManager.instance) {
+			GlobalLocaleManager.instance = new GlobalLocaleManager();
+		}
+		return GlobalLocaleManager.instance;
+	}
+
+	getLocale(): string {
+		return this.locale;
+	}
+
+	setLocale(locale: string, source?: string): void {
+		if (!this.syncEnabled) return;
+
+		console.log(
+			`[GlobalLocaleManager] Setting global locale to ${locale} from ${source || 'unknown'}`
+		);
+		this.locale = locale;
+
+		// Notify all subscribers
+		this.subscribers.forEach((callback, namespace) => {
+			if (namespace !== source) {
+				// Don't notify the source
+				console.log(`[GlobalLocaleManager] Notifying ${namespace} of locale change to ${locale}`);
+				callback(locale);
+			}
+		});
+	}
+
+	subscribe(namespace: string, callback: (locale: string) => void): void {
+		console.log(`[GlobalLocaleManager] ${namespace} subscribed to locale changes`);
+		this.subscribers.set(namespace, callback);
+	}
+
+	unsubscribe(namespace: string): void {
+		this.subscribers.delete(namespace);
+	}
+
+	// Temporarily disable sync during initialization
+	withSyncDisabled(fn: () => void): void {
+		const prevState = this.syncEnabled;
+		this.syncEnabled = false;
+		fn();
+		this.syncEnabled = prevState;
+	}
+}
+
+const globalLocaleManager = GlobalLocaleManager.getInstance();
+
 // Make instances globally accessible for library components
 if (typeof globalThis !== 'undefined') {
 	(globalThis as any).__i18n_instances = namespacedInstances;
+	(globalThis as any).__i18n_locale_manager = globalLocaleManager;
 }
 
 export function setupI18n(config: I18nConfig): I18nInstance {
