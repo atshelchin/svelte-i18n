@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { setupI18n, resetI18nForTesting } from './store.svelte.js';
+import { setupI18n, resetI18nForTesting } from '$lib/application/stores/store.svelte.js';
 
 describe('I18n Store', () => {
 	beforeEach(() => {

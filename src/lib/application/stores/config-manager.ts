@@ -1,4 +1,4 @@
-import type { I18nConfig } from '../../domain/models/types.js';
+import type { I18nConfig } from '$lib/domain/models/types.js';
 
 /**
  * Global configuration manager for i18n

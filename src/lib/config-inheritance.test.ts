@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeAll } from 'vitest';
-import { createTypedUnifiedI18n } from './typed-unified.js';
-import { getI18nInstance } from './unified.js';
-import type { UnifiedI18nConfig } from './unified.js';
-import { configManager } from './application/stores/config-manager.js';
+import { createTypedUnifiedI18n } from '$lib/typed-unified.js';
+import { getI18nInstance } from '$lib/unified.js';
+import type { UnifiedI18nConfig } from '$lib/unified.js';
+import { configManager } from '$lib/application/stores/config-manager.js';
 
 describe('Configuration Inheritance', () => {
 	beforeAll(async () => {

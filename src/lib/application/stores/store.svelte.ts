@@ -1,4 +1,4 @@
-import { DEV } from '../../utils/env.js';
+import { DEV } from '$lib/utils/env.js';
 import { SvelteMap } from 'svelte/reactivity';
 import type {
 	I18nConfig,
@@ -7,7 +7,7 @@ import type {
 	InterpolationParams,
 	LanguageMeta,
 	TranslationFile
-} from '../../domain/models/types.js';
+} from '$lib/domain/models/types.js';
 import {
 	getNestedValue,
 	interpolate,
@@ -15,19 +15,19 @@ import {
 	validateSchema,
 	detectBrowserLanguage as detectLang,
 	mergeTranslations
-} from '../../domain/services/utils.js';
-import { getLanguageMeta } from '../../domain/services/language-meta.js';
-import { autoDiscoverTranslations as autoDiscoverV2 } from '../../infrastructure/loaders/auto-discovery-v2.js';
+} from '$lib/domain/services/utils.js';
+import { getLanguageMeta } from '$lib/domain/services/language-meta.js';
+import { autoDiscoverTranslations as autoDiscoverV2 } from '$lib/infrastructure/loaders/auto-discovery-v2.js';
 import {
 	loadBuiltInTranslations,
 	loadBuiltInTranslationsSync
-} from '../../infrastructure/loaders/built-in.js';
+} from '$lib/infrastructure/loaders/built-in.js';
 // Universal persistence is used instead
-// import { saveLocale, getInitialLocale } from '../../infrastructure/persistence/persistence.js';
+// import { saveLocale, getInitialLocale } from '$lib/infrastructure/persistence/persistence.js';
 import {
 	saveLocaleUniversal,
 	getInitialLocaleUniversal
-} from '../../infrastructure/persistence/universal-persistence.js';
+} from '$lib/infrastructure/persistence/universal-persistence.js';
 import {
 	formatNumber as fmtNumber,
 	formatCurrency as fmtCurrency,
@@ -36,7 +36,7 @@ import {
 	formatRelativeTime as fmtRelativeTime,
 	formatList as fmtList,
 	FORMATS
-} from '../../infrastructure/formatters/formatter.js';
+} from '$lib/infrastructure/formatters/formatter.js';
 
 // Simple validation popup controller to prevent multiple popups
 class ValidationPopupController {

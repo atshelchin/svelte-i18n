@@ -5,9 +5,7 @@
  * This file handles translation imports and i18n setup
  * Using unified API with type safety for translation keys
  */
-import type { TypedUnifiedI18nInstance } from '../lib/index.js';
 import type { I18nPath } from '../types/app-i18n-generated.js';
-
-export declare const i18n: TypedUnifiedI18nInstance<I18nPath>;
-export declare function getI18n(): TypedUnifiedI18nInstance<I18nPath>;
+export declare const i18n: import('$lib/index.js').TypedUnifiedI18nInstance<I18nPath>;
+export declare function getI18n(): import('$lib/index.js').TypedUnifiedI18nInstance<I18nPath>;
 export default i18n;

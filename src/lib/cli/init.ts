@@ -317,7 +317,7 @@ export function init() {
 		console.log(`   ${colors.blue}import '../translations/i18n';${colors.reset}`);
 		console.log();
 		console.log('2. Use translations in your components:');
-		console.log(`   ${colors.blue}import { i18n } from '../translations/i18n';${colors.reset}`);
+		console.log(`   ${colors.blue}import { i18n } from '$lib/translations/i18n';${colors.reset}`);
 		console.log(
 			`   ${colors.blue}const greeting = i18n.t('hello', { name: 'World' });${colors.reset}`
 		);
@@ -330,7 +330,9 @@ export function init() {
 		console.log();
 		log('For your LIBRARY/PACKAGE:', 'blue');
 		console.log('1. Use translations in your library components:');
-		console.log(`   ${colors.blue}import { libI18n } from '../translations/i18n';${colors.reset}`);
+		console.log(
+			`   ${colors.blue}import { libI18n } from '$lib/translations/i18n';${colors.reset}`
+		);
 		console.log(`   ${colors.blue}const text = libI18n.t('welcome');${colors.reset}`);
 		console.log();
 		console.log('2. Add more languages in:');

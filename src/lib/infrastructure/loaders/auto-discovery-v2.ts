@@ -3,8 +3,8 @@
  * This is a supplementary mechanism - only works when index.json exists
  */
 
-import { DEV } from '../../utils/env.js';
-import type { I18nInstance, TranslationSchema } from '../../domain/models/types.js';
+import { DEV } from '$lib/utils/env.js';
+import type { I18nInstance, TranslationSchema } from '$lib/domain/models/types.js';
 
 export interface AutoDiscoveryConfig {
 	app?: string[];
@@ -55,7 +55,7 @@ export async function loadAutoDiscoveryConfig(
 	}
 
 	// Start loading
-	const { buildAssetUrl } = await import('./base-path.js');
+	const { buildAssetUrl } = await import('$lib/infrastructure/loaders/base-path.js');
 	const indexPath = `${translationsPath}/${indexFile}`;
 	const absoluteIndexUrl =
 		typeof window !== 'undefined' && !indexPath.startsWith('http')
@@ -219,7 +219,7 @@ export async function autoDiscoverTranslations(
 					// Create a promise for this fetch
 					const fetchPromise = (async () => {
 						// Use buildAssetUrl to handle base path correctly
-						const { buildAssetUrl } = await import('./base-path.js');
+						const { buildAssetUrl } = await import('$lib/infrastructure/loaders/base-path.js');
 						const absoluteUrl =
 							typeof window !== 'undefined' && !filePath.startsWith('http')
 								? window.location.origin + buildAssetUrl(filePath)
@@ -299,7 +299,7 @@ export async function isAutoDiscoveryAvailable(
 	translationsPath = '/translations'
 ): Promise<boolean> {
 	try {
-		const { buildAssetUrl } = await import('./base-path.js');
+		const { buildAssetUrl } = await import('$lib/infrastructure/loaders/base-path.js');
 		const indexPath = `${translationsPath}/index.json`;
 		const absoluteIndexUrl =
 			typeof window !== 'undefined' && !indexPath.startsWith('http')

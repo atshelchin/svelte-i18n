@@ -127,7 +127,7 @@ if (command === 'init') {
  */
 
 import { createTypedUnifiedI18n, type UnifiedI18nConfig,TranslationSchema } from '@shelchin/svelte-i18n';
-import type { I18nPath } from '../types/app-i18n-generated';
+import type { I18nPath } from '$lib/types/app-i18n-generated';
 
 // ============================================
 // Auto-scan and import translations from locales directory
@@ -262,7 +262,7 @@ export type I18nPath =
 	console.log(`   ${colors.blue}import '../translations/i18n';${colors.reset}`);
 	console.log();
 	console.log('2. Use translations in your components:');
-	console.log(`   ${colors.blue}import { i18n } from '../translations/i18n';${colors.reset}`);
+	console.log(`   ${colors.blue}import { i18n } from '$lib/translations/i18n';${colors.reset}`);
 	console.log(
 		`   ${colors.blue}const greeting = i18n.t('hello', { name: 'World' });${colors.reset}`
 	);

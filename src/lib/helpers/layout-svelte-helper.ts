@@ -3,7 +3,7 @@
  * Handles all the complex logic for client-side i18n initialization
  */
 
-import type { I18nInstance } from '../domain/models/types.js';
+import type { I18nInstance } from '$lib/domain/models/types.js';
 
 export interface LayoutSvelteOptions {
 	storageKey?: string;
@@ -26,7 +26,7 @@ export interface LayoutSvelteResult {
  * ```svelte
  * <script>
  * import { setupLayoutSvelte } from '@shelchin/svelte-i18n';
- * import { i18n, initI18n } from '../app/i18n';
+ * import { i18n, initI18n } from '$lib/app/i18n';
  *
  * let { data, children } = $props();
  *

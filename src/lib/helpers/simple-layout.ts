@@ -14,7 +14,7 @@ import { onMount } from 'svelte';
  * ```typescript
  * // +layout.server.ts
  * import { loadI18nSSR } from '@shelchin/svelte-i18n';
- * import { i18n } from '../translations/i18n.js';
+ * import { i18n } from '$lib/translations/i18n.js';
  *
  * export const load = async ({ cookies }) => {
  *   const i18nData = await loadI18nSSR(i18n, cookies);
@@ -51,7 +51,7 @@ export async function loadI18nSSR(
 		if (typeof window === 'undefined') {
 			try {
 				const { loadServerTranslations, isAutoDiscoveredLocale } = await import(
-					'../infrastructure/loaders/server-loader.js'
+					'$lib/infrastructure/loaders/server-loader.js'
 				);
 
 				if (isAutoDiscoveredLocale(cookieLocale, namespace)) {
@@ -111,7 +111,9 @@ export async function loadI18nSSR(
 
 	if (locale && typeof window === 'undefined') {
 		try {
-			const { isAutoDiscoveredLocale } = await import('../infrastructure/loaders/server-loader.js');
+			const { isAutoDiscoveredLocale } = await import(
+				'$lib/infrastructure/loaders/server-loader.js'
+			);
 
 			if (isAutoDiscoveredLocale(locale, namespace)) {
 				isAutoDiscovered = true;
@@ -140,7 +142,7 @@ export async function loadI18nSSR(
  * ```typescript
  * // +layout.ts
  * import { loadI18nUniversal } from '@shelchin/svelte-i18n';
- * import { i18n } from '../translations/i18n.js';
+ * import { i18n } from '$lib/translations/i18n.js';
  * import { browser } from '$app/environment';
  *
  * export const load = async ({ data }) => {
@@ -248,7 +250,7 @@ export async function loadI18nUniversal(
  * <!-- +layout.svelte -->
  * <script lang="ts">
  * import { initI18nClient } from '@shelchin/svelte-i18n';
- * import { i18n, initI18n } from '../translations/i18n.js';
+ * import { i18n, initI18n } from '$lib/translations/i18n.js';
  *
  * let { data, children } = $props();
  * let ready = $state(false);

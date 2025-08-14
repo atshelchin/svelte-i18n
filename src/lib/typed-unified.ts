@@ -3,11 +3,11 @@
  * Provides type checking for translation keys
  */
 
-import { createI18n as createOriginal, initI18n, type UnifiedI18nConfig } from './unified.js';
-import type { I18nInstance, InterpolationParams } from './domain/models/types.js';
+import { createI18n as createOriginal, initI18n, type UnifiedI18nConfig } from '$lib/unified.js';
+import type { I18nInstance, InterpolationParams } from '$lib/domain/models/types.js';
 
 // Re-export types from unified
-export type { UnifiedI18nConfig } from './unified.js';
+export type { UnifiedI18nConfig } from '$lib/unified.js';
 
 /**
  * Typed unified i18n instance with application-specific translation keys
@@ -26,7 +26,7 @@ export interface TypedUnifiedI18nInstance<TPath extends string = string>
  * @example
  * ```typescript
  * import { createTypedI18n } from '@shelchin/svelte-i18n';
- * import type { I18nPath } from './types/i18n-generated';
+ * import type { I18nPath } from '$lib/types/i18n-generated';
  *
  * const config = {
  *   namespace: 'app',

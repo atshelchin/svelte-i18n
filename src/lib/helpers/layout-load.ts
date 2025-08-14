@@ -11,9 +11,9 @@ import type { Cookies } from '@sveltejs/kit';
  * @example
  * ```typescript
  * // +layout.server.ts
- * import type { LayoutServerLoad } from './$types.js';
+ * import type { LayoutServerLoad } from '$lib/helpers/$types.js';
  * import { loadI18nSSR } from '$lib/index.js';
- * import { i18n } from '../translations/i18n.js';
+ * import { i18n } from '$lib/translations/i18n.js';
  *
  * export const load: LayoutServerLoad = async ({ cookies, url }) => {
  *   const i18nData = await loadI18nSSR(i18n, cookies, url);
@@ -36,7 +36,9 @@ export async function loadI18nSSR(
 	}
 ) {
 	// Import pathname locale utilities
-	const { extractLocaleFromPathname } = await import('../infrastructure/utils/pathname-locale.js');
+	const { extractLocaleFromPathname } = await import(
+		'$lib/infrastructure/utils/pathname-locale.js'
+	);
 
 	const cookieName = options?.cookieName || 'i18n-locale';
 	const defaultLocale = options?.defaultLocale || i18n.locale || 'zh';
@@ -59,7 +61,7 @@ export async function loadI18nSSR(
 			// On server, check if it's an auto-discovered locale
 			try {
 				const { isAutoDiscoveredLocale } = await import(
-					'../infrastructure/loaders/server-loader.js'
+					'$lib/infrastructure/loaders/server-loader.js'
 				);
 				if (isAutoDiscoveredLocale(pathnameLocale, namespace)) {
 					locale = pathnameLocale;
@@ -78,7 +80,7 @@ export async function loadI18nSSR(
 			// Check if cookie locale is auto-discovered
 			try {
 				const { isAutoDiscoveredLocale } = await import(
-					'../infrastructure/loaders/server-loader.js'
+					'$lib/infrastructure/loaders/server-loader.js'
 				);
 				if (isAutoDiscoveredLocale(cookieLocale, namespace)) {
 					locale = cookieLocale;
@@ -99,7 +101,7 @@ export async function loadI18nSSR(
 		if (typeof window === 'undefined') {
 			try {
 				const { loadServerTranslations, isAutoDiscoveredLocale } = await import(
-					'../infrastructure/loaders/server-loader.js'
+					'$lib/infrastructure/loaders/server-loader.js'
 				);
 
 				if (isAutoDiscoveredLocale(locale, namespace)) {
@@ -159,7 +161,9 @@ export async function loadI18nSSR(
 
 	if (locale && typeof window === 'undefined') {
 		try {
-			const { isAutoDiscoveredLocale } = await import('../infrastructure/loaders/server-loader.js');
+			const { isAutoDiscoveredLocale } = await import(
+				'$lib/infrastructure/loaders/server-loader.js'
+			);
 
 			if (isAutoDiscoveredLocale(locale, namespace)) {
 				isAutoDiscovered = true;
@@ -186,9 +190,9 @@ export async function loadI18nSSR(
  * @example
  * ```typescript
  * // +layout.ts
- * import type { LayoutLoad } from './$types.js';
+ * import type { LayoutLoad } from '$lib/helpers/$types.js';
  * import { loadI18nUniversal } from '$lib/index.js';
- * import { i18n } from '../translations/i18n.js';
+ * import { i18n } from '$lib/translations/i18n.js';
  * import { browser } from '$app/environment';
  *
  * export const load: LayoutLoad = async ({ data, url }) => {
@@ -213,7 +217,7 @@ export async function loadI18nUniversal(
 	}
 ) {
 	// Import pathname locale utilities
-	const { getBestLocale } = await import('../infrastructure/utils/pathname-locale.js');
+	const { getBestLocale } = await import('$lib/infrastructure/utils/pathname-locale.js');
 
 	const storageKey = options?.storageKey || 'i18n-locale';
 	const defaultLocale = options?.defaultLocale || 'zh';
@@ -307,7 +311,7 @@ export async function loadI18nUniversal(
  * ```svelte
  * <script lang="ts">
  * import { setupI18nClient } from '$lib/index.js';
- * import { i18n } from '../translations/i18n.js';
+ * import { i18n } from '$lib/translations/i18n.js';
  *
  * let { data } = $props();
  *
@@ -381,7 +385,7 @@ export function setupI18nClient(
  * <script lang="ts">
  * import { onMount } from 'svelte';
  * import { initI18nOnMount } from '$lib/index.js';
- * import { i18n, initI18n } from '../translations/i18n.js';
+ * import { i18n, initI18n } from '$lib/translations/i18n.js';
  *
  * let { data } = $props();
  *
@@ -403,7 +407,7 @@ export async function initI18nOnMount(
 	}
 ) {
 	// Import pathname locale utilities
-	const { getBestLocale } = await import('../infrastructure/utils/pathname-locale.js');
+	const { getBestLocale } = await import('$lib/infrastructure/utils/pathname-locale.js');
 
 	const storageKey = options?.storageKey || 'i18n-locale';
 	const defaultLocale = options?.defaultLocale || 'zh';

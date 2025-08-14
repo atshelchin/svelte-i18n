@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { render } from '@testing-library/svelte';
-import ValidationPopup from './ValidationPopup.svelte';
-import { setupI18n } from '../../application/stores/store.svelte.js';
-import type { I18nInstance } from '../../domain/models/types.js';
+import ValidationPopup from '$lib/presentation/components/ValidationPopup.svelte';
+import { setupI18n } from '$lib/application/stores/store.svelte.js';
+import type { I18nInstance } from '$lib/domain/models/types.js';
 
 describe('ValidationPopup', () => {
 	let mockI18n: I18nInstance;

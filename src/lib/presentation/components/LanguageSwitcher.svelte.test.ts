@@ -2,10 +2,10 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 // Component tests are skipped - @testing-library/svelte not installed
 // import { render } from '@testing-library/svelte';
 // import { tick } from 'svelte';
-// import LanguageSwitcher from './LanguageSwitcher.svelte';
+// import LanguageSwitcher from '$lib/presentation/components/LanguageSwitcher.svelte';
 
 // Mock the app languages module
-vi.mock('../../infrastructure/loaders/app-languages.js', () => ({
+vi.mock('$lib/infrastructure/loaders/app-languages.js', () => ({
 	getAppSupportedLanguages: vi.fn().mockResolvedValue(['en', 'zh', 'ja', 'fr', 'de', 'ar', 'zh-TW'])
 }));
 

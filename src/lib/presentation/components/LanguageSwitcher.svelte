@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { getI18nInstance } from '../../unified.js';
-	import { getAppSupportedLanguages } from '../../infrastructure/loaders/app-languages.js';
-	import { getEffectiveLibI18n } from '../../translations/i18n.js';
-	import type { I18nInstance } from '../../domain/models/types.js';
+	import { getI18nInstance } from '$lib/unified.js';
+	import { getAppSupportedLanguages } from '$lib/infrastructure/loaders/app-languages.js';
+	import { getEffectiveLibI18n } from '$lib/translations/i18n.js';
+	import type { I18nInstance } from '$lib/domain/models/types.js';
 	import { onMount } from 'svelte';
 
 	interface Props {

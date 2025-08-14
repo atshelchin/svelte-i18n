@@ -4,9 +4,9 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { libI18n } from '../translations/i18n.js';
+import { libI18n } from '$lib/translations/i18n.js';
 import { i18n } from '../../translations/i18n.js';
-import type { LibI18nPath } from '../types/lib-i18n-generated.js';
+import type { LibI18nPath } from '$lib/types/lib-i18n-generated.js';
 import type { I18nPath } from '../../types/app-i18n-generated.js';
 
 describe('Type Safety for Library i18n', () => {

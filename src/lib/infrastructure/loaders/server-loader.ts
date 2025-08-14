@@ -5,7 +5,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import type { I18nInstance } from '../../domain/models/types.js';
+import type { I18nInstance } from '$lib/domain/models/types.js';
 
 /**
  * Load translations from the file system during SSR

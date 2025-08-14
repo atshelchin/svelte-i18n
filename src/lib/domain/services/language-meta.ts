@@ -3,8 +3,8 @@
  * Provides fallback information when _meta is not available in translation files
  */
 
-import type { LanguageMeta } from '../models/types.js';
-import { commonLanguages } from '../../infrastructure/utils/language-search.js';
+import type { LanguageMeta } from '$lib/domain/models/types.js';
+import { commonLanguages } from '$lib/infrastructure/utils/language-search.js';
 
 // Partial metadata that can be used as fallback
 type PartialLanguageMeta = {

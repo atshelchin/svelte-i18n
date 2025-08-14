@@ -3,10 +3,10 @@
  * Provides consistent API regardless of context
  */
 
-import type { I18nConfig, TranslationSchema } from './domain/models/types.js';
-import { setupI18n, getI18n } from './application/stores/store.svelte.js';
-import { configManager } from './application/stores/config-manager.js';
-import { registerPackageTranslations } from './infrastructure/loaders/built-in.js';
+import type { I18nConfig, TranslationSchema } from '$lib/domain/models/types.js';
+import { setupI18n, getI18n } from '$lib/application/stores/store.svelte.js';
+import { configManager } from '$lib/application/stores/config-manager.js';
+import { registerPackageTranslations } from '$lib/infrastructure/loaders/built-in.js';
 
 export interface UnifiedI18nConfig extends Partial<I18nConfig> {
 	/**
@@ -34,7 +34,7 @@ export interface UnifiedI18nConfig extends Partial<I18nConfig> {
  *
  * @example
  * // In a package (my-ui-lib/src/lib/i18n.ts)
- * import translations from './translations.js';
+ * import translations from '$lib/translations.js';
  *
  * export const i18n = createI18n({
  *   namespace: 'my-ui-lib',
@@ -43,7 +43,7 @@ export interface UnifiedI18nConfig extends Partial<I18nConfig> {
  *
  * @example
  * // In a SvelteKit app (src/lib/i18n.ts)
- * import translations from './translations.js';
+ * import translations from '$lib/translations.js';
  *
  * export const i18n = createI18n({
  *   namespace: 'app',
@@ -116,5 +116,5 @@ export async function initI18n(instance: ReturnType<typeof setupI18n>) {
 }
 
 // Re-export commonly used types
-export type { I18nConfig, TranslationSchema } from './domain/models/types.js';
+export type { I18nConfig, TranslationSchema } from '$lib/domain/models/types.js';
 export type I18n = ReturnType<typeof createI18n>;

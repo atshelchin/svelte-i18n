@@ -1,13 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { getAppSupportedLanguages, isAppLanguageSupported } from './app-languages.js';
-import type { I18nInstance } from '../../domain/models/types.js';
+import {
+	getAppSupportedLanguages,
+	isAppLanguageSupported
+} from '$lib/infrastructure/loaders/app-languages.js';
+import type { I18nInstance } from '$lib/domain/models/types.js';
 
 // Mock the auto-discovery loader
 vi.mock('./auto-discovery-v2.js', () => ({
 	loadAutoDiscoveryConfig: vi.fn()
 }));
 
-import { loadAutoDiscoveryConfig } from './auto-discovery-v2.js';
+import { loadAutoDiscoveryConfig } from '$lib/infrastructure/loaders/auto-discovery-v2.js';
 
 describe('App Languages', () => {
 	beforeEach(() => {

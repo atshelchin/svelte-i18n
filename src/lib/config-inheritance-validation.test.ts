@@ -1,9 +1,9 @@
 import { describe, it, expect, afterAll, vi } from 'vitest';
-import { createI18n, getI18nInstance } from './unified.js';
-import type { UnifiedI18nConfig } from './unified.js';
-import { configManager } from './application/stores/config-manager.js';
-import { clearRegisteredTranslations } from './infrastructure/loaders/built-in.js';
-import { clearAllInstances } from './application/stores/store.svelte.js';
+import { createI18n, getI18nInstance } from '$lib/unified.js';
+import type { UnifiedI18nConfig } from '$lib/unified.js';
+import { configManager } from '$lib/application/stores/config-manager.js';
+import { clearRegisteredTranslations } from '$lib/infrastructure/loaders/built-in.js';
+import { clearAllInstances } from '$lib/application/stores/store.svelte.js';
 
 describe('Config Inheritance for Validation', () => {
 	afterAll(() => {

@@ -3,7 +3,7 @@
  * Loads translations that are bundled with the application
  */
 
-import type { I18nInstance, TranslationSchema } from '../../domain/models/types.js';
+import type { I18nInstance, TranslationSchema } from '$lib/domain/models/types.js';
 
 // Type for translation registry
 export interface TranslationRegistry {

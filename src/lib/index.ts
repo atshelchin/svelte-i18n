@@ -7,9 +7,9 @@
 import {
 	getI18n as getOriginalI18n,
 	setupI18n as setupOriginalI18n
-} from './application/stores/store.svelte.js';
+} from '$lib/application/stores/store.svelte.js';
 
-export { type I18nStore } from './application/stores/store.svelte.js';
+export { type I18nStore } from '$lib/application/stores/store.svelte.js';
 // Types are used below
 
 // Direct re-export without modification
@@ -18,7 +18,7 @@ export const getI18n = getOriginalI18n;
 export const setupI18n = setupOriginalI18n;
 
 // Re-export the interface for extension
-export type { I18nInstance } from './domain/models/types.js';
+export type { I18nInstance } from '$lib/domain/models/types.js';
 
 // Re-export other types
 export type {
@@ -30,7 +30,7 @@ export type {
 	PathKeys,
 	TypedTranslationFunction,
 	ExtractKeys
-} from './domain/models/types.js';
+} from '$lib/domain/models/types.js';
 
 // Other exports
 export {
@@ -38,15 +38,15 @@ export {
 	loadSavedLocale,
 	clearSavedLocale,
 	getInitialLocale
-} from './infrastructure/persistence/persistence.js';
+} from '$lib/infrastructure/persistence/persistence.js';
 
 // Utility exports
 export {
 	validateSchema,
 	detectBrowserLanguage,
 	mergeTranslations
-} from './domain/services/utils.js';
-export { getAppBasePath, buildAssetUrl } from './infrastructure/loaders/base-path.js';
+} from '$lib/domain/services/utils.js';
+export { getAppBasePath, buildAssetUrl } from '$lib/infrastructure/loaders/base-path.js';
 
 // Layout helper exports for simplified integration
 export {
@@ -55,7 +55,7 @@ export {
 	i18nUniversalLoad,
 	i18nClientInit,
 	i18nIsReady
-} from './helpers/layout-helpers.js';
+} from '$lib/helpers/layout-helpers.js';
 
 // Simplified layout helpers - balance flexibility and simplicity
 export {
@@ -63,7 +63,7 @@ export {
 	loadI18nUniversal,
 	setupI18nClient,
 	initI18nOnMount
-} from './helpers/layout-load.js';
+} from '$lib/helpers/layout-load.js';
 
 // Auto-discovery exports
 export {
@@ -72,13 +72,13 @@ export {
 	getCachedAutoDiscoveryConfig,
 	type AutoDiscoveryConfig,
 	type AutoDiscoveryOptions
-} from './infrastructure/loaders/auto-discovery-v2.js';
+} from '$lib/infrastructure/loaders/auto-discovery-v2.js';
 
 // App language helpers
 export {
 	getAppSupportedLanguages,
 	isAppLanguageSupported
-} from './infrastructure/loaders/app-languages.js';
+} from '$lib/infrastructure/loaders/app-languages.js';
 
 // Language search utilities
 export {
@@ -86,7 +86,7 @@ export {
 	getLanguageInfo,
 	getAllLanguages,
 	type LanguageInfo
-} from './infrastructure/utils/language-search.js';
+} from '$lib/infrastructure/utils/language-search.js';
 
 // Formatter exports
 export {
@@ -97,11 +97,11 @@ export {
 	formatRelativeTime,
 	formatList,
 	FORMATS
-} from './infrastructure/formatters/formatter.js';
+} from '$lib/infrastructure/formatters/formatter.js';
 
 // Component exports
-export { default as LanguageSwitcher } from './presentation/components/LanguageSwitcher.svelte';
-export { default as ValidationPopup } from './presentation/components/ValidationPopup.svelte';
+export { default as LanguageSwitcher } from '$lib/presentation/components/LanguageSwitcher.svelte';
+export { default as ValidationPopup } from '$lib/presentation/components/ValidationPopup.svelte';
 
 // Built-in loader exports
 export {
@@ -109,7 +109,7 @@ export {
 	loadBuiltInTranslations,
 	registerPackageTranslations,
 	type TranslationRegistry
-} from './infrastructure/loaders/built-in.js';
+} from '$lib/infrastructure/loaders/built-in.js';
 
 // Translation utility exports
 export {
@@ -119,7 +119,7 @@ export {
 	isLocaleAvailable,
 	getNamespaces,
 	getNamespaceLocales
-} from './infrastructure/loaders/translation-utils.js';
+} from '$lib/infrastructure/loaders/translation-utils.js';
 
 // Typed wrapper exports
 export {
@@ -128,7 +128,7 @@ export {
 	getTranslationKey,
 	type TypedTranslate,
 	type TypedI18nInstance
-} from './application/services/typed-wrapper.js';
+} from '$lib/application/services/typed-wrapper.js';
 
 // Unified API for consistent usage in packages and apps
 export {
@@ -137,7 +137,7 @@ export {
 	initI18n,
 	type UnifiedI18nConfig,
 	type I18n
-} from './unified.js';
+} from '$lib/unified.js';
 
 // Type-safe unified API
 export {
@@ -145,13 +145,13 @@ export {
 	getTypedUnifiedI18n,
 	initTypedI18n,
 	type TypedUnifiedI18nInstance
-} from './typed-unified.js';
+} from '$lib/typed-unified.js';
 
 // URL locale utilities
-export { deLocalizeUrl } from './infrastructure/utils/url-locale.js';
+export { deLocalizeUrl } from '$lib/infrastructure/utils/url-locale.js';
 export {
 	extractLocaleFromPathname,
 	extractSupportedLocaleFromPathname,
 	getBestLocale,
 	shouldUsePathnameLocale
-} from './infrastructure/utils/pathname-locale.js';
+} from '$lib/infrastructure/utils/pathname-locale.js';

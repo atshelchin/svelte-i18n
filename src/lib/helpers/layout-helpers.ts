@@ -5,7 +5,7 @@
 
 import type { Cookies } from '@sveltejs/kit';
 import type { TypedUnifiedI18nInstance } from '$lib/typed-unified.js';
-import type { I18nInstance } from '../domain/models/types.js';
+import type { I18nInstance } from '$lib/domain/models/types.js';
 
 // ============================================
 // Server-side helpers (+layout.server.ts)
@@ -19,7 +19,7 @@ import type { I18nInstance } from '../domain/models/types.js';
  * ```typescript
  * // +layout.server.ts
  * import { i18nServerLoad } from '@shelchin/svelte-i18n';
- * import { i18n } from '../translations/i18n';
+ * import { i18n } from '$lib/translations/i18n';
  *
  * export const load = ({ cookies }) => i18nServerLoad(i18n, cookies);
  * ```
@@ -38,7 +38,7 @@ export async function i18nServerLoad(
 	let isAutoDiscoveredLocale: any;
 
 	if (typeof window === 'undefined') {
-		const serverLoader = await import('../infrastructure/loaders/server-loader.js');
+		const serverLoader = await import('$lib/infrastructure/loaders/server-loader.js');
 		loadServerTranslations = serverLoader.loadServerTranslations;
 		isAutoDiscoveredLocale = serverLoader.isAutoDiscoveredLocale;
 	}
@@ -137,7 +137,7 @@ export async function i18nServerLoad(
  * ```typescript
  * // +layout.ts
  * import { i18nUniversalLoad } from '@shelchin/svelte-i18n';
- * import { i18n } from '../translations/i18n';
+ * import { i18n } from '$lib/translations/i18n';
  * import { browser } from '$app/environment';
  *
  * export const load = ({ data }) => i18nUniversalLoad(i18n, data, browser);
@@ -242,7 +242,7 @@ export async function i18nUniversalLoad(
  * <script>
  * import { onMount } from 'svelte';
  * import { i18nClientInit } from '@shelchin/svelte-i18n';
- * import { i18n } from '../translations/i18n';
+ * import { i18n } from '$lib/translations/i18n';
  *
  * let { data } = $props();
  *
@@ -319,7 +319,7 @@ export function i18nIsReady(i18n: I18nInstance, data: any): boolean {
  * ```typescript
  * // +layout.server.ts
  * import { handleSSR } from '@shelchin/svelte-i18n';
- * import { i18n } from '../translations/i18n';
+ * import { i18n } from '$lib/translations/i18n';
  *
  * export const load = handleSSR(i18n);
  * ```
@@ -339,7 +339,7 @@ export function handleSSR(i18n: I18nInstance) {
  * <!-- +layout.svelte -->
  * <script>
  * import { handleClient } from '@shelchin/svelte-i18n';
- * import { i18n, initI18n } from '../translations/i18n';
+ * import { i18n, initI18n } from '$lib/translations/i18n';
  *
  * let { data, children } = $props();
  * const ready = handleClient(i18n, data, { initFunction: initI18n });
@@ -499,7 +499,7 @@ export function handleClient(
  * ```typescript
  * // +layout.ts
  * import { handleUniversal } from '@shelchin/svelte-i18n';
- * import { i18n } from '../translations/i18n';
+ * import { i18n } from '$lib/translations/i18n';
  * import { browser } from '$app/environment';
  *
  * export const load = handleUniversal(i18n, browser);

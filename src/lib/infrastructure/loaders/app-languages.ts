@@ -3,9 +3,9 @@
  * This combines built-in languages with auto-discovered app languages
  */
 
-import { DEV } from '../../utils/env.js';
-import type { I18nInstance } from '../../domain/models/types.js';
-import { loadAutoDiscoveryConfig } from './auto-discovery-v2.js';
+import { DEV } from '$lib/utils/env.js';
+import type { I18nInstance } from '$lib/domain/models/types.js';
+import { loadAutoDiscoveryConfig } from '$lib/infrastructure/loaders/auto-discovery-v2.js';
 
 /**
  * Get all languages that the app supports (for language switching)
