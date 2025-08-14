@@ -1,30 +1,25 @@
+import { getBrowserLocale } from '$lib/utils/browser-detection.js';
+import { 
+	getLocaleFromStorage, 
+	setLocaleStorage,
+	saveLocaleUniversal
+} from './universal-persistence.js';
+
 const STORAGE_KEY = 'i18n-locale';
 
 /**
  * Save the selected locale to localStorage
  */
 export function saveLocale(locale: string): void {
-	if (typeof window !== 'undefined' && window.localStorage) {
-		try {
-			localStorage.setItem(STORAGE_KEY, locale);
-		} catch (error) {
-			console.error('Failed to save locale to localStorage:', error);
-		}
-	}
+	// Use universal save to save to both localStorage and cookie
+	saveLocaleUniversal(locale, { storageKey: STORAGE_KEY });
 }
 
 /**
  * Load the saved locale from localStorage
  */
 export function loadSavedLocale(): string | null {
-	if (typeof window !== 'undefined' && window.localStorage) {
-		try {
-			return localStorage.getItem(STORAGE_KEY);
-		} catch (error) {
-			console.error('Failed to load locale from localStorage:', error);
-		}
-	}
-	return null;
+	return getLocaleFromStorage(STORAGE_KEY);
 }
 
 /**
@@ -34,8 +29,12 @@ export function clearSavedLocale(): void {
 	if (typeof window !== 'undefined' && window.localStorage) {
 		try {
 			localStorage.removeItem(STORAGE_KEY);
+			// Also clear cookie for consistency
+			if (typeof document !== 'undefined') {
+				document.cookie = `${STORAGE_KEY}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+			}
 		} catch (error) {
-			console.error('Failed to clear locale from localStorage:', error);
+			console.error('Failed to clear locale:', error);
 		}
 	}
 }
@@ -54,27 +53,9 @@ export function getInitialLocale(defaultLocale: string, availableLocales?: strin
 	}
 
 	// Second priority: browser language
-	if (typeof window !== 'undefined') {
-		const nav = window.navigator as Navigator & {
-			userLanguage?: string;
-			browserLanguage?: string;
-			systemLanguage?: string;
-		};
-		const browserLang =
-			nav.language || nav.userLanguage || nav.browserLanguage || nav.systemLanguage;
-
-		if (browserLang) {
-			// Try exact match first
-			if (!availableLocales || availableLocales.includes(browserLang)) {
-				return browserLang;
-			}
-
-			// Try language code without region (e.g., 'en' from 'en-US')
-			const langCode = browserLang.split('-')[0];
-			if (!availableLocales || availableLocales.includes(langCode)) {
-				return langCode;
-			}
-		}
+	const browserLocale = getBrowserLocale(availableLocales);
+	if (browserLocale) {
+		return browserLocale;
 	}
 
 	// Fallback to default

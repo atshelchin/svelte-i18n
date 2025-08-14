@@ -1,4 +1,5 @@
 import type { TranslationSchema, InterpolationParams, I18nConfig } from '../core/types.js';
+import { detectBrowserLanguage as detectBrowserLang } from './browser-detection.js';
 
 export function getNestedValue(obj: unknown, path: string): unknown {
 	const result = path
@@ -81,31 +82,10 @@ export function validateSchema(
 }
 
 export function detectBrowserLanguage(): string | null {
-	if (typeof window === 'undefined' && typeof global === 'undefined') return null;
-
-	const nav = (
-		typeof window !== 'undefined'
-			? window.navigator
-			: (global as Record<string, unknown>)?.navigator
-	) as Navigator & {
-		userLanguage?: string;
-		browserLanguage?: string;
-		systemLanguage?: string;
-	};
-
-	if (!nav) return null;
-
-	// Check navigator.languages first (preferred)
-	if (nav.languages && nav.languages.length > 0) {
-		return nav.languages[0].split('-')[0];
+	const browserLang = detectBrowserLang();
+	if (browserLang) {
+		return browserLang.split('-')[0];
 	}
-
-	const language = nav.language || nav.userLanguage || nav.browserLanguage || nav.systemLanguage;
-
-	if (language) {
-		return language.split('-')[0];
-	}
-
 	return null;
 }
 

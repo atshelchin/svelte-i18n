@@ -3,6 +3,8 @@
  * Uses cookies for SSR and localStorage for client-side persistence
  */
 
+import { detectBrowserLanguage } from '$lib/utils/browser-detection.js';
+
 interface PersistenceConfig {
 	cookieName?: string;
 	storageKey?: string;
@@ -122,15 +124,8 @@ export function getInitialLocaleUniversal(
 	}
 
 	// Third priority: browser language detection (only if explicitly enabled)
-	if (enableBrowserDetection && typeof window !== 'undefined') {
-		const nav = window.navigator as Navigator & {
-			userLanguage?: string;
-			browserLanguage?: string;
-			systemLanguage?: string;
-		};
-		const browserLang =
-			nav.language || nav.userLanguage || nav.browserLanguage || nav.systemLanguage;
-
+	if (enableBrowserDetection) {
+		const browserLang = detectBrowserLanguage();
 		if (browserLang) {
 			const langCode = browserLang.split('-')[0];
 			return langCode;

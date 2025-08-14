@@ -48,19 +48,25 @@ export {
 } from '$lib/utils/translation-utils.js';
 export { getAppBasePath, buildAssetUrl } from '$lib/utils/base-path.js';
 
-// Layout helper exports - unified from kit/load
+// SvelteKit SSR helpers
 export {
-	// Main helper functions
-	i18nServerLoad,
-	i18nUniversalLoad,
-	i18nClientInit,
-	i18nIsReady,
-	// Simplified layout helpers
 	loadI18nSSR,
+	i18nServerLoad // @deprecated
+} from '$lib/kit/ssr-load.js';
+
+// SvelteKit Universal helpers
+export {
 	loadI18nUniversal,
+	i18nUniversalLoad // @deprecated
+} from '$lib/kit/universal-load.js';
+
+// SvelteKit Client helpers
+export {
 	setupI18nClient,
-	initI18nOnMount
-} from '$lib/kit/load.js';
+	initI18nOnMount,
+	i18nIsReady,
+	i18nClientInit // @deprecated
+} from '$lib/kit/client-init.js';
 
 // Auto-discovery exports
 export {
@@ -113,16 +119,8 @@ export {
 	isLocaleAvailable,
 	getNamespaces,
 	getNamespaceLocales
-} from '$lib/utils/translation-loader-utils.js';
+} from '$lib/utils/registry-utils.js';
 
-// Typed wrapper exports
-export {
-	createTypedWrapper,
-	validateTranslationKey,
-	getTranslationKey,
-	type TypedTranslate,
-	type TypedI18nInstance
-} from '$lib/utils/typed-wrapper.js';
 
 // Unified API with optional type safety
 export {
