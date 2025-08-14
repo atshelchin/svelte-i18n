@@ -142,10 +142,10 @@ export {
 } from '$lib/typed-unified.js';
 
 // URL locale utilities
-export { deLocalizeUrl } from '$lib/utils/url-locale.js';
+export { deLocalizeUrl } from '$lib/kit/url-locale.js';
 export {
 	extractLocaleFromPathname,
 	extractSupportedLocaleFromPathname,
 	getBestLocale,
 	shouldUsePathnameLocale
-} from '$lib/utils/pathname-locale.js';
+} from '$lib/kit/pathname-locale.js';

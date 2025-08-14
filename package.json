@@ -18,7 +18,7 @@
 		"build:static": "cross-env VITE_BUILD_MODE=static vite build && pnpm run prepack",
 		"build:ssr": "cross-env VITE_BUILD_MODE=ssr vite build && pnpm run prepack",
 		"build:ghpages": "pnpm run build:static",
-		"build:cli": "tsc src/lib/cli/*.ts src/lib/domain/models/types.ts  --outDir dist --module esnext --target es2020 --esModuleInterop --skipLibCheck",
+		"build:cli": "tsc src/lib/cli/*.ts src/lib/core/types.ts  --outDir dist --module esnext --target es2020 --esModuleInterop --skipLibCheck",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
 		"prepack": "svelte-kit sync && svelte-package && pnpm run build:cli && publint",

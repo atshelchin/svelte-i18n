@@ -7,7 +7,7 @@
 import type { I18nPath } from '../types/app-i18n-generated';
 
 // Augment the default I18nInstance to make t() type-safe
-declare module './domain/models/types' {
+declare module './core/types' {
 	interface I18nInstance {
 		/**
 		 * Type-safe translation function with autocomplete

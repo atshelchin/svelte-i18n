@@ -5,7 +5,7 @@
 
 import type { Cookies } from '@sveltejs/kit';
 import type { I18nInstance, TranslationSchema } from '$lib/core/types.js';
-import { extractLocaleFromPathname } from '$lib/utils/pathname-locale.js';
+import { extractLocaleFromPathname } from '$lib/kit/pathname-locale.js';
 
 // Extended interface for i18n instances with additional methods
 interface I18nInstanceExtended extends I18nInstance {

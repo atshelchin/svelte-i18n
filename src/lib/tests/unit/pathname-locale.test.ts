@@ -4,7 +4,7 @@ import {
 	extractSupportedLocaleFromPathname,
 	getBestLocale,
 	shouldUsePathnameLocale
-} from '$lib/utils/pathname-locale.js';
+} from '$lib/kit/pathname-locale.js';
 
 // Mock i18n instance - only need locales property for these tests
 const createMockI18n = (locales: string[]) => ({
