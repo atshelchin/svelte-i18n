@@ -6,7 +6,11 @@
  * Using unified API with type safety for translation keys
  */
 
-import { createTypedUnifiedI18n, type UnifiedI18nConfig } from '$lib/index.js';
+import {
+	createTypedUnifiedI18n,
+	type UnifiedI18nConfig,
+	type TranslationSchema
+} from '$lib/index.js';
 
 import type { I18nPath } from '../types/app-i18n-generated.js';
 
@@ -19,7 +23,7 @@ const translationModules = import.meta.glob('./locales/*.json', {
 	import: 'default'
 });
 
-const translations: Record<string, unknown> = {};
+const translations: Record<string, TranslationSchema> = {};
 
 // Extract language code from file path and build translations object
 for (const [path, module] of Object.entries(translationModules)) {
@@ -27,7 +31,7 @@ for (const [path, module] of Object.entries(translationModules)) {
 	const match = path.match(/\/([^/]+)\.json$/);
 	if (match && match[1]) {
 		const langCode = match[1];
-		translations[langCode] = module;
+		translations[langCode] = module as TranslationSchema;
 	}
 }
 
