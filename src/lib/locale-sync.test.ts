@@ -1,6 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { setupI18n, clearAllInstances } from './application/stores/store.svelte.js';
-import { registerBuiltInTranslations, clearRegisteredTranslations } from './infrastructure/loaders/built-in.js';
+import {
+	registerBuiltInTranslations,
+	clearRegisteredTranslations
+} from './infrastructure/loaders/built-in.js';
 
 describe.skip('Global Locale Synchronization', () => {
 	// Skip these tests for now as they require browser environment for $effect
