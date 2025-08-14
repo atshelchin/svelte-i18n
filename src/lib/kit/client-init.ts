@@ -3,7 +3,7 @@
  * Handles browser-specific initialization and hydration
  */
 
-import type { I18nInstance } from '$lib/domain/models/types.js';
+import type { I18nInstance } from '$lib/core/types.js';
 import { browser } from '$app/environment';
 
 /**

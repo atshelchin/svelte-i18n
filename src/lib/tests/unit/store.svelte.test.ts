@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { setupI18n, resetI18nForTesting } from '$lib/application/stores/store.svelte.js';
-import type { TranslationSchema } from '$lib/domain/models/types.js';
+import { setupI18n, resetI18nForTesting } from '$lib/core/store.svelte.js';
+import type { TranslationSchema } from '$lib/core/types.js';
 
 describe('i18n Store', () => {
 	let i18n: ReturnType<typeof setupI18n>;

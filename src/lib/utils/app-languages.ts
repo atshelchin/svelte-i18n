@@ -4,7 +4,7 @@
  */
 
 import { DEV } from '$lib/utils/env.js';
-import type { I18nInstance } from '$lib/domain/models/types.js';
+import type { I18nInstance } from '$lib/core/types.js';
 import { loadAutoDiscoveryConfig } from '$lib/services/discovery.js';
 
 /**

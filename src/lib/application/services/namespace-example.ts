@@ -1,5 +1,5 @@
-import { setupI18n } from '$lib/application/stores/store.svelte.js';
-import type { TranslationSchema } from '$lib/domain/models/types.js';
+import { setupI18n } from '$lib/core/store.svelte.js';
+import type { TranslationSchema } from '$lib/core/types.js';
 
 // Example: Library A with its own i18n instance
 export const libraryATranslations: TranslationSchema = {

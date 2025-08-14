@@ -4,7 +4,7 @@
  */
 
 import { createI18n as createOriginal, initI18n, type UnifiedI18nConfig } from '$lib/unified.js';
-import type { I18nInstance, InterpolationParams } from '$lib/domain/models/types.js';
+import type { I18nInstance, InterpolationParams } from '$lib/core/types.js';
 
 // Re-export types from unified
 export type { UnifiedI18nConfig } from '$lib/unified.js';

@@ -4,7 +4,7 @@
  */
 
 import { DEV } from '$lib/utils/env.js';
-import type { I18nInstance, TranslationSchema } from '$lib/domain/models/types.js';
+import type { I18nInstance, TranslationSchema } from '$lib/core/types.js';
 
 export interface AutoDiscoveryConfig {
 	app?: string[];

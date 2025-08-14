@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { getAppSupportedLanguages, isAppLanguageSupported } from '$lib/utils/app-languages.js';
-import type { I18nInstance } from '$lib/domain/models/types.js';
+import type { I18nInstance } from '$lib/core/types.js';
 
 // Mock the auto-discovery loader
 vi.mock('$lib/services/discovery.js', () => ({

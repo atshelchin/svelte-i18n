@@ -2,7 +2,7 @@
 	import { getI18nInstance } from '$lib/unified.js';
 	import { getAppSupportedLanguages } from '$lib/utils/app-languages.js';
 	import { getEffectiveLibI18n } from '$lib/translations/i18n.js';
-	import type { I18nInstance } from '$lib/domain/models/types.js';
+	import type { I18nInstance } from '$lib/core/types.js';
 	import { onMount } from 'svelte';
 
 	interface Props {

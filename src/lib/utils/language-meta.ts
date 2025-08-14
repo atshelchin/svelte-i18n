@@ -3,7 +3,7 @@
  * Provides fallback information when _meta is not available in translation files
  */
 
-import type { LanguageMeta } from '$lib/domain/models/types.js';
+import type { LanguageMeta } from '$lib/core/types.js';
 import { commonLanguages } from '$lib/utils/language-search.js';
 
 // Partial metadata that can be used as fallback

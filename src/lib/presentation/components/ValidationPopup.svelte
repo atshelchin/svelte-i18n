@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { getI18nInstance } from '$lib/unified.js';
 	import { libI18n, getEffectiveLibI18n } from '$lib/translations/i18n.js';
-	import type { I18nInstance } from '$lib/domain/models/types.js';
+	import type { I18nInstance } from '$lib/core/types.js';
 
 	interface Props {
 		class?: string;

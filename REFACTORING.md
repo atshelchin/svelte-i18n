@@ -136,10 +136,23 @@ src/lib/
   ✅ 5. 删除空的 `infrastructure` 目录
   ✅ 6. 所有测试通过（154个测试）
 
-### 第五步：创建 core 目录并重组核心逻辑 ⏸️
+### 第五步：创建 core 目录并重组核心逻辑 ✅
 
 **目标**：将核心业务逻辑移到 core 目录
-**状态**：待开始
+**状态**：已完成
+
+#### 进度
+
+✅ 1. 创建 `core` 目录
+✅ 2. 移动核心文件：
+
+- `application/stores/store.svelte.ts` → `core/store.svelte.ts`
+- `domain/models/types.ts` → `core/types.ts`
+- `application/stores/config-manager.ts` → `core/config-manager.ts`
+- `services/formatter.ts` → `core/formatter.ts`（格式化是核心功能）
+  ✅ 3. 更新所有导入路径
+  ✅ 4. 删除空的 `application` 和 `domain` 目录
+  ✅ 5. 所有测试通过（154个测试）
 
 ### 第六步：创建 kit 目录整合 SvelteKit 相关 ⏸️
 

@@ -3,9 +3,9 @@
  * Provides consistent API regardless of context
  */
 
-import type { I18nConfig, TranslationSchema } from '$lib/domain/models/types.js';
-import { setupI18n, getI18n } from '$lib/application/stores/store.svelte.js';
-import { configManager } from '$lib/application/stores/config-manager.js';
+import type { I18nConfig, TranslationSchema } from '$lib/core/types.js';
+import { setupI18n, getI18n } from '$lib/core/store.svelte.js';
+import { configManager } from '$lib/core/config-manager.js';
 import { registerPackageTranslations } from '$lib/services/loader.js';
 
 export interface UnifiedI18nConfig extends Partial<I18nConfig> {
@@ -116,5 +116,5 @@ export async function initI18n(instance: ReturnType<typeof setupI18n>) {
 }
 
 // Re-export commonly used types
-export type { I18nConfig, TranslationSchema } from '$lib/domain/models/types.js';
+export type { I18nConfig, TranslationSchema } from '$lib/core/types.js';
 export type I18n = ReturnType<typeof createI18n>;

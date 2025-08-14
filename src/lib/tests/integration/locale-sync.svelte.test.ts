@@ -2,7 +2,7 @@
  * @vitest-environment browser
  */
 import { describe, it, expect, beforeEach } from 'vitest';
-import { setupI18n, clearAllInstances } from '$lib/application/stores/store.svelte.js';
+import { setupI18n, clearAllInstances } from '$lib/core/store.svelte.js';
 import { registerBuiltInTranslations, clearRegisteredTranslations } from '$lib/services/loader.js';
 import { tick } from 'svelte';
 

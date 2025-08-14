@@ -6,7 +6,7 @@
 import { loadI18nSSR } from './ssr-load.js';
 import { loadI18nUniversal } from './universal-load.js';
 import { setupI18nClient } from './client-init.js';
-import type { I18nInstance } from '$lib/domain/models/types.js';
+import type { I18nInstance } from '$lib/core/types.js';
 import type { Cookies } from '@sveltejs/kit';
 
 /**

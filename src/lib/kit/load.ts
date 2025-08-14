@@ -41,4 +41,4 @@ export {
 // ============================================
 // Re-export types for convenience
 // ============================================
-export type { I18nInstance, TranslationSchema } from '$lib/domain/models/types.js';
+export type { I18nInstance, TranslationSchema } from '$lib/core/types.js';

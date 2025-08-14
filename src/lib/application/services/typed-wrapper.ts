@@ -3,7 +3,7 @@
  * This wrapper uses the generated types from the CLI tool
  */
 
-import type { I18nInstance, InterpolationParams } from '$lib/domain/models/types.js';
+import type { I18nInstance, InterpolationParams } from '$lib/core/types.js';
 // These types should be imported from the app's generated types
 // This is just a placeholder for the library
 type I18nKeys = Record<string, unknown>;

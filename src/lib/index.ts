@@ -7,9 +7,9 @@
 import {
 	getI18n as getOriginalI18n,
 	setupI18n as setupOriginalI18n
-} from '$lib/application/stores/store.svelte.js';
+} from '$lib/core/store.svelte.js';
 
-export { type I18nStore } from '$lib/application/stores/store.svelte.js';
+export { type I18nStore } from '$lib/core/store.svelte.js';
 // Types are used below
 
 // Direct re-export without modification
@@ -18,7 +18,7 @@ export const getI18n = getOriginalI18n;
 export const setupI18n = setupOriginalI18n;
 
 // Re-export the interface for extension
-export type { I18nInstance } from '$lib/domain/models/types.js';
+export type { I18nInstance } from '$lib/core/types.js';
 
 // Re-export other types
 export type {
@@ -30,7 +30,7 @@ export type {
 	PathKeys,
 	TypedTranslationFunction,
 	ExtractKeys
-} from '$lib/domain/models/types.js';
+} from '$lib/core/types.js';
 
 // Other exports
 export {
@@ -91,7 +91,7 @@ export {
 	formatRelativeTime,
 	formatList,
 	FORMATS
-} from '$lib/services/formatter.js';
+} from '$lib/core/formatter.js';
 
 // Component exports
 export { default as LanguageSwitcher } from '$lib/presentation/components/LanguageSwitcher.svelte';

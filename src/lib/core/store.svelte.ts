@@ -7,7 +7,7 @@ import type {
 	InterpolationParams,
 	LanguageMeta,
 	TranslationFile
-} from '$lib/domain/models/types.js';
+} from '$lib/core/types.js';
 import {
 	getNestedValue,
 	interpolate,
@@ -36,7 +36,7 @@ import {
 	formatRelativeTime as fmtRelativeTime,
 	formatList as fmtList,
 	FORMATS
-} from '$lib/services/formatter.js';
+} from '$lib/core/formatter.js';
 
 // Simple validation popup controller to prevent multiple popups
 class ValidationPopupController {

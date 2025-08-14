@@ -3,7 +3,7 @@
  * Handles both server and client-side initialization
  */
 
-import type { I18nInstance } from '$lib/domain/models/types.js';
+import type { I18nInstance } from '$lib/core/types.js';
 import { browser } from '$app/environment';
 
 /**

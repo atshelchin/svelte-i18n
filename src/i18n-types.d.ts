@@ -15,7 +15,7 @@ declare module '@shelchin/svelte-i18n' {
 }
 
 declare module '$lib' {
-	import type { I18nConfig } from '$lib/domain/models/types';
+	import type { I18nConfig } from '$lib/core/types';
 
 	interface I18nInstance {
 		locale: string;
