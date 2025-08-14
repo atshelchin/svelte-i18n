@@ -3,16 +3,21 @@
  */
 import { describe, it, expect, beforeEach } from 'vitest';
 import { setupI18n, clearAllInstances } from './application/stores/store.svelte.js';
-import { registerBuiltInTranslations } from './infrastructure/loaders/built-in.js';
+import { registerBuiltInTranslations, clearRegisteredTranslations } from './infrastructure/loaders/built-in.js';
 import { tick } from 'svelte';
 
 describe('Global Locale Synchronization (Browser)', () => {
 	beforeEach(() => {
 		clearAllInstances();
+		clearRegisteredTranslations();
 		// Clear global locale manager
 		if ((globalThis as any).__i18n_locale_manager) {
 			(globalThis as any).__i18n_locale_manager = null;
 		}
+		// Mock fetch to prevent auto-discovery from loading translations
+		window.fetch = async () => {
+			throw new Error('Auto-discovery disabled for testing');
+		};
 	});
 
 	it('should sync locale changes from main app to all package instances', async () => {
@@ -37,6 +42,7 @@ describe('Global Locale Synchronization (Browser)', () => {
 
 		// Create main app instance
 		const appI18n = setupI18n({
+			namespace: 'app',
 			defaultLocale: 'en',
 			fallbackLocale: 'en'
 		});
@@ -112,6 +118,7 @@ describe('Global Locale Synchronization (Browser)', () => {
 
 		// Create instances
 		const appI18n = setupI18n({
+			namespace: 'app',
 			defaultLocale: 'en',
 			fallbackLocale: 'en'
 		});
