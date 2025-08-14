@@ -8,22 +8,21 @@
 	let { children, data } = $props<{ children: import('svelte').Snippet; data: LayoutData }>();
 
 	// Setup i18n synchronously to prevent flash during hydration
-	let isReady = $state(
-		setupI18nClient(i18n, data, {
-			defaultLocale: i18n.locale
-		})
-	);
+	const setupResult = setupI18nClient(i18n, data, {
+		defaultLocale: i18n.locale
+	});
+	let isReady = $state(setupResult?.i18nReady || false);
 
 	// Handle client-side initialization
 	onMount(async () => {
-		await initI18nOnMount(i18n, data, {
+		const result = await initI18nOnMount(i18n, data, {
 			initFunction: async (inst) => {
 				await initI18n(inst);
 			},
 			defaultLocale: i18n.locale
 		});
-		// Set ready after initialization
-		if (!isReady) {
+		// Update ready state after initialization
+		if (result?.i18nReady && !isReady) {
 			isReady = true;
 		}
 	});

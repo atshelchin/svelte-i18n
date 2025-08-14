@@ -38,7 +38,7 @@ export const ssr = isSSRMode;
  */
 export const load: LayoutLoad = async ({ data, url }) => {
 	// Pass url to enable pathname locale detection
-	const i18nData = await loadI18nUniversal(i18n, data, browser, url, {
+	const i18nData = await loadI18nUniversal(i18n, data, url, {
 		storageKey: 'i18n-locale',
 		defaultLocale: i18n.locale
 	});

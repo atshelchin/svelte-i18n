@@ -1,19 +1,44 @@
 /**
  * Unified SvelteKit load functions for i18n
- * Combines functionality from multiple helper files
+ * All SvelteKit-specific i18n helpers in one place
  */
 
-// SSR functions - use new unified implementation
-export { loadI18nSSR, i18nServerLoad } from './ssr-load.js';
+// ============================================
+// SSR functions (+layout.server.ts)
+// ============================================
+export { 
+	loadI18nSSR,
+	i18nServerLoad // @deprecated
+} from './ssr-load.js';
 
-// Universal and client functions - still from original files
-export { loadI18nUniversal, setupI18nClient, initI18nOnMount } from '$lib/helpers/layout-load.js';
+// ============================================
+// Universal functions (+layout.ts)
+// ============================================
+export { 
+	loadI18nUniversal,
+	i18nUniversalLoad // @deprecated
+} from './universal-load.js';
 
-export {
-	i18nUniversalLoad,
-	i18nClientInit,
+// ============================================
+// Client functions (+layout.svelte)
+// ============================================
+export { 
+	setupI18nClient,
+	initI18nOnMount,
 	i18nIsReady,
-	handleSSR,
-	handleClient,
-	handleUniversal
-} from '$lib/helpers/layout-helpers.js';
+	i18nClientInit // @deprecated
+} from './client-init.js';
+
+// ============================================
+// Backward compatibility exports
+// ============================================
+export {
+	handleSSR, // @deprecated
+	handleClient, // @deprecated
+	handleUniversal // @deprecated
+} from './compat.js';
+
+// ============================================
+// Re-export types for convenience
+// ============================================
+export type { I18nInstance, TranslationSchema } from '$lib/domain/models/types.js';
