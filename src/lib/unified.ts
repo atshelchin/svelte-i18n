@@ -41,8 +41,6 @@ export interface TypedI18nInstance<TPath extends string = string> extends Omit<I
 	// Include sync methods from base interface
 	setLocaleSync?: (locale: string) => void;
 	loadLanguageSync?: (locale: string, translations: any) => void;
-	// Ensure clientLoad is included
-	clientLoad?: () => Promise<void>;
 }
 
 /**
@@ -147,7 +145,7 @@ export async function initI18n<TPath extends string = string>(
 	instance: TypedI18nInstance<TPath> | I18nInstance
 ): Promise<TypedI18nInstance<TPath> | I18nInstance> {
 	// Auto-detect environment and load accordingly
-	if (typeof window !== 'undefined' && 'clientLoad' in instance) {
+	if (typeof window !== 'undefined' && 'clientLoad' in instance && instance.clientLoad) {
 		// Client-side: load translations
 		await instance.clientLoad();
 	}
