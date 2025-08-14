@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import { libI18n, getEffectiveLibI18n } from '$lib/translations/i18n.js';
-import { initTypedI18n } from '$lib/typed-unified.js';
+import { initTypedI18n } from '$lib/unified.js';
 
 describe('Library i18n', () => {
 	beforeAll(async () => {

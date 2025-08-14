@@ -1,9 +1,14 @@
 /**
  * Unified i18n initialization for both packages and applications
- * Provides consistent API regardless of context
+ * Provides consistent API with optional type safety
  */
 
-import type { I18nConfig, TranslationSchema } from '$lib/core/types.js';
+import type {
+	I18nConfig,
+	TranslationSchema,
+	I18nInstance,
+	InterpolationParams
+} from '$lib/core/types.js';
 import { setupI18n, getI18n } from '$lib/core/store.svelte.js';
 import { configManager } from '$lib/core/config-manager.js';
 import { registerPackageTranslations } from '$lib/services/loader.js';
@@ -29,31 +34,51 @@ export interface UnifiedI18nConfig extends Partial<I18nConfig> {
 }
 
 /**
- * Create a unified i18n configuration
+ * Typed unified i18n instance with application-specific translation keys
+ */
+export interface TypedI18nInstance<TPath extends string = string> extends Omit<I18nInstance, 't'> {
+	t(key: TPath, params?: InterpolationParams): string;
+	// Include sync methods from base interface
+	setLocaleSync?: (locale: string) => void;
+	loadLanguageSync?: (locale: string, translations: any) => void;
+	// Ensure clientLoad is included
+	clientLoad?: () => Promise<void>;
+}
+
+/**
+ * Create a unified i18n configuration with optional type safety
  * This function works identically for both packages and applications
  *
  * @example
- * // In a package (my-ui-lib/src/lib/i18n.ts)
+ * // Without type safety (simple usage)
+ * export const i18n = createI18n({
+ *   namespace: 'app',
+ *   isMain: true,
+ *   translations
+ * });
+ *
+ * @example
+ * // With type safety (recommended)
+ * import type { I18nPath } from '$lib/types/i18n-generated';
+ *
+ * export const i18n = createI18n<I18nPath>({
+ *   namespace: 'app',
+ *   isMain: true,
+ *   translations
+ * });
+ *
+ * @example
+ * // In a package
  * import translations from '$lib/translations.js';
  *
  * export const i18n = createI18n({
  *   namespace: 'my-ui-lib',
  *   translations
  * });
- *
- * @example
- * // In a SvelteKit app (src/lib/i18n.ts)
- * import translations from '$lib/translations.js';
- *
- * export const i18n = createI18n({
- *   namespace: 'app',
- *   isMain: true,
- *   defaultLocale: 'en',
- *   fallbackLocale: 'en',
- *   translations
- * });
  */
-export function createI18n(config: UnifiedI18nConfig = {}) {
+export function createI18n<TPath extends string = string>(
+	config: UnifiedI18nConfig = {}
+): TypedI18nInstance<TPath> {
 	const namespace = config.namespace || 'app';
 	const isMain = config.isMain ?? namespace === 'app';
 
@@ -80,33 +105,49 @@ export function createI18n(config: UnifiedI18nConfig = {}) {
 	// Setup i18n with the effective configuration
 	const instance = setupI18n(effectiveConfig);
 
-	return instance;
+	return instance as TypedI18nInstance<TPath>;
 }
 
 /**
- * Get an existing i18n instance by namespace
- * If namespace is not provided, returns the main app instance
+ * Get an existing i18n instance by namespace with optional type safety
+ * @param namespace - The namespace to get, defaults to 'app'
+ *
+ * @example
+ * // Without type safety
+ * const i18n = getI18nInstance();
+ *
+ * @example
+ * // With type safety
+ * import type { I18nPath } from '$lib/types/i18n-generated';
+ * const i18n = getI18nInstance<I18nPath>();
  */
-export function getI18nInstance(namespace?: string) {
-	return getI18n(namespace);
+export function getI18nInstance<TPath extends string = string>(
+	namespace?: string
+): TypedI18nInstance<TPath> {
+	return getI18n(namespace) as TypedI18nInstance<TPath>;
 }
 
 /**
- * Initialize i18n (call this in both packages and apps after setup)
- * This provides a consistent initialization flow
+ * Initialize i18n on the client side
+ * Call this in your root +layout.svelte
  *
  * @example
  * // In +layout.svelte (both for packages and apps)
- * import { onMount } from 'svelte';
- * import { i18n, initI18n } from '$lib/i18n';
+ * <script>
+ *   import { onMount } from 'svelte';
+ *   import { initI18n } from '@shelchin/svelte-i18n';
+ *   import { i18n } from '$lib/i18n';
  *
- * onMount(async () => {
- *   await initI18n(i18n);
- * });
+ *   onMount(() => {
+ *     initI18n(i18n);
+ *   });
+ * </script>
  */
-export async function initI18n(instance: ReturnType<typeof setupI18n>) {
+export async function initI18n<TPath extends string = string>(
+	instance: TypedI18nInstance<TPath> | I18nInstance
+): Promise<TypedI18nInstance<TPath> | I18nInstance> {
 	// Auto-detect environment and load accordingly
-	if (typeof window !== 'undefined') {
+	if (typeof window !== 'undefined' && 'clientLoad' in instance) {
 		// Client-side: load translations
 		await instance.clientLoad();
 	}
@@ -115,6 +156,12 @@ export async function initI18n(instance: ReturnType<typeof setupI18n>) {
 	return instance;
 }
 
-// Re-export commonly used types
+// Export types
 export type { I18nConfig, TranslationSchema } from '$lib/core/types.js';
 export type I18n = ReturnType<typeof createI18n>;
+
+// Legacy exports for backward compatibility (from typed-unified.ts)
+export const createTypedUnifiedI18n = createI18n;
+export const getTypedUnifiedI18n = getI18nInstance;
+export const initTypedI18n = initI18n;
+export type TypedUnifiedI18nInstance<T extends string = string> = TypedI18nInstance<T>;

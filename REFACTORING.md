@@ -163,18 +163,30 @@ src/lib/
 
 ✅ 1. 检查现有 kit 目录结构
 ✅ 2. 移动 SvelteKit 相关的工具函数：
-   - `utils/pathname-locale.ts` → `kit/pathname-locale.ts`
-   - `utils/url-locale.ts` → `kit/url-locale.ts`
-✅ 3. 更新所有导入路径（5个文件）
-✅ 4. 修复 package.json 中的 build:cli 路径
-✅ 5. 修复其他文件的类型导入路径
-✅ 6. 创建 kit/README.md 文档
-✅ 7. 所有测试通过（154个测试）
 
-### 第七步：合并 unified.ts 和 typed-unified.ts ⏸️
+- `utils/pathname-locale.ts` → `kit/pathname-locale.ts`
+- `utils/url-locale.ts` → `kit/url-locale.ts`
+  ✅ 3. 更新所有导入路径（5个文件）
+  ✅ 4. 修复 package.json 中的 build:cli 路径
+  ✅ 5. 修复其他文件的类型导入路径
+  ✅ 6. 创建 kit/README.md 文档
+  ✅ 7. 所有测试通过（154个测试）
+
+### 第七步：合并 unified.ts 和 typed-unified.ts ✅
 
 **目标**：消除命名混乱，合并相似功能
-**状态**：待开始
+**状态**：已完成
+
+#### 进度
+
+✅ 1. 分析两个文件的功能重叠
+✅ 2. 将类型安全功能合并到 unified.ts
+✅ 3. 创建 TypedI18nInstance 接口支持泛型
+✅ 4. 为所有函数添加可选的泛型参数
+✅ 5. 添加向后兼容的导出
+✅ 6. 更新所有导入路径（5个文件）
+✅ 7. 删除 typed-unified.ts
+✅ 8. 所有测试通过（154个测试）
 
 ### 第八步：最终清理和优化 ⏸️
 

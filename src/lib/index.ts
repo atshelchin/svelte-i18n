@@ -124,22 +124,20 @@ export {
 	type TypedI18nInstance
 } from '$lib/application/services/typed-wrapper.js';
 
-// Unified API for consistent usage in packages and apps
+// Unified API with optional type safety
 export {
 	createI18n,
 	getI18nInstance,
 	initI18n,
 	type UnifiedI18nConfig,
-	type I18n
-} from '$lib/unified.js';
-
-// Type-safe unified API
-export {
+	type TypedI18nInstance,
+	type I18n,
+	// Legacy exports for backward compatibility
 	createTypedUnifiedI18n,
 	getTypedUnifiedI18n,
 	initTypedI18n,
 	type TypedUnifiedI18nInstance
-} from '$lib/typed-unified.js';
+} from '$lib/unified.js';
 
 // URL locale utilities
 export { deLocalizeUrl } from '$lib/kit/url-locale.js';
