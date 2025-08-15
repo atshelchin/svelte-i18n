@@ -37,11 +37,13 @@ describe('CLI Type Discovery', () => {
 	describe('discoverPackageTypes', () => {
 		it('should discover types from standard export path', async () => {
 			// Create a new mock implementation for this test
-			const mockDiscoverPackageTypes = vi.fn().mockResolvedValue([
-				'components.button.label',
-				'components.button.tooltip',
-				'navigation.home'
-			]);
+			const mockDiscoverPackageTypes = vi
+				.fn()
+				.mockResolvedValue([
+					'components.button.label',
+					'components.button.tooltip',
+					'navigation.home'
+				]);
 
 			// Override the export
 			vi.mocked(discoverPackageTypes).mockImplementation(mockDiscoverPackageTypes);
@@ -85,8 +87,10 @@ describe('CLI Type Discovery', () => {
 	describe('getPackageSchema', () => {
 		it('should return TypeScript types when available', async () => {
 			// Mock discoverPackageTypes to return types
-			const originalGetPackageSchema = (await vi.importActual('$lib/cli/type-discovery.js') as any).getPackageSchema;
-			
+			const originalGetPackageSchema = (
+				(await vi.importActual('$lib/cli/type-discovery.js')) as any
+			).getPackageSchema;
+
 			// Create a mock version that uses our mocked discoverPackageTypes
 			const mockGetPackageSchema = vi.fn().mockImplementation(async (packageName) => {
 				const paths = await discoverPackageTypes(packageName);
@@ -112,17 +116,19 @@ describe('CLI Type Discovery', () => {
 
 		it('should fall back to JSON schema when TypeScript types not found', async () => {
 			vi.mocked(discoverPackageTypes).mockResolvedValue(null);
-			
+
 			vi.mocked(fs.existsSync).mockImplementation((path) => {
 				return path.toString().includes('node_modules/@myorg/lib/translations/en.json');
 			});
 
-			vi.mocked(fs.readFileSync).mockReturnValue(JSON.stringify({
-				welcome: 'Welcome',
-				buttons: {
-					submit: 'Submit'
-				}
-			}));
+			vi.mocked(fs.readFileSync).mockReturnValue(
+				JSON.stringify({
+					welcome: 'Welcome',
+					buttons: {
+						submit: 'Submit'
+					}
+				})
+			);
 
 			// We need to test the actual implementation here
 			// Since we can't easily mock the actual function, we'll test the validation part
@@ -217,7 +223,7 @@ describe('CLI Type Discovery', () => {
 
 			const errors = validateAgainstPackage(translations, packageInfo);
 
-			expect(errors.some(e => e.includes('Type mismatch'))).toBe(true);
+			expect(errors.some((e) => e.includes('Type mismatch'))).toBe(true);
 		});
 
 		it('should handle nested structures correctly', () => {
@@ -322,7 +328,7 @@ describe('CLI Type Discovery', () => {
 
 			const errors = validateAgainstPackage(translations, packageInfo);
 
-			expect(errors.some(e => e.includes('components.forms.input.errors.tooLong'))).toBe(true);
+			expect(errors.some((e) => e.includes('components.forms.input.errors.tooLong'))).toBe(true);
 		});
 
 		it('should handle arrays in translations gracefully', () => {
@@ -360,8 +366,8 @@ describe('CLI Type Discovery', () => {
 
 			const errors = validateAgainstPackage(translations, packageInfo);
 
-			expect(errors.some(e => e.includes('Type mismatch at stringValue'))).toBe(true);
-			expect(errors.some(e => e.includes('Type mismatch at objectValue'))).toBe(true);
+			expect(errors.some((e) => e.includes('Type mismatch at stringValue'))).toBe(true);
+			expect(errors.some((e) => e.includes('Type mismatch at objectValue'))).toBe(true);
 		});
 	});
 });

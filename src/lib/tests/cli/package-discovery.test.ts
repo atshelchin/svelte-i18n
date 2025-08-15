@@ -20,7 +20,7 @@ describe('CLI Package Discovery', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		vi.spyOn(console, 'warn').mockImplementation(mockConsole.warn);
-		
+
 		// Setup path mock
 		vi.mocked(path.join).mockImplementation((...args) => args.join('/'));
 	});
@@ -35,7 +35,7 @@ describe('CLI Package Discovery', () => {
 				name: '@myorg/ui-lib',
 				dependencies: {
 					'@shelchin/svelte-i18n': '^1.0.0',
-					'svelte': '^5.0.0'
+					svelte: '^5.0.0'
 				}
 			};
 
@@ -104,7 +104,7 @@ describe('CLI Package Discovery', () => {
 			const mockPackageJson = {
 				name: 'plain-lib',
 				dependencies: {
-					'svelte': '^5.0.0'
+					svelte: '^5.0.0'
 				}
 			};
 
@@ -143,8 +143,8 @@ describe('CLI Package Discovery', () => {
 	describe('discoverStaticPackages', () => {
 		it('should discover app translations', () => {
 			setupStaticDirMocks({
-				'app': { isDirectory: true },
-				'other': { isDirectory: true }
+				app: { isDirectory: true },
+				other: { isDirectory: true }
 			});
 
 			const result = discoverStaticPackages('/static/translations', {});
@@ -158,7 +158,7 @@ describe('CLI Package Discovery', () => {
 					isDirectory: true,
 					children: {
 						'ui-lib': { isDirectory: true },
-						'utils': { isDirectory: true }
+						utils: { isDirectory: true }
 					}
 				}
 			});
@@ -172,23 +172,55 @@ describe('CLI Package Discovery', () => {
 		});
 
 		it('should auto-discover packages with i18n when enabled', () => {
-			setupStaticDirMocks({
-				'lib-with-i18n': { isDirectory: true },
-				'lib-without-i18n': { isDirectory: true }
-			});
-
-			// Mock packageUsesI18n
+			// Set up mocks directly without using setupStaticDirMocks
 			vi.mocked(fs.existsSync).mockImplementation((path) => {
 				const pathStr = path.toString();
-				if (pathStr.includes('/static/translations')) return true;
-				if (pathStr.includes('lib-with-i18n/package.json')) return true;
+
+				// Static directory exists
+				if (pathStr === '/static/translations') return true;
+
+				// Package.json files exist for both packages in node_modules
+				if (pathStr === 'node_modules/lib-with-i18n/package.json') return true;
+				if (pathStr === 'node_modules/lib-without-i18n/package.json') return true;
+
+				// Only lib-with-i18n has translations directory
+				if (pathStr === 'node_modules/lib-with-i18n/translations') return true;
+				if (pathStr === 'node_modules/lib-without-i18n/translations') return false;
+				if (pathStr === 'node_modules/lib-with-i18n/dist/translations') return false;
+				if (pathStr === 'node_modules/lib-without-i18n/dist/translations') return false;
+				if (pathStr === 'node_modules/lib-with-i18n/static/translations') return false;
+				if (pathStr === 'node_modules/lib-without-i18n/static/translations') return false;
+
+				// Other packageUsesI18n checks
+				if (pathStr.includes('../lib-with-i18n/package.json')) return false;
+				if (pathStr.includes('../lib-without-i18n/package.json')) return false;
+				if (pathStr.includes('../../lib-with-i18n/package.json')) return false;
+				if (pathStr.includes('../../lib-without-i18n/package.json')) return false;
+
 				return false;
 			});
 
+			vi.mocked(fs.readdirSync).mockImplementation((dir) => {
+				if (dir.toString() === '/static/translations') {
+					// Return directory entries
+					return [
+						{ name: 'lib-with-i18n', isDirectory: () => true },
+						{ name: 'lib-without-i18n', isDirectory: () => true }
+					] as any;
+				}
+				return [] as any;
+			});
+
 			vi.mocked(fs.readFileSync).mockImplementation((path) => {
-				if (path.toString().includes('lib-with-i18n')) {
+				const pathStr = path.toString();
+				if (pathStr === 'node_modules/lib-with-i18n/package.json') {
 					return JSON.stringify({
 						dependencies: { '@shelchin/svelte-i18n': '^1.0.0' }
+					});
+				}
+				if (pathStr === 'node_modules/lib-without-i18n/package.json') {
+					return JSON.stringify({
+						dependencies: {}
 					});
 				}
 				return '{}';
@@ -197,6 +229,14 @@ describe('CLI Package Discovery', () => {
 			const result = discoverStaticPackages('/static/translations', {
 				autoDiscover: true
 			});
+
+			// Debug: check what packageUsesI18n returns for each
+			const withI18n = packageUsesI18n('lib-with-i18n');
+			const withoutI18n = packageUsesI18n('lib-without-i18n');
+
+			// These should be true and false respectively
+			expect(withI18n).toBe(true);
+			expect(withoutI18n).toBe(false);
 
 			expect(result).toContain('lib-with-i18n');
 			expect(result).not.toContain('lib-without-i18n');
@@ -226,7 +266,7 @@ describe('CLI Package Discovery', () => {
 
 		it('should skip files and only process directories', () => {
 			setupStaticDirMocks({
-				'app': { isDirectory: true },
+				app: { isDirectory: true },
 				'readme.md': { isDirectory: false },
 				'.DS_Store': { isDirectory: false }
 			});
@@ -246,7 +286,7 @@ describe('CLI Package Discovery', () => {
 						'@team': {
 							isDirectory: true,
 							children: {
-								'lib': { isDirectory: true }
+								lib: { isDirectory: true }
 							}
 						}
 					}
@@ -328,9 +368,7 @@ describe('CLI Package Discovery', () => {
 			const result = getPackageSchemaSource('broken-package');
 
 			expect(result.schema).toBeNull();
-			expect(mockConsole.warn).toHaveBeenCalledWith(
-				expect.stringContaining('Failed to parse')
-			);
+			expect(mockConsole.warn).toHaveBeenCalledWith(expect.stringContaining('Failed to parse'));
 		});
 
 		it('should try multiple paths in order', () => {
@@ -350,13 +388,18 @@ describe('CLI Package Discovery', () => {
 	});
 
 	// Helper functions
-	function setupPackageMocks(packages: Record<string, {
-		packageJson?: any;
-		hasTranslations?: boolean;
-	}>) {
+	function setupPackageMocks(
+		packages: Record<
+			string,
+			{
+				packageJson?: any;
+				hasTranslations?: boolean;
+			}
+		>
+	) {
 		vi.mocked(fs.existsSync).mockImplementation((path) => {
 			const pathStr = path.toString();
-			
+
 			for (const [pkgName, config] of Object.entries(packages)) {
 				if (pathStr.includes(`${pkgName}/package.json`) && config.packageJson) {
 					return true;
@@ -368,19 +411,19 @@ describe('CLI Package Discovery', () => {
 					return true;
 				}
 			}
-			
+
 			return false;
 		});
 
 		vi.mocked(fs.readFileSync).mockImplementation((path) => {
 			const pathStr = path.toString();
-			
+
 			for (const [pkgName, config] of Object.entries(packages)) {
 				if (pathStr.includes(`${pkgName}/package.json`) && config.packageJson) {
 					return JSON.stringify(config.packageJson);
 				}
 			}
-			
+
 			return '{}';
 		});
 	}
@@ -392,14 +435,14 @@ describe('CLI Package Discovery', () => {
 
 		vi.mocked(fs.readdirSync).mockImplementation((dir) => {
 			const dirStr = dir.toString();
-			
+
 			if (dirStr === '/static/translations') {
 				return Object.entries(structure).map(([name, config]) => ({
 					name,
 					isDirectory: () => config.isDirectory
 				})) as any;
 			}
-			
+
 			// Handle scoped packages
 			for (const [name, config] of Object.entries(structure)) {
 				if (dirStr.endsWith(name) && config.children) {
@@ -409,7 +452,7 @@ describe('CLI Package Discovery', () => {
 					})) as any;
 				}
 			}
-			
+
 			return [] as any;
 		});
 	}

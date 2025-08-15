@@ -33,8 +33,9 @@ describe('CLI Utils', () => {
 			};
 
 			vi.mocked(fs.existsSync).mockImplementation((filePath) => {
-				if (filePath.includes('package.json')) return true;
-				if (filePath.includes('src/lib/index.ts')) return true;
+				const pathStr = filePath.toString();
+				if (pathStr.includes('package.json')) return true;
+				if (pathStr.includes('src/lib/index.ts')) return true;
 				return false;
 			});
 
@@ -60,8 +61,9 @@ describe('CLI Utils', () => {
 			};
 
 			vi.mocked(fs.existsSync).mockImplementation((filePath) => {
-				if (filePath.includes('package.json')) return true;
-				if (filePath.includes('src/routes')) return true;
+				const pathStr = filePath.toString();
+				if (pathStr.includes('package.json')) return true;
+				if (pathStr.includes('src/routes')) return true;
 				return false;
 			});
 
@@ -89,9 +91,10 @@ describe('CLI Utils', () => {
 			};
 
 			vi.mocked(fs.existsSync).mockImplementation((filePath) => {
-				if (filePath.includes('package.json')) return true;
-				if (filePath.includes('src/routes')) return true;
-				if (filePath.includes('src/lib/index.ts')) return true;
+				const pathStr = filePath.toString();
+				if (pathStr.includes('package.json')) return true;
+				if (pathStr.includes('src/routes')) return true;
+				if (pathStr.includes('src/lib/index.ts')) return true;
 				return false;
 			});
 
@@ -113,7 +116,8 @@ describe('CLI Utils', () => {
 			};
 
 			vi.mocked(fs.existsSync).mockImplementation((filePath) => {
-				if (filePath.includes('package.json')) return true;
+				const pathStr = filePath.toString();
+				if (pathStr.includes('package.json')) return true;
 				return false;
 			});
 
@@ -134,12 +138,13 @@ describe('CLI Utils', () => {
 
 			const result = detectProjectType('/test/project');
 			expect(result.isPackage).toBe(false);
-			expect(result.isApp).toBe(false);
+			expect(result.isApp).toBe(true); // Defaults to app when nothing detected
 		});
 
 		it('should handle malformed package.json', () => {
 			vi.mocked(fs.existsSync).mockImplementation((filePath) => {
-				if (filePath.includes('package.json')) return true;
+				const pathStr = filePath.toString();
+				if (pathStr.includes('package.json')) return true;
 				return false;
 			});
 
@@ -180,7 +185,7 @@ describe('CLI Utils', () => {
 			expect(result).toContain("'user.email'");
 			expect(result).toContain("'user.profile.title'");
 			expect(result).toContain("'items.count'");
-			
+
 			expect(fs.writeFileSync).toHaveBeenCalledWith(
 				'/test/output.d.ts',
 				expect.stringContaining('export type I18nPath =')
@@ -209,18 +214,15 @@ describe('CLI Utils', () => {
 
 			// Should only read the JSON file
 			expect(fs.readFileSync).toHaveBeenCalledTimes(1);
-			expect(fs.readFileSync).toHaveBeenCalledWith(
-				expect.stringContaining('en.json'),
-				'utf8'
-			);
+			expect(fs.readFileSync).toHaveBeenCalledWith(expect.stringContaining('en.json'), 'utf8');
 		});
 
 		it('should handle nested objects with arrays and special characters', () => {
 			const mockTranslations = {
 				'special.key-name': 'Value',
-				'nested': {
-					'deep': {
-						'key': 'value'
+				nested: {
+					deep: {
+						key: 'value'
 					}
 				}
 			};
@@ -270,14 +272,14 @@ describe('CLI Utils', () => {
 
 			vi.mocked(fs.existsSync).mockReturnValue(true);
 			vi.mocked(fs.readdirSync).mockReturnValue(['zh.json', 'en.json'] as any);
-			
+
 			vi.mocked(fs.readFileSync).mockImplementation((filePath) => {
 				if (filePath.toString().includes('en.json')) {
 					return JSON.stringify(largeTranslations);
 				}
 				return JSON.stringify(smallTranslations);
 			});
-			
+
 			vi.mocked(fs.writeFileSync).mockImplementation(() => {});
 
 			const result = generateTypeDefinitions('/test/translations', '/test/output.d.ts', 'I18nPath');

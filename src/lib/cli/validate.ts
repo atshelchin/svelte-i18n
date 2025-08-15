@@ -82,17 +82,17 @@ function validateTranslations(
 		const schemaErrors = validateSchema(content, baseTranslations as TranslationSchema);
 		result.errors.push(...schemaErrors);
 
-		// Additional validations
+		// Check for placeholder mismatches (always check, not just in strict mode)
+		const placeholderErrors = checkPlaceholders(content, baseTranslations);
+		result.errors.push(...placeholderErrors);
+
+		// Additional validations for strict mode
 		if (options.strict) {
 			// Check for extra keys not in base
 			const extraKeys = findExtraKeys(content, baseTranslations);
 			extraKeys.forEach((key) => {
 				result.warnings.push(`Extra key not in base locale: ${key}`);
 			});
-
-			// Check for placeholder mismatches
-			const placeholderErrors = checkPlaceholders(content, baseTranslations);
-			result.errors.push(...placeholderErrors);
 		}
 
 		results.push(result);
@@ -199,6 +199,7 @@ export function validate(options: ValidateOptions): boolean {
 	const results = validateTranslations(translations, options);
 
 	let hasErrors = false;
+	let hasWarnings = false;
 
 	results.forEach((result) => {
 		if (result.errors.length > 0 || result.warnings.length > 0) {
@@ -213,6 +214,7 @@ export function validate(options: ValidateOptions): boolean {
 			}
 
 			if (result.warnings.length > 0) {
+				hasWarnings = true;
 				console.log('  ⚠️  Warnings:');
 				result.warnings.forEach((warning) => {
 					console.log(`    • ${warning}`);
@@ -223,7 +225,10 @@ export function validate(options: ValidateOptions): boolean {
 		}
 	});
 
-	if (!hasErrors) {
+	// In strict mode, warnings also cause validation to fail
+	const validationFailed = hasErrors || (options.strict && hasWarnings);
+
+	if (!validationFailed) {
 		console.log('\n✅ All translations are valid!');
 		return true;
 	} else {

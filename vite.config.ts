@@ -10,6 +10,24 @@ export default defineConfig({
 		environment: 'jsdom',
 		include: ['src/**/*.{test,spec}.{js,ts}'],
 		exclude: ['src/**/*.svelte.{test,spec}.{js,ts}', 'e2e/**/*'],
-		setupFiles: ['./vitest-setup.ts']
+		setupFiles: ['./vitest-setup.ts'],
+		coverage: {
+			provider: 'v8',
+			reporter: ['text', 'json', 'html'],
+			exclude: [
+				'node_modules/',
+				'.svelte-kit/',
+				'build/',
+				'.VSCodeCounter/',
+				'coverage/',
+				'static/',
+				'dist/',
+				'*.config.*',
+				'**/*.{test,spec}.{js,ts}',
+				'**/__tests__/**',
+				'**/test-mocks/**',
+				'e2e/**'
+			]
+		}
 	}
 });

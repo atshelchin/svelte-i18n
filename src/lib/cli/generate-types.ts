@@ -57,14 +57,14 @@ function validateTranslations(translationsDir: string, baseLocale: string = 'en'
 		.sort();
 
 	if (files.length === 0) {
-		warn('No translation files found');
+		info('No translation files found');
 		return true;
 	}
 
 	// Load base translation
 	const basePath = path.join(translationsDir, `${baseLocale}.json`);
 	if (!fs.existsSync(basePath)) {
-		error(`Base locale file not found: ${basePath}`);
+		error(`Base locale "${baseLocale}" not found`);
 		return false;
 	}
 
@@ -93,7 +93,18 @@ function validateTranslations(translationsDir: string, baseLocale: string = 'en'
 		const translation = JSON.parse(fs.readFileSync(filePath, 'utf8'));
 		const fileKeys = new Set<string>();
 
-		extractKeys(translation);
+		function extractFileKeys(obj: any, prefix: string = '') {
+			for (const key in obj) {
+				const fullPath = prefix ? `${prefix}.${key}` : key;
+				if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
+					extractFileKeys(obj[key], fullPath);
+				} else {
+					fileKeys.add(fullPath);
+				}
+			}
+		}
+
+		extractFileKeys(translation);
 
 		// Check for missing keys
 		const missingKeys = Array.from(baseKeys).filter((k) => !fileKeys.has(k));
@@ -192,7 +203,8 @@ export async function generateTypes(options: GenerateTypesOptions = {}): Promise
 				allSuccess = false;
 			}
 		} else {
-			warn('Application translations not found. Run "svelte-i18n init" first.');
+			error('Application translations not found. Run "svelte-i18n init" first.');
+			allSuccess = false;
 		}
 	}
 
@@ -222,7 +234,8 @@ export async function generateTypes(options: GenerateTypesOptions = {}): Promise
 				allSuccess = false;
 			}
 		} else {
-			warn('Library translations not found. Run "svelte-i18n init" first.');
+			error('Library translations not found. Run "svelte-i18n init" first.');
+			allSuccess = false;
 		}
 	}
 

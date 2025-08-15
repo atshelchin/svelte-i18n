@@ -21,7 +21,7 @@ describe('CLI Validate', () => {
 		vi.spyOn(console, 'log').mockImplementation(mockConsole.log);
 		vi.spyOn(console, 'error').mockImplementation(mockConsole.error);
 		vi.spyOn(console, 'warn').mockImplementation(mockConsole.warn);
-		
+
 		// Setup path mocks
 		vi.mocked(path.resolve).mockImplementation((...args) => args.join('/'));
 		vi.mocked(path.join).mockImplementation((...args) => args.join('/'));
@@ -61,8 +61,8 @@ describe('CLI Validate', () => {
 			setupTranslationMocks(translations);
 
 			const result = validate({
-				dir: 'translations',
-				base: 'en',
+				translationsDir: 'translations',
+				baseLocale: 'en',
 				strict: false
 			});
 
@@ -94,15 +94,13 @@ describe('CLI Validate', () => {
 			setupTranslationMocks(translations);
 
 			const result = validate({
-				dir: 'translations',
-				base: 'en',
+				translationsDir: 'translations',
+				baseLocale: 'en',
 				strict: false
 			});
 
 			expect(result).toBe(false);
-			expect(mockConsole.log).toHaveBeenCalledWith(
-				expect.stringContaining('❌ Errors:')
-			);
+			expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('❌ Errors:'));
 			expect(mockConsole.log).toHaveBeenCalledWith(
 				expect.stringContaining('Missing translation: user.email')
 			);
@@ -125,17 +123,15 @@ describe('CLI Validate', () => {
 			setupTranslationMocks(translations);
 
 			const result = validate({
-				dir: 'translations',
-				base: 'en',
+				translationsDir: 'translations',
+				baseLocale: 'en',
 				strict: true
 			});
 
 			expect(result).toBe(false);
+			expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('⚠️  Warnings:'));
 			expect(mockConsole.log).toHaveBeenCalledWith(
-				expect.stringContaining('⚠️  Warnings:')
-			);
-			expect(mockConsole.log).toHaveBeenCalledWith(
-				expect.stringContaining('Extra key: extra')
+				expect.stringContaining('Extra key not in base locale: extra')
 			);
 		});
 
@@ -154,15 +150,13 @@ describe('CLI Validate', () => {
 			setupTranslationMocks(translations);
 
 			const result = validate({
-				dir: 'translations',
-				base: 'en',
+				translationsDir: 'translations',
+				baseLocale: 'en',
 				strict: false
 			});
 
 			expect(result).toBe(false);
-			expect(mockConsole.log).toHaveBeenCalledWith(
-				expect.stringContaining('❌ Errors:')
-			);
+			expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('❌ Errors:'));
 			expect(mockConsole.log).toHaveBeenCalledWith(
 				expect.stringContaining('Missing placeholder {name} in greeting')
 			);
@@ -181,8 +175,8 @@ describe('CLI Validate', () => {
 			setupTranslationMocks(translations);
 
 			const result = validate({
-				dir: 'translations',
-				base: 'en',
+				translationsDir: 'translations',
+				baseLocale: 'en',
 				strict: false
 			});
 
@@ -202,15 +196,13 @@ describe('CLI Validate', () => {
 			setupTranslationMocks(translations);
 
 			const result = validate({
-				dir: 'translations',
-				base: 'en',
+				translationsDir: 'translations',
+				baseLocale: 'en',
 				strict: false
 			});
 
 			expect(result).toBe(false);
-			expect(mockConsole.log).toHaveBeenCalledWith(
-				expect.stringContaining('❌ Errors:')
-			);
+			expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('❌ Errors:'));
 		});
 
 		it('should handle nested translation structures', () => {
@@ -238,8 +230,8 @@ describe('CLI Validate', () => {
 			setupTranslationMocks(translations);
 
 			const result = validate({
-				dir: 'translations',
-				base: 'en',
+				translationsDir: 'translations',
+				baseLocale: 'en',
 				strict: false
 			});
 
@@ -263,15 +255,13 @@ describe('CLI Validate', () => {
 			setupTranslationMocks(translations);
 
 			const result = validate({
-				dir: 'translations',
-				base: 'en',
+				translationsDir: 'translations',
+				baseLocale: 'en',
 				strict: false
 			});
 
 			expect(result).toBe(false);
-			expect(mockConsole.log).toHaveBeenCalledWith(
-				expect.stringContaining('❌ Errors:')
-			);
+			expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('❌ Errors:'));
 		});
 
 		it('should handle empty translation files', () => {
@@ -283,8 +273,8 @@ describe('CLI Validate', () => {
 			setupTranslationMocks(translations);
 
 			const result = validate({
-				dir: 'translations',
-				base: 'en',
+				translationsDir: 'translations',
+				baseLocale: 'en',
 				strict: false
 			});
 
@@ -303,11 +293,13 @@ describe('CLI Validate', () => {
 
 			setupTranslationMocks(translations);
 
-			expect(() => validate({
-				dir: 'translations',
-				base: 'en', // Missing en.json
-				strict: false
-			})).toThrow('Base locale "en" not found');
+			expect(() =>
+				validate({
+					translationsDir: 'translations',
+					baseLocale: 'en', // Missing en.json
+					strict: false
+				})
+			).toThrow('Base locale "en" not found');
 		});
 
 		it('should skip non-JSON files', () => {
@@ -325,8 +317,8 @@ describe('CLI Validate', () => {
 			setupTranslationMocks(translations);
 
 			const result = validate({
-				dir: 'translations',
-				base: 'en',
+				translationsDir: 'translations',
+				baseLocale: 'en',
 				strict: false
 			});
 
@@ -353,11 +345,13 @@ describe('CLI Validate', () => {
 				return '{ invalid json }';
 			});
 
-			expect(() => validate({
-				dir: 'translations',
-				base: 'en',
-				strict: false
-			})).toThrow();
+			expect(() =>
+				validate({
+					translationsDir: 'translations',
+					baseLocale: 'en',
+					strict: false
+				})
+			).toThrow();
 		});
 
 		it('should validate array values correctly', () => {
@@ -379,8 +373,8 @@ describe('CLI Validate', () => {
 			setupTranslationMocks(translations);
 
 			const result = validate({
-				dir: 'translations',
-				base: 'en',
+				translationsDir: 'translations',
+				baseLocale: 'en',
 				strict: false
 			});
 
@@ -400,15 +394,13 @@ describe('CLI Validate', () => {
 			setupTranslationMocks(translations);
 
 			const result = validate({
-				dir: 'translations',
-				base: 'en',
+				translationsDir: 'translations',
+				baseLocale: 'en',
 				strict: false
 			});
 
 			expect(result).toBe(false);
-			expect(mockConsole.log).toHaveBeenCalledWith(
-				expect.stringContaining('❌ Errors:')
-			);
+			expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('❌ Errors:'));
 		});
 
 		it('should provide summary of validation results', () => {
@@ -430,8 +422,8 @@ describe('CLI Validate', () => {
 			setupTranslationMocks(translations);
 
 			validate({
-				dir: 'translations',
-				base: 'en',
+				translationsDir: 'translations',
+				baseLocale: 'en',
 				strict: false
 			});
 
@@ -444,18 +436,18 @@ describe('CLI Validate', () => {
 	// Helper function to setup translation file mocks
 	function setupTranslationMocks(translations: Record<string, any>) {
 		const files = Object.keys(translations);
-		
+
 		vi.mocked(fs.existsSync).mockImplementation((path) => {
 			const pathStr = path.toString();
 			if (pathStr.includes('translations')) return true;
-			return files.some(file => pathStr.includes(file));
+			return files.some((file) => pathStr.includes(file));
 		});
 
 		vi.mocked(fs.readdirSync).mockReturnValue(files as any);
 
 		vi.mocked(fs.statSync).mockImplementation((path) => {
 			const pathStr = path?.toString() || '';
-			const isFile = files.some(f => pathStr.includes(f));
+			const isFile = files.some((f) => pathStr.includes(f));
 			return {
 				isFile: () => isFile,
 				isDirectory: () => !isFile
@@ -464,7 +456,7 @@ describe('CLI Validate', () => {
 
 		vi.mocked(fs.readFileSync).mockImplementation((file) => {
 			const fileStr = file.toString();
-			const fileName = files.find(f => fileStr.includes(f));
+			const fileName = files.find((f) => fileStr.includes(f));
 			if (fileName) {
 				const content = translations[fileName];
 				return typeof content === 'string' ? content : JSON.stringify(content);

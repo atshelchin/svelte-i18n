@@ -20,7 +20,15 @@ const DEFAULT_EXCLUDE = ['node_modules', '.svelte-kit', 'dist', 'build'];
 
 function extractKeysFromFile(filePath: string): Set<string> {
 	const keys = new Set<string>();
-	const content = readFileSync(filePath, 'utf-8');
+	let content = readFileSync(filePath, 'utf-8');
+
+	// Remove comments before extracting keys
+	// Remove single-line comments
+	content = content.replace(/\/\/.*$/gm, '');
+	// Remove multi-line comments
+	content = content.replace(/\/\*[\s\S]*?\*\//g, '');
+	// Remove HTML comments
+	content = content.replace(/<!--[\s\S]*?-->/g, '');
 
 	// Match patterns like:
 	// i18n.t('key')

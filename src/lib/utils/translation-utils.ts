@@ -65,8 +65,17 @@ export function validateSchema(
 
 		if (translationValue === undefined) {
 			errors.push(`Missing translation: ${fullPath}`);
-		} else if (typeof schemaValue === 'object' && !Array.isArray(schemaValue)) {
-			if (typeof translationValue !== 'object') {
+		} else if (Array.isArray(schemaValue)) {
+			// Handle array validation
+			if (!Array.isArray(translationValue)) {
+				errors.push(`Type mismatch at ${fullPath}: expected array, got ${typeof translationValue}`);
+			} else if (schemaValue.length !== translationValue.length) {
+				errors.push(
+					`Array length mismatch at ${fullPath}: expected ${schemaValue.length} items, got ${translationValue.length}`
+				);
+			}
+		} else if (typeof schemaValue === 'object' && schemaValue !== null) {
+			if (typeof translationValue !== 'object' || translationValue === null) {
 				errors.push(
 					`Type mismatch at ${fullPath}: expected object, got ${typeof translationValue}`
 				);

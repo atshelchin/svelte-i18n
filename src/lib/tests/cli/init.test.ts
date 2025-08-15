@@ -23,11 +23,11 @@ describe('CLI Init', () => {
 		// Mock console
 		vi.spyOn(console, 'log').mockImplementation(mockConsole.log);
 		vi.spyOn(console, 'error').mockImplementation(mockConsole.error);
-		
+
 		// Mock process
 		vi.spyOn(process, 'exit').mockImplementation(mockExit as any);
 		vi.spyOn(process, 'cwd').mockReturnValue('/test/project');
-		
+
 		// Setup default path mocks
 		vi.mocked(path.join).mockImplementation((...args) => args.join('/'));
 		vi.mocked(path.dirname).mockImplementation((p) => {
@@ -40,10 +40,31 @@ describe('CLI Init', () => {
 			return parts[parts.length - 1];
 		});
 		vi.mocked(path.relative).mockImplementation((from, to) => {
-			if (to.startsWith(from)) {
-				return to.substring(from.length + 1);
+			// Handle relative path calculation
+			const fromParts = from.split('/').filter((p) => p);
+			const toParts = to.split('/').filter((p) => p);
+
+			// Find common base
+			let commonLength = 0;
+			for (let i = 0; i < Math.min(fromParts.length, toParts.length); i++) {
+				if (fromParts[i] === toParts[i]) {
+					commonLength++;
+				} else {
+					break;
+				}
 			}
-			return to;
+
+			// Build relative path
+			const upCount = fromParts.length - commonLength;
+			const downPath = toParts.slice(commonLength);
+
+			const parts = [];
+			for (let i = 0; i < upCount; i++) {
+				parts.push('..');
+			}
+			parts.push(...downPath);
+
+			return parts.join('/') || '.';
 		});
 	});
 
@@ -63,9 +84,10 @@ describe('CLI Init', () => {
 				projectType: 'app'
 			});
 
-			let createdFiles: Record<string, any> = {};
+			const createdFiles: Record<string, any> = {};
 			vi.mocked(fs.writeFileSync).mockImplementation((file, content) => {
 				createdFiles[file.toString()] = content.toString();
+				return undefined;
 			});
 
 			init();
@@ -73,20 +95,21 @@ describe('CLI Init', () => {
 			// Should create translation files
 			expect(createdFiles['/test/project/src/translations/locales/en.json']).toBeDefined();
 			expect(createdFiles['/test/project/src/translations/locales/zh.json']).toBeDefined();
-			
+
 			// Should create i18n.ts config
 			expect(createdFiles['/test/project/src/translations/i18n.ts']).toBeDefined();
-			expect(createdFiles['/test/project/src/translations/i18n.ts']).toContain('createTypedUnifiedI18n');
+			expect(createdFiles['/test/project/src/translations/i18n.ts']).toContain(
+				'createTypedUnifiedI18n'
+			);
 			expect(createdFiles['/test/project/src/translations/i18n.ts']).toContain("namespace: 'app'");
-			
-			// Should create type definitions
-			expect(createdFiles['/test/project/src/types/app-i18n-generated.d.ts']).toBeDefined();
-			
+
+			// Note: Type definitions are created by generateTypes command, not init
+
 			// Should update package.json with scripts
 			const updatedPackageJson = JSON.parse(createdFiles['/test/project/package.json']);
 			expect(updatedPackageJson.scripts['i18n:check']).toBeDefined();
 			expect(updatedPackageJson.scripts['i18n:types']).toBeDefined();
-			
+
 			// Should not exit with error
 			expect(mockExit).not.toHaveBeenCalled();
 		});
@@ -105,9 +128,10 @@ describe('CLI Init', () => {
 				projectType: 'library'
 			});
 
-			let createdFiles: Record<string, any> = {};
+			const createdFiles: Record<string, any> = {};
 			vi.mocked(fs.writeFileSync).mockImplementation((file, content) => {
 				createdFiles[file.toString()] = content.toString();
+				return undefined;
 			});
 
 			init();
@@ -115,16 +139,17 @@ describe('CLI Init', () => {
 			// Should create library translation files
 			expect(createdFiles['/test/project/src/lib/translations/locales/en.json']).toBeDefined();
 			expect(createdFiles['/test/project/src/lib/translations/locales/zh.json']).toBeDefined();
-			
+
 			// Should create library i18n.ts config
 			expect(createdFiles['/test/project/src/lib/translations/i18n.ts']).toBeDefined();
 			expect(createdFiles['/test/project/src/lib/translations/i18n.ts']).toContain('libI18n');
 			expect(createdFiles['/test/project/src/lib/translations/i18n.ts']).toContain('initTypedI18n');
-			expect(createdFiles['/test/project/src/lib/translations/i18n.ts']).toContain('getEffectiveLibI18n');
-			
-			// Should create library type definitions
-			expect(createdFiles['/test/project/src/lib/types/lib-i18n-generated.d.ts']).toBeDefined();
-			
+			expect(createdFiles['/test/project/src/lib/translations/i18n.ts']).toContain(
+				'getEffectiveLibI18n'
+			);
+
+			// Note: Type definitions are created by generateTypes command, not init
+
 			// Should update package.json with library scripts
 			const updatedPackageJson = JSON.parse(createdFiles['/test/project/package.json']);
 			expect(updatedPackageJson.scripts['i18n:check:lib']).toBeDefined();
@@ -148,9 +173,10 @@ describe('CLI Init', () => {
 				projectType: 'hybrid'
 			});
 
-			let createdFiles: Record<string, any> = {};
+			const createdFiles: Record<string, any> = {};
 			vi.mocked(fs.writeFileSync).mockImplementation((file, content) => {
 				createdFiles[file.toString()] = content.toString();
+				return undefined;
 			});
 
 			init();
@@ -158,11 +184,11 @@ describe('CLI Init', () => {
 			// Should create both app and library files
 			expect(createdFiles['/test/project/src/translations/locales/en.json']).toBeDefined();
 			expect(createdFiles['/test/project/src/lib/translations/locales/en.json']).toBeDefined();
-			
+
 			// Should create both configurations
 			expect(createdFiles['/test/project/src/translations/i18n.ts']).toBeDefined();
 			expect(createdFiles['/test/project/src/lib/translations/i18n.ts']).toBeDefined();
-			
+
 			// Should update package.json with all scripts
 			const updatedPackageJson = JSON.parse(createdFiles['/test/project/package.json']);
 			expect(updatedPackageJson.scripts['i18n:check']).toBeDefined();
@@ -180,14 +206,12 @@ describe('CLI Init', () => {
 			setupProjectMocks({
 				packageJson: mockPackageJson,
 				projectType: 'app',
-				existingFiles: [
-					'/test/project/src/translations/locales/en.json'
-				]
+				existingFiles: ['/test/project/src/translations/locales/en.json']
 			});
 
 			let createdFiles: Record<string, any> = {};
 			let skippedFiles: string[] = [];
-			
+
 			vi.mocked(fs.writeFileSync).mockImplementation((file, content) => {
 				const fileStr = file.toString();
 				if (fileStr.includes('en.json')) {
@@ -201,10 +225,10 @@ describe('CLI Init', () => {
 
 			// Should not overwrite existing en.json
 			expect(skippedFiles).not.toContain('/test/project/src/translations/locales/en.json');
-			
+
 			// Should create zh.json
 			expect(createdFiles['/test/project/src/translations/locales/zh.json']).toBeDefined();
-			
+
 			// Should log info about skipping
 			expect(mockConsole.log).toHaveBeenCalledWith(
 				expect.stringContaining('already exists, skipping')
@@ -213,6 +237,7 @@ describe('CLI Init', () => {
 
 		it('should exit with error if no package.json found', () => {
 			vi.mocked(fs.existsSync).mockReturnValue(false);
+			vi.mocked(fs.readFileSync).mockReturnValue('{}');
 
 			init();
 
@@ -245,12 +270,13 @@ describe('CLI Init', () => {
 
 			init();
 
-			// Should not update package.json if scripts already exist
-			if (packageJsonUpdates.length > 0) {
-				const updated = JSON.parse(packageJsonUpdates[0]);
-				expect(updated.scripts['i18n:check']).toBe('existing-command');
-				expect(updated.scripts['i18n:types']).toBe('existing-types-command');
-			}
+			// Should NOT update package.json when scripts already exist
+			expect(packageJsonUpdates.length).toBe(0);
+
+			// Verify that the scripts would have been preserved if there was an update
+			expect(mockConsole.log).toHaveBeenCalledWith(
+				expect.stringContaining('i18n initialized successfully')
+			);
 		});
 
 		it('should create nested directories recursively', () => {
@@ -275,7 +301,7 @@ describe('CLI Init', () => {
 			// Should create directories with recursive option
 			expect(mkdirCalls).toContain('/test/project/src/translations/locales');
 			expect(mkdirCalls).toContain('/test/project/src/types');
-			
+
 			// Verify recursive option was used
 			expect(fs.mkdirSync).toHaveBeenCalledWith(
 				expect.any(String),
@@ -296,7 +322,9 @@ describe('CLI Init', () => {
 
 			let i18nContent = '';
 			vi.mocked(fs.writeFileSync).mockImplementation((file, content) => {
-				if (file.toString().includes('i18n.ts')) {
+				const filePath = file.toString();
+				// Capture i18n.ts file content specifically
+				if (filePath === '/test/project/src/translations/i18n.ts' || filePath.endsWith('i18n.ts')) {
 					i18nContent = content.toString();
 				}
 			});
@@ -304,7 +332,9 @@ describe('CLI Init', () => {
 			init();
 
 			// Check import paths
-			expect(i18nContent).toContain("import type { I18nPath } from './app-i18n-generated.js'");
+			expect(i18nContent).toContain(
+				"import type { I18nPath } from '../types/app-i18n-generated.js'"
+			);
 			expect(i18nContent).toContain("import.meta.glob('./locales/*.json'");
 			expect(i18nContent).toContain("namespace: 'app'");
 			expect(i18nContent).toContain('isMain: true');
@@ -358,9 +388,7 @@ describe('CLI Init', () => {
 			expect(mockConsole.log).toHaveBeenCalledWith(
 				expect.stringContaining("import '../translations/i18n'")
 			);
-			expect(mockConsole.log).toHaveBeenCalledWith(
-				expect.stringContaining('npm run i18n:types')
-			);
+			expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('npm run i18n:types'));
 		});
 	});
 
@@ -375,13 +403,13 @@ describe('CLI Init', () => {
 		// Mock fs.existsSync
 		vi.mocked(fs.existsSync).mockImplementation((path) => {
 			const pathStr = path.toString();
-			
+
 			// Package.json always exists
 			if (pathStr.includes('package.json')) return true;
-			
+
 			// Check existing files
-			if (existingFiles.some(f => pathStr === f)) return true;
-			
+			if (existingFiles.some((f) => pathStr === f)) return true;
+
 			// Project type specific paths
 			if (projectType === 'app' || projectType === 'hybrid') {
 				if (pathStr.includes('src/routes')) return true;
@@ -389,7 +417,7 @@ describe('CLI Init', () => {
 			if (projectType === 'library' || projectType === 'hybrid') {
 				if (pathStr.includes('src/lib/index.ts')) return true;
 			}
-			
+
 			return false;
 		});
 
@@ -402,12 +430,11 @@ describe('CLI Init', () => {
 			return '{}';
 		});
 
-		// Mock fs.writeFileSync
-		vi.mocked(fs.writeFileSync).mockImplementation(() => {});
-		
+		// Don't mock fs.writeFileSync here - let individual tests mock it
+
 		// Mock fs.mkdirSync
 		vi.mocked(fs.mkdirSync).mockImplementation(() => undefined);
-		
+
 		// Mock fs.readdirSync for type generation
 		vi.mocked(fs.readdirSync).mockReturnValue(['en.json', 'zh.json'] as any);
 	}

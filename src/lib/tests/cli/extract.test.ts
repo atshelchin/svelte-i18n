@@ -36,6 +36,9 @@ describe('CLI Extract', () => {
 				'src/routes/+page.svelte': mockFileContent
 			});
 
+			// Make sure path.join returns correct values for this test
+			vi.mocked(path.join).mockImplementation((...args) => args.filter((a) => a).join('/'));
+
 			let capturedOutput: any;
 			vi.mocked(fs.writeFileSync).mockImplementation((file, content) => {
 				if (file?.toString().includes('extracted.json')) {
@@ -184,10 +187,10 @@ describe('CLI Extract', () => {
 			};
 
 			setupFileMocks(mockFiles);
-			
+
 			// Mock path.join to work correctly with the scanner
 			vi.mocked(path.join).mockImplementation((...args) => {
-				return args.filter(a => a).join('/');
+				return args.filter((a) => a).join('/');
 			});
 
 			let capturedOutput: any;
@@ -280,10 +283,10 @@ describe('CLI Extract', () => {
 				'special-key': {
 					'with-dash': '[TODO: Add translation]'
 				},
-				'key_with_underscore': '[TODO: Add translation]',
-				'key123': {
-					'with456': {
-						'numbers789': '[TODO: Add translation]'
+				key_with_underscore: '[TODO: Add translation]',
+				key123: {
+					with456: {
+						numbers789: '[TODO: Add translation]'
 					}
 				}
 			});
@@ -381,7 +384,7 @@ describe('CLI Extract', () => {
 	// Helper function to setup file system mocks
 	function setupFileMocks(files: Record<string, string>) {
 		const fileEntries = Object.entries(files);
-		
+
 		vi.mocked(fs.existsSync).mockImplementation((path) => {
 			const pathStr = path?.toString() || '';
 			// Check if it's a file
@@ -393,10 +396,12 @@ describe('CLI Extract', () => {
 				return true;
 			}
 			// Check for excluded directories
-			if (pathStr.includes('node_modules') || 
-				pathStr.includes('.svelte-kit') || 
-				pathStr.includes('dist') || 
-				pathStr.includes('build')) {
+			if (
+				pathStr.includes('node_modules') ||
+				pathStr.includes('.svelte-kit') ||
+				pathStr.includes('dist') ||
+				pathStr.includes('build')
+			) {
 				return true;
 			}
 			return false;
@@ -404,7 +409,49 @@ describe('CLI Extract', () => {
 
 		vi.mocked(fs.statSync).mockImplementation((path) => {
 			const pathStr = path?.toString() || '';
-			const isFile = fileEntries.some(([file]) => pathStr.endsWith(file));
+			// Check if it's an excluded directory
+			if (
+				pathStr === 'node_modules' ||
+				pathStr === '.svelte-kit' ||
+				pathStr === 'dist' ||
+				pathStr === 'build' ||
+				pathStr.includes('/node_modules') ||
+				pathStr.includes('/.svelte-kit') ||
+				pathStr.includes('/dist') ||
+				pathStr.includes('/build')
+			) {
+				return {
+					isDirectory: () => true,
+					isFile: () => false
+				} as any;
+			}
+			// Check if it's a file - match exact paths from join operations
+			const isFile = fileEntries.some(([file]) => {
+				// Exact match
+				if (pathStr === file) return true;
+				// With prefix
+				if (pathStr === './' + file) return true;
+				// Result of path.join
+				if (pathStr === 'src/' + file.substring(4)) return true;
+				// EndsWith for other cases
+				if (pathStr.endsWith('/' + file.split('/').pop())) {
+					// Check if full path matches
+					return fileEntries.some(([f]) => pathStr.endsWith(f.substring(f.indexOf('/'))));
+				}
+				return false;
+			});
+			// 'src' and 'src/routes' should be directories
+			if (
+				pathStr === 'src' ||
+				pathStr === './src' ||
+				pathStr === 'src/routes' ||
+				pathStr.endsWith('/routes')
+			) {
+				return {
+					isDirectory: () => true,
+					isFile: () => false
+				} as any;
+			}
 			return {
 				isDirectory: () => !isFile,
 				isFile: () => isFile
@@ -413,26 +460,57 @@ describe('CLI Extract', () => {
 
 		vi.mocked(fs.readdirSync).mockImplementation((dir) => {
 			const dirStr = dir?.toString() || '';
-			
+
 			// Special handling for excluded directories
-			if (dirStr.includes('node_modules') || 
-				dirStr.includes('.svelte-kit') || 
-				dirStr.includes('dist') || 
-				dirStr.includes('build')) {
+			if (
+				dirStr.includes('node_modules') ||
+				dirStr.includes('.svelte-kit') ||
+				dirStr.includes('dist') ||
+				dirStr.includes('build')
+			) {
 				return [] as any;
 			}
-			
+
 			// Handle root directory
 			if (dirStr === '.' || dirStr === '') {
-				// Return top-level directories and files
+				// Return top-level directories and files including excluded ones
 				const topLevel = new Set<string>();
+				// Add known excluded directories
+				topLevel.add('node_modules');
+				topLevel.add('.svelte-kit');
+				topLevel.add('dist');
+				topLevel.add('build');
+				// Add directories from files
 				fileEntries.forEach(([file]) => {
 					const firstPart = file.split('/')[0];
 					topLevel.add(firstPart);
 				});
 				return Array.from(topLevel) as any;
 			}
-			
+
+			// For 'src' directory, return its contents
+			if (dirStr === 'src' || dirStr === './src') {
+				const items = new Set<string>();
+				fileEntries.forEach(([file]) => {
+					if (file.startsWith('src/')) {
+						const relativePath = file.substring(4); // Remove 'src/'
+						const parts = relativePath.split('/');
+						if (parts.length > 0) {
+							items.add(parts[0]);
+						}
+					}
+				});
+				return Array.from(items) as any;
+			}
+
+			// For 'src/routes' directory
+			if (dirStr === 'src/routes' || dirStr.endsWith('/routes')) {
+				const routesFiles = fileEntries
+					.filter(([file]) => file.startsWith('src/routes/') && !file.substring(11).includes('/'))
+					.map(([file]) => file.substring(11)); // Remove 'src/routes/'
+				return routesFiles as any;
+			}
+
 			// Return files that belong to this directory
 			const filesInDir = fileEntries
 				.filter(([file]) => {
@@ -443,7 +521,7 @@ describe('CLI Extract', () => {
 					const parts = file.split('/');
 					return parts[parts.length - 1];
 				});
-			
+
 			// Add subdirectories
 			const subDirs = new Set<string>();
 			fileEntries.forEach(([file]) => {
@@ -455,13 +533,26 @@ describe('CLI Extract', () => {
 					}
 				}
 			});
-			
+
 			return [...Array.from(subDirs), ...filesInDir] as any;
 		});
 
 		vi.mocked(fs.readFileSync).mockImplementation((file) => {
 			const fileStr = file?.toString() || '';
-			const entry = fileEntries.find(([f]) => fileStr.endsWith(f));
+			// Try exact match first
+			let entry = fileEntries.find(([f]) => fileStr === f);
+			// Then try with path separator
+			if (!entry) {
+				entry = fileEntries.find(([f]) => fileStr === './' + f || fileStr === '/' + f);
+			}
+			// Try if it's path.join result (src/routes/+page.svelte)
+			if (!entry) {
+				entry = fileEntries.find(([f]) => fileStr === f);
+			}
+			// Finally try endsWith
+			if (!entry) {
+				entry = fileEntries.find(([f]) => fileStr.endsWith('/' + f));
+			}
 			return entry ? entry[1] : '';
 		});
 
