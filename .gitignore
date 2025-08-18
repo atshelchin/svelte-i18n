@@ -26,3 +26,6 @@ vite.config.ts.timestamp-*
 .VSCodeCounter
 __screenshots__
 coverage
+
+# Auto-generated files
+src/translations/i18n.d.ts

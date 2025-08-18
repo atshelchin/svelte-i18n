@@ -45,7 +45,11 @@
 			"Bash(npm run test:*)",
 			"Bash(npm test:*)",
 			"Bash(find:*)",
-			"Bash(npx vitest run:*)"
+			"Bash(npx vitest run:*)",
+			"Bash(PWDEBUG=console npx playwright test e2e/default-locale.spec.ts:52 --reporter=line --timeout=30000)",
+			"Bash(PWDEBUG=console npx playwright test \"e2e/language-switching.spec.ts:85:2\" --reporter=line --timeout=30000)",
+			"Bash(PWDEBUG=console npx playwright test e2e/default-locale.spec.ts:52 --reporter=line --timeout=60000 --headed)",
+			"Bash(npx playwright test:*)"
 		],
 		"deny": []
 	}
