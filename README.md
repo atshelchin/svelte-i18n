@@ -9,6 +9,8 @@
 
 [中文文档](./README-zh.md) • [Live Demo](https://atshelchin.github.io/svelte-i18n/) • [Examples](./src/routes)
 
+> ⚠️ **Warning**: This library is currently in active development and is not recommended for production use yet. APIs may change in future releases. Documentation may be incomplete or contain errors.
+
 ## ✨ Features
 
 ### 🎯 Core Features

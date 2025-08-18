@@ -9,6 +9,8 @@
 
 [English](./README.md) • [在线演示](https://atshelchin.github.io/svelte-i18n/) • [示例代码](./src/routes)
 
+> ⚠️ **警告**: 该库目前处于积极开发阶段，还不建议用于生产环境。API 可能会在未来版本中更改。文档可能不完善或包含错误。
+
 ## ✨ 特性
 
 ### 🎯 核心特性
