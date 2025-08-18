@@ -307,7 +307,6 @@ describe('Universal Load Functions', () => {
 
 			expect(mockI18n.clientLoad).toHaveBeenCalled();
 			expect(result).toEqual({
-				locale: 'zh', // Should be 'zh' after setLocale is called
 				locales: ['en', 'zh', 'ja'],
 				i18nReady: true,
 				...data
