@@ -459,7 +459,7 @@ describe('CLI Package Discovery', () => {
 
 	function setupSchemaMocks(schemas: Record<string, any>) {
 		vi.mocked(fs.existsSync).mockImplementation((path) => {
-			return schemas.hasOwnProperty(path.toString());
+			return Object.prototype.hasOwnProperty.call(schemas, path.toString());
 		});
 
 		vi.mocked(fs.readFileSync).mockImplementation((path) => {

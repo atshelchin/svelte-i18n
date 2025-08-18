@@ -1,10 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import fs from 'fs';
-import {
-	discoverPackageTypes,
-	getPackageSchema,
-	validateAgainstPackage
-} from '$lib/cli/type-discovery.js';
+import { discoverPackageTypes, validateAgainstPackage } from '$lib/cli/type-discovery.js';
 
 // Mock fs module
 vi.mock('fs');
@@ -87,9 +83,6 @@ describe('CLI Type Discovery', () => {
 	describe('getPackageSchema', () => {
 		it('should return TypeScript types when available', async () => {
 			// Mock discoverPackageTypes to return types
-			const originalGetPackageSchema = (
-				(await vi.importActual('$lib/cli/type-discovery.js')) as any
-			).getPackageSchema;
 
 			// Create a mock version that uses our mocked discoverPackageTypes
 			const mockGetPackageSchema = vi.fn().mockImplementation(async (packageName) => {

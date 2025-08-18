@@ -64,6 +64,10 @@ export async function loadI18nSSR<T = I18nInstance>(
 	// Extract locale from pathname if URL is provided
 	const pathnameLocale = url ? extractLocaleFromPathname(pathname) : null;
 
+	console.log(
+		`[loadI18nSSR] Cookie name: ${cookieName}, Cookie value: ${cookieLocale}, Pathname locale: ${pathnameLocale}`
+	);
+
 	// Determine locale with priority: pathname > cookie > default
 	let locale = defaultLocale;
 
@@ -92,26 +96,37 @@ export async function loadI18nSSR<T = I18nInstance>(
 		}
 	}
 
-	console.log(
-		`[loadI18nSSR] Pathname: ${pathname}, Cookie locale: ${cookieLocale}, determined locale: ${locale}`
-	);
+	console.log(`[loadI18nSSR] Final determined locale: ${locale} (default: ${defaultLocale})`);
 
 	// Try to load and set the locale
-	if (locale && !i18n.locales.includes(locale)) {
-		// Try loading as auto-discovered locale
-		if (typeof window === 'undefined' && loadServerTranslations && isAutoDiscoveredLocale) {
-			if (isAutoDiscoveredLocale(locale, namespace)) {
-				console.log(`[loadI18nSSR] Loading auto-discovered locale: ${locale}`);
-				const loaded = loadServerTranslations(i18n, locale, namespace);
-				if (loaded) {
-					console.log(`[loadI18nSSR] Successfully loaded ${locale} for SSR`);
-					await i18n.setLocale(locale);
+	if (locale) {
+		if (!i18n.locales.includes(locale)) {
+			// Try loading as auto-discovered locale
+			if (typeof window === 'undefined' && loadServerTranslations && isAutoDiscoveredLocale) {
+				if (isAutoDiscoveredLocale(locale, namespace)) {
+					console.log(`[loadI18nSSR] Loading auto-discovered locale: ${locale}`);
+					const loaded = loadServerTranslations(i18n, locale, namespace);
+					if (loaded) {
+						console.log(`[loadI18nSSR] Successfully loaded ${locale} for SSR`);
+						// Use setLocaleSync if available to avoid issues with SSR
+						if ((i18n as any).setLocaleSync) {
+							(i18n as any).setLocaleSync(locale);
+						} else {
+							await i18n.setLocale(locale);
+						}
+					}
 				}
 			}
+		} else {
+			// Locale is already loaded, just set it
+			console.log(`[loadI18nSSR] Setting already loaded locale: ${locale}`);
+			// Use setLocaleSync if available to avoid issues with SSR
+			if ((i18n as any).setLocaleSync) {
+				(i18n as any).setLocaleSync(locale);
+			} else {
+				await i18n.setLocale(locale);
+			}
 		}
-	} else if (locale && i18n.locales.includes(locale)) {
-		// Locale is already loaded, just set it
-		await i18n.setLocale(locale);
 	}
 
 	// Get all available locales including auto-discovered ones

@@ -209,8 +209,8 @@ describe('CLI Init', () => {
 				existingFiles: ['/test/project/src/translations/locales/en.json']
 			});
 
-			let createdFiles: Record<string, any> = {};
-			let skippedFiles: string[] = [];
+			const createdFiles: Record<string, any> = {};
+			const skippedFiles: string[] = [];
 
 			vi.mocked(fs.writeFileSync).mockImplementation((file, content) => {
 				const fileStr = file.toString();
@@ -261,7 +261,7 @@ describe('CLI Init', () => {
 				projectType: 'app'
 			});
 
-			let packageJsonUpdates: string[] = [];
+			const packageJsonUpdates: string[] = [];
 			vi.mocked(fs.writeFileSync).mockImplementation((file, content) => {
 				if (file.toString().includes('package.json')) {
 					packageJsonUpdates.push(content.toString());
@@ -291,7 +291,7 @@ describe('CLI Init', () => {
 			});
 
 			const mkdirCalls: string[] = [];
-			vi.mocked(fs.mkdirSync).mockImplementation((path, options) => {
+			vi.mocked(fs.mkdirSync).mockImplementation((path, _options) => {
 				mkdirCalls.push(path.toString());
 				return undefined;
 			});

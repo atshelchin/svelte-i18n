@@ -199,7 +199,7 @@ describe('CLI Generate Types', () => {
 			});
 
 			let generatedPath = '';
-			vi.mocked(fs.writeFileSync).mockImplementation((file, content) => {
+			vi.mocked(fs.writeFileSync).mockImplementation((file, _content) => {
 				generatedPath = file.toString();
 			});
 

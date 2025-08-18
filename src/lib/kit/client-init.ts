@@ -34,8 +34,39 @@ export function setupI18nClient<T = I18nInstance>(
 		}
 	}
 
-	// Set locale from server data
-	if (data?.locale && i18n.locales.includes(data.locale)) {
+	// For static builds, prioritize localStorage over SSR data
+	// Check if we have a stored locale that should take precedence
+	let actualLocale = data?.locale || defaultLocale;
+	let shouldUseStoredLocale = false;
+
+	if (browser) {
+		try {
+			const storedLocale = localStorage.getItem(storageKey);
+			if (storedLocale && i18n.locales.includes(storedLocale)) {
+				shouldUseStoredLocale = true;
+				actualLocale = storedLocale;
+				console.log(
+					`[setupI18nClient] Found stored locale: ${storedLocale}, will use it instead of SSR data`
+				);
+				// Set the stored locale immediately
+				const setLocaleSync = (i18n as any).setLocaleSync;
+				if (setLocaleSync && typeof setLocaleSync === 'function') {
+					setLocaleSync.call(i18n, storedLocale);
+				}
+			}
+		} catch (e) {
+			console.warn('[setupI18nClient] Failed to check stored locale:', e);
+		}
+	}
+
+	// Only use SSR data if we don't have a stored locale
+	if (
+		!shouldUseStoredLocale &&
+		data?.locale &&
+		data.locale !== i18n.locale &&
+		i18n.locales.includes(data.locale)
+	) {
+		console.log(`[setupI18nClient] Setting locale from SSR data: ${data.locale}`);
 		// Use synchronous method if available
 		const setLocaleSync = (i18n as any).setLocaleSync;
 		if (setLocaleSync && typeof setLocaleSync === 'function') {
@@ -46,17 +77,19 @@ export function setupI18nClient<T = I18nInstance>(
 		}
 	}
 
-	// Save locale preference to localStorage
-	if (browser && data?.locale) {
+	// Only save to localStorage if we're not using a stored locale
+	// This prevents overwriting the user's preference with SSR data
+	if (browser && !shouldUseStoredLocale && actualLocale) {
 		try {
-			localStorage.setItem(storageKey, data.locale);
+			console.log(`[setupI18nClient] Saving initial locale to storage: ${actualLocale}`);
+			localStorage.setItem(storageKey, actualLocale);
 		} catch (e) {
 			console.warn('[setupI18nClient] Failed to save locale:', e);
 		}
 	}
 
 	return {
-		locale: data?.locale || defaultLocale,
+		locale: actualLocale,
 		locales: data?.locales || i18n.locales,
 		i18nReady: true
 	};
@@ -72,9 +105,9 @@ export function setupI18nClient<T = I18nInstance>(
  */
 export async function initI18nOnMount<T = I18nInstance>(
 	i18n: T & Pick<I18nInstance, 'locale' | 'locales' | 'setLocale'>,
-	data: any,
+	_data: any,
 	options?: {
-		initFunction?: (i18n: any) => Promise<void>;
+		initFunction?: (i18n: any, initOptions?: any) => Promise<void>;
 		storageKey?: string;
 		defaultLocale?: string;
 	}
@@ -84,16 +117,35 @@ export async function initI18nOnMount<T = I18nInstance>(
 	const storageKey = options?.storageKey || 'i18n-locale';
 
 	// Run custom initialization if provided
+	// Don't pass skipLocaleRestore here - let the init function handle locale restoration
 	if (options?.initFunction) {
 		await options.initFunction(i18n);
 	}
 
-	// Try to restore locale from localStorage
+	// Always try to restore locale from localStorage
+	// This ensures persistence works across page refreshes
 	try {
 		const storedLocale = localStorage.getItem(storageKey);
-		if (storedLocale && storedLocale !== i18n.locale) {
-			if (i18n.locales.includes(storedLocale)) {
+		console.log(`[initI18nOnMount] Stored locale: ${storedLocale}, current locale: ${i18n.locale}`);
+		if (storedLocale) {
+			// Always try to set the stored locale, even if it matches current
+			// This ensures the locale is properly set after page refresh
+			const allLocales = [...i18n.locales];
+			// Also check availableLocales if the instance has it
+			if ((i18n as any).availableLocales) {
+				allLocales.push(...(i18n as any).availableLocales);
+			}
+			// Remove duplicates
+			const uniqueLocales = [...new Set(allLocales)];
+
+			if (uniqueLocales.includes(storedLocale)) {
+				console.log(`[initI18nOnMount] Setting/restoring locale to: ${storedLocale}`);
 				await i18n.setLocale(storedLocale);
+			} else {
+				console.log(
+					`[initI18nOnMount] Stored locale ${storedLocale} not in available locales:`,
+					uniqueLocales
+				);
 			}
 		}
 	} catch (e) {

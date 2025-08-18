@@ -62,12 +62,24 @@ export async function loadI18nUniversal<T = I18nInstance>(
 				);
 				console.log(`[loadI18nUniversal] Available locales before setLocale:`, i18n.locales);
 				await i18n.setLocale(storedLocale);
+				// Mark locale as restored to prevent duplicate restoration
+				if ('localeRestored' in i18n) {
+					(i18n as any).localeRestored = true;
+				}
 			} else if (data?.locale && data.locale !== i18n.locale) {
 				// Use server-provided locale only if different from current
 				console.log(`[loadI18nUniversal] Using server locale: ${data.locale}`);
 				await i18n.setLocale(data.locale);
+				// Mark locale as restored to prevent duplicate restoration
+				if ('localeRestored' in i18n) {
+					(i18n as any).localeRestored = true;
+				}
 			} else {
 				console.log(`[loadI18nUniversal] Keeping current locale: ${i18n.locale}`);
+				// Mark locale as restored even if we kept the current locale
+				if ('localeRestored' in i18n) {
+					(i18n as any).localeRestored = true;
+				}
 			}
 		} catch (e) {
 			console.warn('[loadI18nUniversal] Failed to restore locale:', e);

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import fs from 'fs';
 import path from 'path';
 import { detectProjectType, generateTypeDefinitions } from '$lib/cli/utils.js';
@@ -172,7 +172,7 @@ describe('CLI Utils', () => {
 
 			vi.mocked(fs.existsSync).mockReturnValue(true);
 			vi.mocked(fs.readdirSync).mockReturnValue(['en.json', 'zh.json'] as any);
-			vi.mocked(fs.readFileSync).mockImplementation((filePath) => {
+			vi.mocked(fs.readFileSync).mockImplementation((_filePath) => {
 				return JSON.stringify(mockTranslations);
 			});
 			vi.mocked(fs.writeFileSync).mockImplementation(() => {});

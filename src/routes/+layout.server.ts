@@ -11,6 +11,10 @@ import { i18n } from '../translations/i18n.js';
  * 3. Default locale
  */
 export const load: LayoutServerLoad = async ({ cookies, url }) => {
+	// Debug: log all cookies
+	console.log('[+layout.server.ts] All cookies:', cookies.getAll());
+	console.log('[+layout.server.ts] i18n-locale cookie:', cookies.get('i18n-locale'));
+
 	// Pass url to enable pathname locale detection
 	const i18nData = await loadI18nSSR(i18n, cookies, url, {
 		cookieName: 'i18n-locale',

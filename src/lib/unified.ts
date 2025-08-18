@@ -147,6 +147,7 @@ export async function initI18n<TPath extends string = string>(
 	// Auto-detect environment and load accordingly
 	if (typeof window !== 'undefined' && 'clientLoad' in instance && instance.clientLoad) {
 		// Client-side: load translations
+		// Don't skip locale restoration - let clientLoad handle it properly
 		await instance.clientLoad();
 	}
 	// Server-side loading is handled in +layout.server.ts if needed

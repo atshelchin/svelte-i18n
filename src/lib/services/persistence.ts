@@ -57,7 +57,11 @@ export function setLocaleCookie(locale: string, cookieName = DEFAULT_COOKIE_NAME
 		const expires = new Date();
 		expires.setFullYear(expires.getFullYear() + 1);
 
-		document.cookie = `${cookieName}=${encodeURIComponent(locale)}; expires=${expires.toUTCString()}; path=/; SameSite=Lax`;
+		// For localhost, don't set domain to avoid issues
+		// Also use max-age as a fallback to expires
+		const maxAge = 365 * 24 * 60 * 60; // 1 year in seconds
+		document.cookie = `${cookieName}=${encodeURIComponent(locale)}; expires=${expires.toUTCString()}; max-age=${maxAge}; path=/; SameSite=Lax`;
+		console.log(`[setLocaleCookie] Set cookie: ${cookieName}=${locale}`);
 	}
 }
 

@@ -63,6 +63,10 @@ export class I18nStore implements I18nInstance {
 	private availableLocales = $state<string[]>([]);
 	// Track if this is the main app instance
 	private isMainInstance: boolean;
+	// Track if clientLoad has been called to prevent duplicate calls
+	private clientLoadCalled = false;
+	// Track if locale has been restored from storage
+	private localeRestored = false;
 
 	// On server-side, $derived doesn't work, so we need getters
 	get locale() {
@@ -165,9 +169,15 @@ export class I18nStore implements I18nInstance {
 				globalLocaleManager.setLocale(locale, this.config.namespace || 'app');
 			}
 			// Persist to both cookie and localStorage
+			// Use the correct cookie name from config
+			const cookieName = this.config.cookieName || 'i18n-locale';
+			const storageKey = this.config.storageKey || 'i18n-locale';
+			console.log(
+				`[setLocale] Saving locale ${locale} to cookie: ${cookieName}, storage: ${storageKey}`
+			);
 			saveLocaleUniversal(locale, {
-				cookieName: this.config.cookieName,
-				storageKey: this.config.storageKey
+				cookieName,
+				storageKey
 			});
 			console.log(`[setLocale] Successfully set locale to: ${locale}`);
 		} else {
@@ -196,9 +206,15 @@ export class I18nStore implements I18nInstance {
 					if (this.isMainInstance) {
 						globalLocaleManager.setLocale(locale, this.config.namespace || 'app');
 					}
+					// Use the correct cookie name from config
+					const cookieName = this.config.cookieName || 'i18n-locale';
+					const storageKey = this.config.storageKey || 'i18n-locale';
+					console.log(
+						`[setLocale] Saving loaded locale ${locale} to cookie: ${cookieName}, storage: ${storageKey}`
+					);
 					saveLocaleUniversal(locale, {
-						cookieName: this.config.cookieName,
-						storageKey: this.config.storageKey
+						cookieName,
+						storageKey
 					});
 					console.log(`[setLocale] Successfully loaded and set locale to: ${locale}`);
 				} catch (error) {
@@ -723,108 +739,133 @@ export class I18nStore implements I18nInstance {
 		console.log('[clientLoad] Current locales:', this.locales);
 		console.log('[clientLoad] Namespace:', this.config.namespace);
 		console.log('[clientLoad] Options:', options);
+		console.log('[clientLoad] Already called?', this.clientLoadCalled);
+		console.log('[clientLoad] Locale restored?', this.localeRestored);
 
-		// Step 1: Load built-in translations if not already loaded
-		if (this.locales.length === 0) {
-			console.log('[clientLoad] Loading built-in translations...');
-			try {
-				await loadBuiltInTranslations(this, {
-					onLoaded: (locale) => console.log(`✓ Loaded built-in ${locale}`),
-					onError: (locale) => console.warn(`No built-in translations for ${locale}`)
-				});
-			} catch (error) {
-				console.warn('Failed to load built-in translations:', error);
-			}
-		} else {
-			console.log('[clientLoad] Built-in translations already loaded');
-		}
+		// Prevent duplicate translations loading
+		const needsTranslationLoad = !this.clientLoadCalled;
+		const needsLocaleRestore = !this.localeRestored && !options?.skipLocaleRestore;
 
-		// Step 2: ALWAYS try auto-discovery system (based on index.json configuration)
-		// This is important because auto-discovered translations can add new locales
-		// or override existing built-in translations
-		console.log('[clientLoad] Starting auto-discovery...');
-		try {
-			await autoDiscoverV2(this, {
-				namespace: this.config.namespace,
-				onLoaded: (target, locale) => {
-					console.log(`✓ Auto-discovered ${locale} for ${target}`);
-				},
-				onError: (target, locale, error) => {
-					console.error(`Failed to auto-discover ${locale} for ${target}:`, error);
-				}
-			});
-
-			// After auto-discovery, add all discovered locales to availableLocales
-			// This ensures we know which languages can be loaded on demand
-			const config = await loadAutoDiscoveryConfig();
-			if (config?.autoDiscovery) {
-				const namespace = this.config.namespace || 'app';
-				let discoveredLocales: string[] = [];
-
-				if (namespace === 'app' && config.autoDiscovery.app) {
-					discoveredLocales = config.autoDiscovery.app;
-				} else if (config.autoDiscovery.packages?.[namespace]) {
-					discoveredLocales = config.autoDiscovery.packages[namespace];
-				}
-
-				// Add discovered locales to availableLocales
-				for (const locale of discoveredLocales) {
-					if (!this.availableLocales.includes(locale)) {
-						this.availableLocales.push(locale);
-						console.log(`[clientLoad] Added ${locale} to available locales`);
-					}
-				}
-				console.log(`[clientLoad] Available locales after discovery:`, [...this.availableLocales]);
-			}
-		} catch (error) {
-			console.error('Auto-discovery error:', error);
-		}
-
-		// Skip locale restoration if requested (e.g., when already set by loadI18nUniversal)
-		// This means the locale was already restored and set
-		if (options?.skipLocaleRestore) {
-			console.log('[clientLoad] Skipping locale restoration (already handled by caller)');
+		if (!needsTranslationLoad && !needsLocaleRestore) {
+			console.log('[clientLoad] Nothing to do - translations loaded and locale restored');
 			return;
 		}
 
-		// Use provided initial locale or get from cookies/localStorage
-		const clientLocale =
-			options?.initialLocale ||
-			getInitialLocaleUniversal(
-				this.config.defaultLocale,
-				typeof document !== 'undefined' ? document.cookie : undefined,
-				{
-					cookieName: this.config.cookieName,
-					storageKey: this.config.storageKey
+		// Mark as called ONLY if we're going to load translations
+		// This allows locale restoration to happen even if translations were already loaded
+		if (needsTranslationLoad) {
+			this.clientLoadCalled = true;
+		}
+
+		// Only load translations if needed
+		if (needsTranslationLoad) {
+			// Step 1: Load built-in translations if not already loaded
+			if (this.locales.length === 0) {
+				console.log('[clientLoad] Loading built-in translations...');
+				try {
+					await loadBuiltInTranslations(this, {
+						onLoaded: (locale) => console.log(`✓ Loaded built-in ${locale}`),
+						onError: (locale) => console.warn(`No built-in translations for ${locale}`)
+					});
+				} catch (error) {
+					console.warn('Failed to load built-in translations:', error);
 				}
-			);
-
-		console.log(`[clientLoad] Client locale from storage: ${clientLocale}`);
-		console.log(`[clientLoad] Loaded locales:`, this.locales);
-		console.log(`[clientLoad] Available locales:`, [...this.availableLocales]);
-
-		// Set locale if available, otherwise fallback
-		if (this.locales.includes(clientLocale)) {
-			this.currentLocale = clientLocale;
-			// Initialize global locale if this is the main instance
-			if (this.isMainInstance) {
-				globalLocaleManager.setLocale(clientLocale, this.config.namespace || 'app');
+			} else {
+				console.log('[clientLoad] Built-in translations already loaded');
 			}
-		} else if (this.availableLocales.includes(clientLocale)) {
-			// The locale is available (auto-discovered) but not loaded yet
-			// Try to load and set it
-			console.log(`[clientLoad] Attempting to load saved locale: ${clientLocale}`);
+
+			// Step 2: ALWAYS try auto-discovery system (based on index.json configuration)
+			// This is important because auto-discovered translations can add new locales
+			// or override existing built-in translations
+			console.log('[clientLoad] Starting auto-discovery...');
 			try {
-				await this.setLocale(clientLocale);
+				await autoDiscoverV2(this, {
+					namespace: this.config.namespace,
+					onLoaded: (target, locale) => {
+						console.log(`✓ Auto-discovered ${locale} for ${target}`);
+					},
+					onError: (target, locale, error) => {
+						console.error(`Failed to auto-discover ${locale} for ${target}:`, error);
+					}
+				});
+
+				// After auto-discovery, add all discovered locales to availableLocales
+				// This ensures we know which languages can be loaded on demand
+				const config = await loadAutoDiscoveryConfig();
+				if (config?.autoDiscovery) {
+					const namespace = this.config.namespace || 'app';
+					let discoveredLocales: string[] = [];
+
+					if (namespace === 'app' && config.autoDiscovery.app) {
+						discoveredLocales = config.autoDiscovery.app;
+					} else if (config.autoDiscovery.packages?.[namespace]) {
+						discoveredLocales = config.autoDiscovery.packages[namespace];
+					}
+
+					// Add discovered locales to availableLocales
+					for (const locale of discoveredLocales) {
+						if (!this.availableLocales.includes(locale)) {
+							this.availableLocales.push(locale);
+							console.log(`[clientLoad] Added ${locale} to available locales`);
+						}
+					}
+					console.log(`[clientLoad] Available locales after discovery:`, [
+						...this.availableLocales
+					]);
+				}
 			} catch (error) {
-				console.error(`[clientLoad] Failed to load saved locale ${clientLocale}:`, error);
-				// Fallback to default locale
+				console.error('Auto-discovery error:', error);
+			}
+		} // End of needsTranslationLoad block
+
+		// Only restore locale if needed
+		if (needsLocaleRestore) {
+			// Use provided initial locale or get from cookies/localStorage
+			const clientLocale =
+				options?.initialLocale ||
+				getInitialLocaleUniversal(
+					this.config.defaultLocale,
+					typeof document !== 'undefined' ? document.cookie : undefined,
+					{
+						cookieName: this.config.cookieName,
+						storageKey: this.config.storageKey
+					}
+				);
+
+			console.log(`[clientLoad] Client locale from storage: ${clientLocale}`);
+			console.log(`[clientLoad] Loaded locales:`, this.locales);
+			console.log(`[clientLoad] Available locales:`, [...this.availableLocales]);
+
+			// Set locale if available, otherwise fallback
+			if (this.locales.includes(clientLocale)) {
+				this.currentLocale = clientLocale;
+				// Initialize global locale if this is the main instance
+				if (this.isMainInstance) {
+					globalLocaleManager.setLocale(clientLocale, this.config.namespace || 'app');
+				}
+			} else if (this.availableLocales.includes(clientLocale)) {
+				// The locale is available (auto-discovered) but not loaded yet
+				// Try to load and set it
+				console.log(`[clientLoad] Attempting to load saved locale: ${clientLocale}`);
+				try {
+					await this.setLocale(clientLocale);
+				} catch (error) {
+					console.error(`[clientLoad] Failed to load saved locale ${clientLocale}:`, error);
+					// Fallback to default locale
+					const fallbackLocale = this.locales[0] || 'en';
+					await this.setLocale(fallbackLocale);
+				}
+			} else if (!this.locales.includes(this.currentLocale)) {
 				const fallbackLocale = this.locales[0] || 'en';
 				await this.setLocale(fallbackLocale);
 			}
-		} else if (!this.locales.includes(this.currentLocale)) {
-			const fallbackLocale = this.locales[0] || 'en';
-			await this.setLocale(fallbackLocale);
+
+			// Mark locale as restored
+			this.localeRestored = true;
+		} else {
+			console.log(
+				'[clientLoad] Skipping locale restoration (already handled by caller or previously restored)'
+			);
 		}
 	}
 }
@@ -976,6 +1017,15 @@ export function getI18n(namespace?: string): I18nInstance {
 
 // Test utility to reset global state
 export function resetI18nForTesting(): void {
+	// Reset clientLoadCalled flag before clearing instances
+	if (globalInstance) {
+		(globalInstance as any).clientLoadCalled = false;
+	}
+	namespacedInstances.forEach((instance) => {
+		(instance as any).clientLoadCalled = false;
+	});
+
 	globalInstance = null;
 	namespacedInstances.clear();
+	mainAppConfig = null;
 }

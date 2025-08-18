@@ -45,6 +45,8 @@ const config: UnifiedI18nConfig = {
 	defaultLocale: 'en',
 	fallbackLocale: 'en',
 	translations,
+	cookieName: 'i18n-locale', // Explicitly set cookie name
+	storageKey: 'i18n-locale', // Explicitly set storage key
 	interpolation: {
 		prefix: '{',
 		suffix: '}'

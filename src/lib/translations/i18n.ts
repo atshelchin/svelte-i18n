@@ -14,6 +14,7 @@ import {
 } from '$lib/unified.js';
 import type { I18nInstance, TranslationSchema } from '$lib/core/types.js';
 import type { LibI18nPath } from '$lib/types/lib-i18n-generated.js';
+import { PACKAGE_NAME } from '$lib/i18n-meta.js';
 
 // ============================================
 // Auto-scan and import translations from locales directory
@@ -36,15 +37,12 @@ for (const [path, module] of Object.entries(translationModules)) {
 	}
 }
 
-// Get package name
-const packageName = '@shelchin/svelte-i18n';
-
 // ============================================
 // Configure and initialize i18n
 // ============================================
 
 const config: UnifiedI18nConfig = {
-	namespace: '@shelchin/svelte-i18n',
+	namespace: PACKAGE_NAME,
 	defaultLocale: 'en',
 	fallbackLocale: 'en',
 	translations,
@@ -76,7 +74,7 @@ if (typeof window !== 'undefined') {
 export function getEffectiveLibI18n(): I18nInstance {
 	try {
 		// Try to get the app's package instance
-		return getI18nInstance(packageName);
+		return getI18nInstance(PACKAGE_NAME);
 	} catch {
 		// Fallback to library's own instance
 		return libI18n as I18nInstance;

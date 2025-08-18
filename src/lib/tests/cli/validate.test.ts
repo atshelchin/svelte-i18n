@@ -332,7 +332,7 @@ describe('CLI Validate', () => {
 		it('should handle malformed JSON gracefully', () => {
 			vi.mocked(fs.existsSync).mockReturnValue(true);
 			vi.mocked(fs.readdirSync).mockReturnValue(['en.json', 'zh.json'] as any);
-			vi.mocked(fs.statSync).mockImplementation((path) => {
+			vi.mocked(fs.statSync).mockImplementation((_path) => {
 				return {
 					isFile: () => true,
 					isDirectory: () => false
