@@ -29,3 +29,5 @@ coverage
 
 # Auto-generated files
 src/translations/i18n.d.ts
+.claude
+.claude/settings.local.json
