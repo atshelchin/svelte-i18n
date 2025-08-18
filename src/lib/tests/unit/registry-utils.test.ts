@@ -33,7 +33,7 @@ describe('Registry Utils', () => {
 	describe('getAvailableLocales', () => {
 		it('should return all unique locales from registry', () => {
 			const locales = getAvailableLocales(sampleRegistry);
-			
+
 			expect(locales).toContain('en');
 			expect(locales).toContain('zh');
 			expect(locales).toContain('ja');
@@ -53,7 +53,7 @@ describe('Registry Utils', () => {
 					zh: { test: '测试' }
 				}
 			};
-			
+
 			const locales = getAvailableLocales(registry);
 			expect(locales).toEqual(['en', 'zh']);
 		});
@@ -64,7 +64,7 @@ describe('Registry Utils', () => {
 				pkg1: { en: { b: 'B' } },
 				pkg2: { en: { c: 'C' } }
 			};
-			
+
 			const locales = getAvailableLocales(registry);
 			expect(locales).toEqual(['en']);
 		});
@@ -100,14 +100,14 @@ describe('Registry Utils', () => {
 	describe('getMergedTranslations', () => {
 		it('should merge app translations without prefix', () => {
 			const merged = getMergedTranslations(sampleRegistry, 'en');
-			
+
 			expect(merged.welcome).toBe('Welcome');
 			expect(merged.common).toBe('Common');
 		});
 
 		it('should add namespace prefix for package translations', () => {
 			const merged = getMergedTranslations(sampleRegistry, 'en');
-			
+
 			expect(merged['my-package.library']).toBe('Library');
 			expect(merged['my-package.feature']).toBe('Feature');
 			expect(merged['other-package.other']).toBe('Other');
@@ -115,7 +115,7 @@ describe('Registry Utils', () => {
 
 		it('should handle locale with partial coverage', () => {
 			const merged = getMergedTranslations(sampleRegistry, 'ja');
-			
+
 			expect(merged).toEqual({ welcome: 'ようこそ' });
 		});
 
@@ -135,7 +135,7 @@ describe('Registry Utils', () => {
 					en: { test: 'Test' }
 				}
 			};
-			
+
 			const merged = getMergedTranslations(registry, 'en');
 			expect(merged).toEqual({ 'my-package.test': 'Test' });
 		});
@@ -149,7 +149,7 @@ describe('Registry Utils', () => {
 					en: { test: 'Package Test' }
 				}
 			};
-			
+
 			const merged = getMergedTranslations(registry, 'en');
 			expect(merged.test).toBe('App Test');
 			expect(merged['my-package.test']).toBe('Package Test');
@@ -178,7 +178,7 @@ describe('Registry Utils', () => {
 				app: { en: { test: 'Test' } },
 				pkg: { zh: { test: '测试' } }
 			};
-			
+
 			expect(isLocaleAvailable(registry, 'en')).toBe(true);
 			expect(isLocaleAvailable(registry, 'zh')).toBe(true);
 		});
@@ -187,7 +187,7 @@ describe('Registry Utils', () => {
 	describe('getNamespaces', () => {
 		it('should return all namespace names', () => {
 			const namespaces = getNamespaces(sampleRegistry);
-			
+
 			expect(namespaces).toContain('app');
 			expect(namespaces).toContain('my-package');
 			expect(namespaces).toContain('other-package');
@@ -203,7 +203,7 @@ describe('Registry Utils', () => {
 			const registry: TranslationRegistry = {
 				app: { en: { test: 'Test' } }
 			};
-			
+
 			const namespaces = getNamespaces(registry);
 			expect(namespaces).toEqual(['app']);
 		});
@@ -212,7 +212,7 @@ describe('Registry Utils', () => {
 	describe('getNamespaceLocales', () => {
 		it('should return locales for app namespace', () => {
 			const locales = getNamespaceLocales(sampleRegistry, 'app');
-			
+
 			expect(locales).toContain('en');
 			expect(locales).toContain('zh');
 			expect(locales).toContain('ja');
@@ -221,7 +221,7 @@ describe('Registry Utils', () => {
 
 		it('should return locales for package namespace', () => {
 			const locales = getNamespaceLocales(sampleRegistry, 'my-package');
-			
+
 			expect(locales).toContain('en');
 			expect(locales).toContain('zh');
 			expect(locales).toHaveLength(2);

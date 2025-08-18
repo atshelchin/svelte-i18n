@@ -4,7 +4,6 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { loadI18nUniversal, i18nUniversalLoad } from '$lib/kit/universal-load.js';
-import type { I18nInstance } from '$lib/core/types.js';
 
 // Mock browser environment
 let mockBrowser = true;
@@ -77,7 +76,7 @@ describe('Universal Load Functions', () => {
 		describe('Client-side behavior', () => {
 			it('should call clientLoad with skipLocaleRestore', async () => {
 				const data = { locale: 'zh', locales: ['en', 'zh'] };
-				
+
 				await loadI18nUniversal(mockI18n, data);
 
 				expect(mockI18n.clientLoad).toHaveBeenCalledWith({ skipLocaleRestore: true });
@@ -161,13 +160,13 @@ describe('Universal Load Functions', () => {
 			it('should wait for async operations to complete', async () => {
 				localStorageData['i18n-locale'] = 'zh';
 				const data = {};
-				
+
 				// Add delay to simulate async operation
 				let resolveLater: any;
 				const delayedPromise = new Promise((resolve) => {
 					resolveLater = resolve;
 				});
-				
+
 				mockI18n.setLocale = vi.fn((locale: string) => {
 					mockI18n.locale = locale;
 					setTimeout(() => resolveLater(), 5);
@@ -242,7 +241,7 @@ describe('Universal Load Functions', () => {
 
 		describe('Return value', () => {
 			it('should return combined data with locale info', async () => {
-				const data = { 
+				const data = {
 					locale: 'zh',
 					locales: ['en', 'zh'],
 					customProp: 'test'
@@ -317,10 +316,10 @@ describe('Universal Load Functions', () => {
 
 		it('should handle browser flag false', async () => {
 			const data = { locale: 'zh' };
-			
+
 			// Note: The browser parameter in i18nUniversalLoad doesn't affect behavior
 			// since it uses the actual browser detection from $app/environment
-			const result = await i18nUniversalLoad(mockI18n, data, false);
+			await i18nUniversalLoad(mockI18n, data, false);
 
 			// Still runs client code since actual browser is true
 			expect(mockI18n.clientLoad).toHaveBeenCalled();

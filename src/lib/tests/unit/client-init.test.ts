@@ -9,7 +9,6 @@ import {
 	i18nIsReady,
 	i18nClientInit
 } from '$lib/kit/client-init.js';
-import type { I18nInstance } from '$lib/core/types.js';
 
 // Mock browser environment
 vi.mock('$app/environment', () => ({
@@ -154,7 +153,7 @@ describe('Client Init Functions', () => {
 		it('should not save to localStorage when using stored locale', () => {
 			localStorageData['i18n-locale'] = 'ja';
 			const data = { locale: 'zh' };
-			
+
 			vi.clearAllMocks(); // Clear previous calls
 			setupI18nClient(mockI18n, data);
 
@@ -179,7 +178,7 @@ describe('Client Init Functions', () => {
 	describe('initI18nOnMount', () => {
 		it('should call init function when provided', async () => {
 			const initFunction = vi.fn().mockResolvedValue(undefined);
-			
+
 			await initI18nOnMount(mockI18n, {}, { initFunction });
 
 			expect(initFunction).toHaveBeenCalledWith(mockI18n);

@@ -10,7 +10,6 @@ import {
 	registerPackageTranslations,
 	clearRegisteredTranslations
 } from '$lib/services/built-in-loader.js';
-import type { I18nInstance } from '$lib/core/types.js';
 
 describe('Built-in Loader', () => {
 	let mockStore: any;
