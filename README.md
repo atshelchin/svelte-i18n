@@ -1,660 +1,786 @@
 # @shelchin/svelte-i18n
 
-<div align="center">
+> The last Svelte i18n library you'll ever need. Type-safe, zero-config, with seamless SSR/CSR support.
 
-**🌍 The Last i18n Library You'll Ever Need for Svelte**
-
-[![npm version](https://img.shields.io/npm/v/@shelchin/svelte-i18n.svg)](https://www.npmjs.com/package/@shelchin/svelte-i18n)
+[![npm version](https://img.shields.io/npm/v/@shelchin/svelte-i18n)](https://www.npmjs.com/package/@shelchin/svelte-i18n)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Svelte 5](https://img.shields.io/badge/Svelte-5-FF3E00.svg)](https://svelte.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-3178C6.svg)](https://www.typescriptlang.org/)
 
-**Zero-config • Type-safe • AI-powered • Enterprise Features**
+[中文文档](./README-zh.md) • [Live Demo](https://atshelchin.github.io/svelte-i18n/) • [Examples](./src/routes)
 
-[Demo](https://svelte-i18n-demo.vercel.app) • [Documentation](#documentation) • [中文文档](./README-zh.md)
+## ✨ Features
 
-</div>
+### 🎯 Core Features
+- **🔒 Full Type Safety** - Auto-generated TypeScript types for all translation keys
+- **🚀 Zero Configuration** - Works out of the box with sensible defaults
+- **📦 Optimized Bundle Size** - ~35KB gzipped with tree-shaking support
+- **🌐 SSR/CSR Support** - Seamless server-side and client-side rendering
+- **🔄 Hot Module Replacement** - Instant translation updates during development
+- **🎨 Rich Formatting** - Built-in number, date, currency, and list formatting via native Intl API
+- **📱 Smart Locale Detection** - From URL pathname, browser, cookies, or localStorage
 
-> [!WARNING]
-> **⚠️ DEVELOPMENT STATUS: This library is currently in active development and is NOT ready for production use.**
->
-> While we're excited about the features and actively working on stability, please be aware:
->
-> - APIs may change without notice
-> - Some features are experimental
-> - Bugs and breaking changes are expected
->
-> **For production applications, please wait for the stable v1.0.0 release.**
->
-> Feel free to experiment, provide feedback, and contribute! Follow our progress in [Issues](https://github.com/shelchin/svelte-i18n/issues).
+### 🛠️ Developer Experience
+- **🤖 Powerful CLI** - Extract keys, validate translations, generate types
+- **🔍 Runtime Validation** - Catch translation errors during development
+- **📚 Namespace Support** - Isolate translations for packages and libraries
+- **🎯 Smart Fallbacks** - Graceful degradation with fallback locales
+- **💾 Persistence** - Remember user's language preference across sessions
+- **🌍 150+ Languages** - Built-in metadata for all major languages
 
----
+### 🏗️ Architecture
+- **🧩 Svelte 5 Native** - Built with runes from the ground up
+- **🔌 Unified API** - Same API for both applications and npm packages
+- **📊 Lazy Loading** - Load translations on-demand for better performance
+- **🎛️ Configuration Inheritance** - Libraries automatically inherit app configuration
 
-## 🚀 Why @shelchin/svelte-i18n?
-
-> **Stop wrestling with i18n libraries.** We've built the one that just works.
-
-### 🎯 9 Reasons This Changes Everything:
-
-1. **🔗 Unified API for Packages & Apps** - The SAME API works for both npm packages and SvelteKit applications. Package authors and app developers use identical code. Packages automatically inherit app settings.
-
-2. **🤖 AI-Powered Translation Editor** - Non-developers can create translations with OpenAI integration. No JSON editing, no technical knowledge required.
-
-3. **⚡ True Zero-Config** - Auto-discovers languages, auto-loads translations from static files, auto-detects user preferences. It literally just works.
-
-4. **🔒 100% Type-Safe** - Every translation key is typed with auto-completion. Get suggestions as you type `i18n.t('...')`. Typos are compile-time errors.
-
-5. **🎨 Svelte 5 Native** - Built with runes from the ground up. Not a port, not a wrapper - pure Svelte 5.
-
-6. **🌐 Global Formatting** - Format dates, numbers, currencies for 100+ locales using native Intl API. Zero dependencies.
-
-7. **📦 Enterprise-Ready** - Namespace isolation for micro-frontends, static site generation support, post-build language addition via auto-discovery, comprehensive testing.
-
-8. **💾 Translation Caching** - Save and resume translation work anytime. Browser-based IndexedDB storage keeps your progress safe.
-
-9. **📂 Flexible Import Options** - Import from files, URLs, or resume incomplete translations. Supports multiple source languages for context.
-
----
-
-## 💫 Quick Start
-
-### 1. Installation
+## 📦 Installation
 
 ```bash
-# Using pnpm (recommended)
+# Install the package
 pnpm add @shelchin/svelte-i18n
-
-# Using npm
+# or
 npm install @shelchin/svelte-i18n
+# or
+yarn add @shelchin/svelte-i18n
 ```
 
-### 2. Initialize
+## 🚀 Quick Start
+
+### 1. Initialize i18n in your project
+
+Run the initialization command to auto-generate configuration:
 
 ```bash
-# Run the initialization command
-pnpm run svelte-i18n init
+# Run init command (auto-detects project type and generates config)
+pnpm exec svelte-i18n init
+# or
+npx svelte-i18n init
 ```
 
-This automatically:
+This will:
+- Create `src/translations/` directory structure
+- Generate sample translation files (`locales/en.json`, `locales/zh.json`)
+- Create `i18n.ts` configuration file with type-safe setup
+- Generate TypeScript type definitions
 
-- Detects your project type (app/package/both)
-- Creates translation directories
-- Generates TypeScript types
-- Sets up i18n configuration
-
-### 3. Setup Layout Files (Flexible & Simple!)
+The generated `i18n.ts` will look like:
 
 ```typescript
-// +layout.server.ts
-import type { LayoutServerLoad } from './$types.js';
+// src/translations/i18n.ts (auto-generated)
+import { createI18n } from '@shelchin/svelte-i18n';
+import type { I18nPath } from './types/i18n-generated.js';
+
+// Auto-scan and import translations from locales directory
+const translationModules = import.meta.glob('./locales/*.json', {
+  eager: true,
+  import: 'default'
+});
+
+const translations: Record<string, unknown> = {};
+
+// Extract language code from file path and build translations object
+for (const [path, module] of Object.entries(translationModules)) {
+  const match = path.match(/\/([^/]+)\.json$/);
+  if (match && match[1]) {
+    const langCode = match[1];
+    translations[langCode] = module;
+  }
+}
+
+// Create i18n instance with type safety
+export const i18n = createI18n<I18nPath>({
+  namespace: 'app',
+  isMain: true,
+  translations,
+  defaultLocale: 'en',
+  fallbackLocale: 'en'
+});
+
+export default i18n;
+```
+
+### 2. Setup in SvelteKit
+
+#### Configure `+layout.server.ts` for SSR:
+
+```typescript
+// src/routes/+layout.server.ts
 import { loadI18nSSR } from '@shelchin/svelte-i18n';
-import { i18n } from '../translations/i18n.js';
+import { i18n } from '$src/translations/i18n.js';
+import type { LayoutServerLoad } from './$types';
 
-export const load: LayoutServerLoad = async ({ cookies }) => {
-	const i18nData = await loadI18nSSR(i18n, cookies);
-
-	return {
-		...i18nData,
-		// Add your custom data here
-		myData: 'value'
-	};
+export const load: LayoutServerLoad = async ({ request }) => {
+  const locale = await loadI18nSSR(i18n, request);
+  return {
+    locale
+  };
 };
 ```
 
+#### Configure `+layout.ts` for Universal Loading:
+
 ```typescript
-// +layout.ts (optional, for CSR optimizations)
-import type { LayoutLoad } from './$types.js';
+// src/routes/+layout.ts
 import { loadI18nUniversal } from '@shelchin/svelte-i18n';
-import { browser } from '$app/environment';
-import { i18n } from '../translations/i18n.js';
+import { i18n } from '$src/translations/i18n.js';
+import type { LayoutLoad } from './$types';
 
 export const load: LayoutLoad = async ({ data }) => {
-	const i18nData = await loadI18nUniversal(i18n, data, browser);
-
-	return {
-		...i18nData
-		// Add your custom data here
-	};
+  await loadI18nUniversal(i18n, data?.locale);
+  return {
+    locale: data?.locale
+  };
 };
 ```
+
+#### Configure `+layout.svelte` for Client:
 
 ```svelte
-<!-- +layout.svelte -->
+<!-- src/routes/+layout.svelte -->
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { setupI18nClient, initI18nOnMount } from '@shelchin/svelte-i18n';
-	import { i18n, initI18n } from '../translations/i18n.js';
-
-	let { data, children } = $props();
-
-	// Setup i18n synchronously to prevent flash
-	let isReady = $state(setupI18nClient(i18n, data));
-
-	// Initialize on client mount
-	onMount(async () => {
-		await initI18nOnMount(i18n, data, {
-			initFunction: initI18n
-		});
-		if (!isReady) isReady = true;
-	});
+  import { onMount } from 'svelte';
+  import { setupI18nClient } from '@shelchin/svelte-i18n';
+  import { i18n } from '$src/translations/i18n.js';
+  
+  onMount(async () => {
+    await setupI18nClient(i18n);
+  });
 </script>
 
-{#if isReady}
-	{@render children()}
-{:else}
-	<div>Loading...</div>
-{/if}
+<slot />
 ```
 
-### 4. Use in Your App
+### 3. Use in Components
+
+```svelte
+<script lang="ts">
+  import { i18n } from '$src/translations/i18n.js';
+  import { LanguageSwitcher } from '@shelchin/svelte-i18n';
+  
+  let name = $state('World');
+  
+  // Type-safe translations with autocomplete
+  const welcome = i18n.t('welcome');
+  const hello = i18n.t('hello', { name });
+</script>
+
+<h1>{welcome}</h1>
+<p>{hello}</p>
+
+<!-- Direct usage -->
+<nav>
+  <a href="/">{i18n.t('navigation.home')}</a>
+  <a href="/about">{i18n.t('navigation.about')}</a>
+  <a href="/contact">{i18n.t('navigation.contact')}</a>
+</nav>
+
+<!-- Language Switcher Component -->
+<LanguageSwitcher {i18n} />
+```
+
+### 4. Use in Libraries/Packages
+
+For library packages, use namespace to avoid conflicts:
 
 ```typescript
-// In Svelte applications (@ represents ./src)
-import { i18n } from '@/translations/i18n.js';
+// In a library: src/lib/translations/i18n.ts
+import { createI18n } from '@shelchin/svelte-i18n';
+import type { LibI18nPath } from './types/i18n-generated.js';
 
-// Basic usage
-i18n.t('welcome', { name: 'World' }); // "Welcome, World!"
-
-// Switch language
-await i18n.setLocale('zh');
-
-// Formatting
-i18n.formatCurrency(99.99); // "$99.99" / "¥100"
-i18n.formatRelativeTime(-2, 'day'); // "2 days ago"
-```
-
-### 5. Use in Package Development
-
-```typescript
-// In library/package components
-import { i18n } from '$lib/translations/i18n.js';
-
-// Use with namespace isolation
-i18n.t('button.submit'); // Package translations are isolated
-```
-
-**That's it!** Your i18n is ready.
-
----
-
-## 🔗 URL-Based Language Detection (NEW!)
-
-**Automatic language detection from URL pathname** - Support for locale-prefixed URLs like `/zh/about` or `/en-US/products`.
-
-### How It Works
-
-The library now automatically detects and uses language codes from URL pathnames with the following priority:
-
-1. **URL pathname** (e.g., `/zh/about`, `/en-US/products`)
-2. **localStorage** (client-side) or **cookies** (server-side)
-3. **Default locale**
-
-### Setup with Pathname Detection
-
-```typescript
-// +layout.server.ts
-import type { LayoutServerLoad } from './$types.js';
-import { loadI18nSSR } from '@shelchin/svelte-i18n';
-import { i18n } from '../translations/i18n.js';
-
-export const load: LayoutServerLoad = async ({ cookies, url }) => {
-	// Pass url to enable pathname locale detection
-	const i18nData = await loadI18nSSR(i18n, cookies, url);
-	return i18nData;
-};
-```
-
-```typescript
-// +layout.ts
-import type { LayoutLoad } from './$types.js';
-import { loadI18nUniversal } from '@shelchin/svelte-i18n';
-import { browser } from '$app/environment';
-import { i18n } from '../translations/i18n.js';
-
-export const load: LayoutLoad = async ({ data, url }) => {
-	// Pass url to enable pathname locale detection
-	const i18nData = await loadI18nUniversal(i18n, data, browser, url);
-	return i18nData;
-};
-```
-
-### Supported Language Codes
-
-The library recognizes **368+ language codes** including:
-
-- **ISO 639-1**: 2-letter codes (e.g., `en`, `zh`, `fr`)
-- **ISO 639-2/3**: 3-letter codes (e.g., `eng`, `chi`, `fra`)
-- **BCP 47**: Regional variants (e.g., `en-US`, `zh-CN`, `zh-TW`)
-- **All UN member states and recognized regions**
-
-### URL Management Utilities
-
-```typescript
-import { deLocalizeUrl, extractLocaleFromPathname } from '@shelchin/svelte-i18n';
-
-// Remove language code from URL
-const url = new URL('https://example.com/zh/about');
-const cleanUrl = deLocalizeUrl(url); // https://example.com/about
-
-// Extract language code from pathname
-const locale = extractLocaleFromPathname('/zh/about'); // 'zh'
-```
-
-### Benefits
-
-- **SEO-friendly** URLs with language prefixes
-- **Shareable links** that preserve language selection
-- **Automatic language switching** based on URL
-- **Backwards compatible** with existing cookie/localStorage approach
-
----
-
-## 🔍 Auto-Discovery: Add Languages Without Touching Code
-
-**Revolutionary for teams:** Translators can add new languages by simply dropping JSON files in `/static/translations/`. No code changes, no rebuilds, no deployments.
-
-### Setup Auto-Discovery
-
-1. Create `/static/translations/index.json`:
-
-```json
-{
-	"autoDiscovery": {
-		"app": ["es", "hi", "ko", "pt", "ru"],
-		"packages": {
-			"@shelchin/svelte-i18n": ["fr", "zh"]
-		}
-	}
-}
-```
-
-2. Add translation files:
-
-```
-/static/translations/
-├── index.json           # Auto-discovery configuration
-├── app/                 # App translations
-│   ├── es.json
-│   ├── hi.json
-│   ├── ko.json
-│   ├── pt.json
-│   └── ru.json
-└── @shelchin/svelte-i18n/  # Package translations
-    ├── fr.json
-    └── zh.json
-```
-
-3. Enable in your app:
-
-```typescript
-// In +layout.svelte
-onMount(async () => {
-	await i18n.clientLoad(); // Auto-discovers and loads all translations
+// Auto-import translations
+const translationModules = import.meta.glob('./locales/*.json', {
+  eager: true,
+  import: 'default'
 });
+
+const translations: Record<string, unknown> = {};
+for (const [path, module] of Object.entries(translationModules)) {
+  const match = path.match(/\/([^/]+)\.json$/);
+  if (match && match[1]) {
+    translations[match[1]] = module;
+  }
+}
+
+export const libI18n = createI18n<LibI18nPath>({
+  namespace: 'my-ui-lib', // Use your package name
+  translations
+});
+
+// Usage in library component
+libI18n.t('button.save');
 ```
-
-**Result:** New languages appear instantly in your app. Perfect for:
-
-- Post-deployment language additions
-- Community translations
-- A/B testing different translations
-- Regional variations
-
----
 
 ## 🛠️ CLI Commands
 
 ### Generate TypeScript Types
 
 ```bash
-# Generate types with validation
-pnpm run svelte-i18n generate-types
-
-# Skip validation for faster generation
-pnpm run svelte-i18n generate-types --no-validate
-
-# Generate for library only
-pnpm run svelte-i18n generate-types --lib
+# Generate types from translation files
+pnpm exec svelte-i18n generate-types
+# or with custom paths
+pnpm exec svelte-i18n generate-types --dir ./src/translations/locales --out ./src/lib/types/i18n-generated.ts
 ```
 
 ### Validate Translations
 
 ```bash
 # Check for missing translations
-pnpm run svelte-i18n validate src/translations/locales
-
-# Use strict mode (fail on any issue)
-pnpm run svelte-i18n validate src/translations/locales --strict
-
-# Specify base locale
-pnpm run svelte-i18n validate src/translations/locales --base zh
+pnpm exec svelte-i18n validate src/translations/locales
 ```
 
 ### Extract Translation Keys
 
 ```bash
-# Extract all i18n keys from source code
-pnpm run svelte-i18n extract ./src ./template.json
-
-# Extract from specific file types
-pnpm run svelte-i18n extract ./src ./template.json .svelte .ts
+# Extract keys from source code
+pnpm exec svelte-i18n extract ./src ./template.json
 ```
 
----
+## 🎯 Type Safety
 
-## 🚀 Deployment Options
+The `init` command automatically generates TypeScript types. To regenerate after changes:
 
-### Static Site Generation (GitHub Pages, Vercel, Netlify)
-
-This library fully supports static site generation with client-side language switching:
-
-```javascript
-// svelte.config.js
-import adapter from '@sveltejs/adapter-static';
-
-export default {
-	kit: {
-		adapter: adapter({
-			pages: 'build',
-			assets: 'build',
-			fallback: '404.html', // Enable client-side routing
-			precompress: false,
-			strict: true
-		}),
-		paths: {
-			base: process.env.BASE_PATH || '' // For GitHub Pages subdirectory
-		}
-	}
-};
+```bash
+pnpm exec svelte-i18n generate-types
 ```
+
+This creates type definitions that provide autocomplete for all translation keys:
 
 ```typescript
-// +layout.ts (not +layout.server.ts for static sites)
-export const prerender = true; // Enable prerendering
-export const ssr = true;
+// Auto-generated types in src/translations/types/i18n-generated.d.ts
+export type I18nPath = 
+  | "welcome"
+  | "hello"
+  | "navigation.home" 
+  | "navigation.about"
+  | "navigation.contact";
 
-export const load: LayoutLoad = async () => {
-	// Language detection happens on client side
-	return {
-		locale: i18n.locale,
-		locales: i18n.locales
-	};
+// Already configured in your i18n.ts with type safety
+import type { I18nPath } from './types/i18n-generated.js';
+
+export const i18n = createI18n<I18nPath>({
+  // ... config
+});
+
+// Now TypeScript ensures only valid keys are used
+i18n.t('welcome'); // ✅ Valid
+i18n.t('hello', { name: 'John' }); // ✅ Valid with params
+i18n.t('invalid.key'); // ❌ TypeScript error
+```
+
+## 🌍 Formatting
+
+Built-in formatters using native Intl API (zero dependencies):
+
+```typescript
+const i18n = getI18n();
+
+// Numbers
+i18n.formatNumber(1234567.89); // "1,234,567.89" (en) / "1.234.567,89" (de)
+i18n.formatNumber(0.15, 'percent'); // "15%"
+i18n.formatNumber(123456789, 'compact'); // "123M"
+
+// Currency (auto-detects based on locale)
+i18n.formatCurrency(99.99); // "$99.99" (en-US) / "99,99 €" (de-DE)
+i18n.formatCurrency(99.99, 'EUR'); // "€99.99"
+
+// Dates
+i18n.formatDate(new Date()); // "1/15/2024" (en-US) / "15.1.2024" (de)
+i18n.formatDate(new Date(), 'full'); // "Monday, January 15, 2024"
+
+// Time
+i18n.formatTime(new Date()); // "3:30 PM" / "15:30"
+
+// Relative Time
+i18n.formatRelativeTime(-2, 'day'); // "2 days ago"
+i18n.formatRelativeTime(3, 'hour'); // "in 3 hours"
+
+// Lists
+i18n.formatList(['Apple', 'Banana', 'Orange']); // "Apple, Banana, and Orange"
+```
+
+## 🎨 Components
+
+### Language Switcher
+
+Pre-built, accessible language switcher component:
+
+```svelte
+<script>
+  import { LanguageSwitcher } from '@shelchin/svelte-i18n';
+  import { i18n } from '../app/i18n';
+</script>
+
+<!-- Default switcher -->
+<LanguageSwitcher {i18n} />
+
+<!-- With custom styling and position -->
+<LanguageSwitcher 
+  {i18n}
+  class="my-custom-class"
+  position="top-left"
+  showFlags={true}
+  showLabels={true}
+/>
+```
+
+### Validation Popup (Dev Only)
+
+Shows translation errors during development:
+
+```svelte
+<script>
+  import { ValidationPopup } from '@shelchin/svelte-i18n';
+  import { i18n } from '../app/i18n';
+</script>
+
+{#if import.meta.env.DEV}
+  <ValidationPopup {i18n} />
+{/if}
+```
+
+## 📚 Advanced Features
+
+### URL-based Locale Detection
+
+Automatically detect locale from URL pathname:
+
+```typescript
+// Supports patterns like:
+// /zh/about -> Chinese
+// /en-US/products -> American English
+// /de-DE/contact -> German
+
+export const load: LayoutLoad = async ({ data, url }) => {
+  // The url parameter enables pathname locale detection
+  return await loadI18nUniversal(i18n, data, url);
 };
 ```
 
-### Server-Side Rendering (Node.js, Express)
+### Dynamic Translation Loading
 
-For SSR with cookie-based locale persistence:
+Load translations dynamically for code splitting:
 
-```javascript
-// svelte.config.js
-import adapter from '@sveltejs/adapter-node';
+```typescript
+// Option 1: Dynamic imports
+async function loadTranslations(locale: string) {
+  const translations = await import(`../translations/${locale}.json`);
+  await i18n.loadLanguage(locale, translations.default);
+}
+
+// Option 2: Fetch from API
+async function fetchTranslations(locale: string) {
+  const response = await fetch(`/api/translations/${locale}`);
+  const translations = await response.json();
+  await i18n.loadLanguage(locale, translations);
+}
 ```
+
+### Namespace Support for Libraries
+
+Libraries can have isolated translations that don't conflict with the app:
+
+```typescript
+// In your library (my-ui-lib)
+export const libI18n = createI18n({
+  namespace: 'my-ui-lib',
+  translations: {
+    en: { button: { save: 'Save', cancel: 'Cancel' } },
+    zh: { button: { save: '保存', cancel: '取消' } }
+  }
+});
+
+// Library translations are automatically namespaced
+libI18n.t('button.save'); // Uses "my-ui-lib.button.save" internally
+
+// Libraries automatically inherit app's locale
+// When app switches to 'zh', library also switches to 'zh'
+```
+
+### SSR with Cookie Persistence
+
+Server-side rendering with locale persistence:
 
 ```typescript
 // +layout.server.ts
+import type { LayoutServerLoad } from './$types';
 import { loadI18nSSR } from '@shelchin/svelte-i18n';
 
 export const load: LayoutServerLoad = async ({ cookies }) => {
-	return await loadI18nSSR(i18n, cookies, {
-		cookieName: 'my-locale', // optional, defaults to 'i18n-locale'
-		defaultLocale: 'en' // optional, defaults to i18n.locale
-	});
+  const locale = cookies.get('i18n-locale') || 'en';
+  return loadI18nSSR(locale, ['en', 'zh', 'ja']);
 };
 ```
 
----
+### Pluralization
 
-## 📘 Core Features
-
-### Type-Safe Translations
+Handle plural forms correctly for all languages:
 
 ```typescript
-// Auto-generated types from your JSON
-i18n.t('user.profile.name'); // ✅ Type-safe
-i18n.t('user.profle.name'); // ❌ TypeScript error
+// English: 0 = plural, 1 = singular, 2+ = plural
+"items.count": "No items | One item | {count} items"
+
+// Polish: Complex plural rules
+"items.count": "Brak elementów | Jeden element | {count} elementy | {count} elementów"
+
+// Usage
+i18n.t('items.count', { count: 0 });  // "No items"
+i18n.t('items.count', { count: 1 });  // "One item"
+i18n.t('items.count', { count: 5 });  // "5 items"
 ```
 
-### Interpolation & Pluralization
+### Interpolation
+
+Dynamic values in translations:
 
 ```typescript
-i18n.t('items.count', { count: 0 }); // "No items"
-i18n.t('items.count', { count: 1 }); // "1 item"
-i18n.t('items.count', { count: 5 }); // "5 items"
-```
+// Basic interpolation
+"welcome": "Welcome {name}!"
+i18n.t('welcome', { name: 'John' }); // "Welcome John!"
 
-### Formatting API
+// Nested values
+"user.greeting": "Hello {user.firstName} {user.lastName}"
+i18n.t('user.greeting', { 
+  user: { firstName: 'John', lastName: 'Doe' } 
+}); // "Hello John Doe"
 
-```typescript
-// Dates
-i18n.formatDate(new Date()); // "January 15, 2024"
-i18n.formatDate(new Date(), 'short'); // "1/15/24"
-
-// Numbers
-i18n.formatNumber(1234567.89); // "1,234,567.89"
-i18n.formatCurrency(99.99, 'EUR'); // "€99.99"
-i18n.formatPercent(0.85); // "85%"
-
-// Relative Time
-i18n.formatRelativeTime(-1, 'hour'); // "1 hour ago"
-i18n.formatRelativeTime(3, 'month'); // "in 3 months"
-
-// Lists
-i18n.formatList(['A', 'B', 'C']); // "A, B, and C"
+// Custom interpolation markers
+const i18n = createI18n({
+  interpolation: {
+    prefix: '{{',
+    suffix: '}}'
+  }
+});
+// Now use: "welcome": "Welcome {{name}}!"
 ```
 
 ### Runtime Validation
 
-Get instant feedback during development:
-
-```
-❌ Translation validation failed for app in locale "ja":
-  • Missing translation: demo.title
-  • Missing translation: demo.description
-  • Invalid translation type: user.age (expected string, got number)
-```
-
-### Namespace Isolation
-
-Perfect for micro-frontends and component libraries:
+Catch translation issues during development:
 
 ```typescript
-// Component library
-const libI18n = setupI18n({
-	namespace: '@my-lib/components',
-	defaultLocale: 'en'
+const i18n = createI18n({
+  translations,
+  validateInDev: true, // Enable validation
+  validateOptions: {
+    checkInterpolation: true, // Verify {variables} match
+    checkPluralization: true, // Verify plural forms
+    checkHTML: false,          // Allow HTML in translations
+    checkMissing: true,        // Report missing keys
+    checkExtra: true           // Report extra keys
+  }
 });
 
-// Main application
-const appI18n = setupI18n({
-	defaultLocale: 'en'
-});
-
-// Translations are completely isolated
-libI18n.t('button.label'); // From library translations
-appI18n.t('page.title'); // From app translations
+// Shows validation popup in development with errors
 ```
 
----
+## 🛠️ CLI Tools
 
-## 🔗 Unified i18n API for Packages & Applications
+### Initialize Project
 
-**The same API works for both npm packages and SvelteKit applications:**
+Set up i18n in your project interactively:
 
-### For Package Authors
+```bash
+npx svelte-i18n init
+```
+
+This will:
+- Create translation directories
+- Generate initial config files
+- Set up type definitions
+- Create example translations
+
+### Extract Translation Keys
+
+Scan your code and extract all translation keys:
+
+```bash
+# Extract from source code
+npx svelte-i18n extract ./src ./translations/template.json
+
+# Specify file extensions
+npx svelte-i18n extract ./src ./translations/template.json js ts svelte
+```
+
+### Validate Translations
+
+Check for missing or extra keys across all locales:
+
+```bash
+# Basic validation
+npx svelte-i18n validate ./translations
+
+# Strict validation (exit with error code)
+npx svelte-i18n validate ./translations --strict
+
+# Use specific base locale
+npx svelte-i18n validate ./translations --base zh
+```
+
+### Generate TypeScript Types
+
+Generate type definitions for translation keys:
+
+```bash
+# Generate for app translations (default)
+npx svelte-i18n generate-types
+
+# Custom paths
+npx svelte-i18n generate-types \
+  --dir ./translations \
+  --out ./src/types/i18n.ts \
+  --locale en
+
+# Skip validation of other locales
+npx svelte-i18n generate-types --no-validate
+```
+
+## 📖 API Reference
+
+### Core Functions
+
+#### `createI18n<TPath>(config)`
+Creates a typed i18n instance.
 
 ```typescript
-// In your npm package: @my-company/ui-lib
-import { createI18n } from '@shelchin/svelte-i18n';
-import en from './locales/en.json';
-import zh from './locales/zh.json';
-
-export const libI18n = createI18n({
-  namespace: '@my-company/ui-lib',
-  translations: { en, zh }
+const i18n = createI18n<TranslationPaths>({
+  translations,          // Translation data
+  defaultLocale: 'en',   // Default locale
+  fallbackLocale: 'en',  // Fallback for missing translations
+  namespace: 'app',      // Namespace (for libraries)
+  isMain: true,          // Is main app instance?
+  validateInDev: true,   // Enable dev validation
+  interpolation: {       // Interpolation options
+    prefix: '{',
+    suffix: '}'
+  }
 });
+```
 
-// Your component can use it
-export function MyButton() {
-  return <button>{libI18n.t('button.label')}</button>;
+#### `i18n.t(key, params?)`
+Get translated text with optional interpolation.
+
+```typescript
+i18n.t('welcome', { name: 'John' }); // "Welcome John!"
+i18n.t('items.count', { count: 5 }); // "5 items"
+```
+
+#### `i18n.setLocale(locale)`
+Change the current locale (async).
+
+```typescript
+await i18n.setLocale('zh'); // Switch to Chinese
+```
+
+#### `i18n.setLocaleSync(locale)`
+Change locale synchronously (for SSR).
+
+```typescript
+i18n.setLocaleSync('zh'); // Immediate switch
+```
+
+#### `i18n.loadLanguage(locale, translations)`
+Dynamically load translations.
+
+```typescript
+await i18n.loadLanguage('ja', japaneseTranslations);
+```
+
+### Properties
+
+```typescript
+i18n.locale;        // Current locale ('en')
+i18n.locales;       // Available locales (['en', 'zh', 'ja'])
+i18n.isLoading;     // Loading state (true/false)
+i18n.errors;        // Validation errors (dev only)
+i18n.meta;          // Language metadata (direction, native name, etc.)
+```
+
+### SvelteKit Integration
+
+#### `loadI18nUniversal(i18n, data, url?, options?)`
+Universal load function for +layout.ts.
+
+```typescript
+await loadI18nUniversal(i18n, data, url, {
+  storageKey: 'i18n-locale',     // localStorage key
+  cookieName: 'i18n-locale',     // Cookie name  
+  defaultLocale: 'en',            // Default locale
+  detectFromPath: true            // Detect from URL path
+});
+```
+
+#### `loadI18nSSR(locale, locales, options?)`
+Server-side load function for +layout.server.ts.
+
+```typescript
+loadI18nSSR('en', ['en', 'zh'], {
+  cookieName: 'i18n-locale'
+});
+```
+
+#### `setupI18nClient(i18n, data, options?)`
+Synchronous client setup for +layout.svelte.
+
+```typescript
+const result = setupI18nClient(i18n, data, {
+  defaultLocale: 'en',
+  restoreFromStorage: true
+});
+```
+
+#### `initI18nOnMount(i18n, data, options?)`
+Async initialization in onMount.
+
+```typescript
+await initI18nOnMount(i18n, data, {
+  initFunction: async (i18n) => {
+    // Custom initialization
+  }
+});
+```
+
+### Formatting Functions
+
+All formatters are locale-aware and reactive:
+
+```typescript
+formatNumber(value, style?, options?)
+formatCurrency(value, currency?, options?)
+formatDate(date, style?, options?)
+formatTime(date, style?, options?)
+formatRelativeTime(value, unit, options?)
+formatList(items, style?, options?)
+```
+
+### Utility Functions
+
+```typescript
+// Detect browser language
+detectBrowserLanguage(); // 'en-US'
+
+// Validate translation schema
+validateSchema(translations, options);
+
+// Merge translation objects
+mergeTranslations(target, source);
+
+// Get available locales from registry
+getAvailableLocales(registry);
+
+// Check if locale is available
+isLocaleAvailable(registry, 'zh');
+```
+
+## 🔧 Configuration
+
+### Full Configuration Options
+
+```typescript
+interface I18nConfig {
+  // Basic
+  defaultLocale?: string;        // Default: 'en'
+  fallbackLocale?: string;       // Default: same as defaultLocale
+  supportedLocales?: string[];   // Auto-detected if not set
+  
+  // Features
+  validateInDev?: boolean;       // Default: true
+  loadingDelay?: number;         // Default: 200ms
+  namespace?: string;            // Default: 'app'
+  isMain?: boolean;              // Default: true for 'app'
+  
+  // Formatting
+  interpolation?: {
+    prefix?: string;            // Default: '{'
+    suffix?: string;            // Default: '}'
+    escapeValue?: boolean;      // Default: false
+  };
+  
+  pluralization?: {
+    separator?: string;         // Default: '|'
+  };
+  
+  // Validation
+  validateOptions?: {
+    checkInterpolation?: boolean;
+    checkPluralization?: boolean;
+    checkHTML?: boolean;
+    checkMissing?: boolean;
+    checkExtra?: boolean;
+  };
 }
 ```
 
-### For Application Developers
+### Environment Variables
 
-```typescript
-// In your SvelteKit app
-import { createI18n } from '@shelchin/svelte-i18n';
-import en from './locales/en.json';
-import zh from './locales/zh.json';
-
-export const i18n = createI18n({
-	namespace: 'app',
-	isMain: true,
-	defaultLocale: 'en',
-	translations: { en, zh }
-});
+```bash
+# .env
+VITE_I18N_DEFAULT_LOCALE=en
+VITE_I18N_FALLBACK_LOCALE=en
+VITE_I18N_SUPPORTED_LOCALES=en,zh,ja,de,fr
+VITE_I18N_DEBUG=true
 ```
 
-### Key Benefits
+## 🎯 Best Practices
 
-1. **Configuration Inheritance**: Packages automatically inherit locale settings from the main app
-2. **Namespace Isolation**: No translation key conflicts between packages
-3. **Shared Language Switcher**: One component controls all i18n instances
-4. **Type Safety**: Full TypeScript support with auto-completion
-5. **Zero Configuration**: Packages work out-of-the-box in any app
+### 1. Structure Your Translations
 
-### Advanced: Package Following App Locale
-
-```typescript
-// Package translations automatically respect app's locale
-// When app switches to 'zh', package UI follows automatically
-
-// In app
-await appI18n.setLocale('zh');
-
-// Package components automatically use Chinese translations
-// (This feature requires subscription mechanism - coming soon)
+```
+src/
+  translations/
+    en.json          # English (base)
+    zh.json          # Chinese
+    ja.json          # Japanese
+    locales/         # Alternative structure
+      en/
+        common.json
+        errors.json
+        forms.json
 ```
 
-## 🎨 Translation Editor
+### 2. Use Type Safety
 
-Built-in visual editor for non-developers:
+Always generate and use types:
 
-1. **Import** translations from files or URLs
-2. **Edit** with live preview and validation
-3. **Translate** with OpenAI integration
-4. **Export** production-ready JSON files
+```typescript
+// Generate types after translation changes
+npm run i18n:types
+
+// Import and use
+import type { I18nPath } from '$lib/types/i18n-generated';
+export const i18n = createI18n<I18nPath>({ ... });
+```
+
+### 3. Handle Loading States
 
 ```svelte
-<script>
-	import { TranslationEditor } from '@shelchin/svelte-i18n';
-</script>
-
-<TranslationEditor />
+{#if i18n.isLoading}
+  <LoadingSpinner />
+{:else}
+  <Content />
+{/if}
 ```
 
-Features:
-
-- 📁 Multi-source import (files, URLs, saved sessions)
-- 🤖 AI-powered translation with OpenAI
-- 💾 Automatic session saving with IndexedDB
-- 🔍 Smart search and filtering
-- ✅ Real-time validation
-- 📊 Translation progress tracking
-- 🎯 Side-by-side editing
-- 📥 One-click export
-
----
-
-## 🛠️ Installation & Setup
-
-### Basic Setup
-
-```bash
-npm install @shelchin/svelte-i18n
-```
+### 4. Optimize Bundle Size
 
 ```typescript
-// src/lib/i18n.ts
-import { setupI18n } from '@shelchin/svelte-i18n';
+// ❌ Don't import all translations statically
+import * as allTranslations from './translations';
 
-export const i18n = setupI18n({
-	defaultLocale: 'en',
-	fallbackLocale: 'en'
-});
+// ✅ Import only needed or use dynamic imports
+import en from './translations/en.json';
+const zh = await import('./translations/zh.json');
 ```
 
-### With Built-in Translations
+### 5. Test Your Translations
 
 ```typescript
-// Import your translations
-import en from './locales/en.json';
-import es from './locales/es.json';
+// Run validation in CI/CD
+npm run i18n:validate
 
-// Register them
-import { registerBuiltInTranslations } from '@shelchin/svelte-i18n';
-
-registerBuiltInTranslations({
-	app: { en, es }
-});
+// Test with different locales
+npm run dev -- --locale=zh
 ```
-
-### With Auto-Discovery
-
-Create `/static/translations/index.json`:
-
-```json
-{
-	"autoDiscovery": {
-		"app": ["fr", "de", "ja"]
-	}
-}
-```
-
-Then translations are auto-loaded from `/static/translations/app/{locale}.json`.
-
-### SSR (Server-Side Rendering) Example
-
-For a complete SSR example with SvelteKit, check out the [demo repository](https://github.com/atshelchin/i18n-demo).
-
----
-
-## 📦 Package Structure
-
-```
-@shelchin/svelte-i18n
-├── /components          # Pre-built UI components
-│   ├── LanguageSwitcher # Dropdown/button language selector
-│   ├── Trans           # Component with HTML support
-│   └── ValidationPopup # Dev-mode validation display
-├── /stores             # Reactive stores
-├── /cli                # CLI tools for type generation
-└── /editor            # Translation editor component
-```
-
----
-
-## 🔧 CLI Tools
-
-### Generate TypeScript Definitions
-
-```bash
-npx @shelchin/svelte-i18n generate-types
-```
-
-Automatically generates type definitions from your translation files for 100% type safety.
-
----
-
-## 🌍 Supported Languages
-
-Built-in support for 100+ locales via the native Intl API. No locale data to ship!
-
-Popular locales include:
-`en`, `es`, `fr`, `de`, `it`, `pt`, `ru`, `zh`, `ja`, `ko`, `ar`, `hi`, `tr`, `pl`, `nl`, `sv`, `da`, `no`, `fi`, `cs`, `hu`, `ro`, `th`, `vi`, `id`, `ms`, `tl`, `he`, `el`, `uk`, `bg`, `hr`, `sr`, `sk`, `sl`, `lt`, `lv`, `et`, `is`, `ga`, `mt`, `sq`, `mk`, `ka`, `hy`, `az`, `kk`, `uz`, `ky`, `tg`, `tk`, `mn`, `bo`, `ne`, `si`, `my`, `km`, `lo`, `am`, `ti`, `or`, `as`, `ml`, `kn`, `ta`, `te`, `gu`, `mr`, `pa`, `bn`, `ur`, `ps`, `fa`, and many more!
-
----
 
 ## 🤝 Contributing
 
@@ -663,79 +789,45 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 ### Development Setup
 
 ```bash
-# Clone the repo
-git clone https://github.com/yourusername/svelte-i18n.git
-cd svelte-i18n
+# Clone the repository
+git clone https://github.com/atshelchin/svelte-i18n.git
 
 # Install dependencies
 pnpm install
 
-# Start dev server (with SSR enabled)
-npm run dev
+# Start development server
+pnpm dev
 
 # Run tests
-npm test
+pnpm test
+
+# Build library
+pnpm build
 ```
-
-### Build Modes
-
-The demo app supports both static and SSR build modes:
-
-```bash
-# Build for GitHub Pages (static prerendering)
-npm run build:ghpages
-# or
-npm run build:static
-
-# Build with SSR support (for server deployment)
-npm run build:ssr
-
-# Default build (static for GitHub Pages)
-npm run build
-```
-
-**Build Mode Configuration:**
-
-- Development (`npm run dev`): Always uses SSR for better pathname locale detection
-- Production builds:
-  - `build:static`: Static prerendering for GitHub Pages
-  - `build:ssr`: SSR mode for server deployment
-  - `build`: Defaults to static mode
-
-You can also set the `VITE_BUILD_MODE` environment variable in `.env` file.
-
----
 
 ## 📄 License
 
-MIT © [shelchin](https://github.com/atshelchin)
-
----
+MIT © [Shelchin](https://github.com/atshelchin)
 
 ## 🙏 Acknowledgments
 
 Built with ❤️ using:
-
 - [Svelte 5](https://svelte.dev) - The magical disappearing framework
-- [SvelteKit](https://kit.svelte.dev) - The fastest way to build apps
-- [TypeScript](https://www.typescriptlang.org) - JavaScript with superpowers
+- [SvelteKit](https://kit.svelte.dev) - The fastest way to build Svelte apps
+- [TypeScript](https://www.typescriptlang.org) - JavaScript with syntax for types
 - [Vite](https://vitejs.dev) - Next generation frontend tooling
 
----
-
-## 📬 Support
-
-- 📧 Email: [your-email@example.com](mailto:your-email@example.com)
-- 🐛 Issues: [GitHub Issues](https://github.com/yourusername/svelte-i18n/issues)
-- 💬 Discussions: [GitHub Discussions](https://github.com/yourusername/svelte-i18n/discussions)
-- 📖 Docs: [Full Documentation](https://your-docs-site.com)
+Special thanks to all [contributors](https://github.com/atshelchin/svelte-i18n/graphs/contributors) who helped make this project better!
 
 ---
 
 <div align="center">
 
-**Ready to revolutionize your i18n?**
+**[Documentation](https://github.com/atshelchin/svelte-i18n#readme)** • 
+**[Live Demo](https://atshelchin.github.io/svelte-i18n/)** • 
+**[Examples](https://github.com/atshelchin/svelte-i18n/tree/main/src/routes)** • 
+**[Report Bug](https://github.com/atshelchin/svelte-i18n/issues)**
 
-[Get Started](#quick-start) • [View Demo](https://svelte-i18n-demo.vercel.app) • [Star on GitHub](https://github.com/yourusername/svelte-i18n)
+Made with ❤️ by [Shelchin](https://github.com/atshelchin)
 
 </div>
