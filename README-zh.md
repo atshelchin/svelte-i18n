@@ -12,6 +12,7 @@
 ## ✨ 特性
 
 ### 🎯 核心特性
+
 - **🔒 完全类型安全** - 自动生成所有翻译键的 TypeScript 类型
 - **🚀 零配置** - 开箱即用，拥有合理的默认设置
 - **📦 优化的包体积** - 压缩后约 35KB，支持 tree-shaking
@@ -21,6 +22,7 @@
 - **📱 智能语言检测** - 从 URL 路径、浏览器、Cookie 或 localStorage 检测
 
 ### 🛠️ 开发体验
+
 - **🤖 强大的 CLI** - 提取键、验证翻译、生成类型
 - **🔍 运行时验证** - 在开发时捕获翻译错误
 - **📚 命名空间支持** - 为包和库隔离翻译
@@ -29,6 +31,7 @@
 - **🌍 150+ 语言** - 内置所有主要语言的元数据
 
 ### 🏗️ 架构
+
 - **🧩 原生 Svelte 5** - 从零开始使用 runes 构建
 - **🔌 统一 API** - 应用程序和 npm 包使用相同的 API
 - **📊 懒加载** - 按需加载翻译以获得更好的性能
@@ -59,6 +62,7 @@ npx svelte-i18n init
 ```
 
 这将：
+
 - 创建 `src/translations/` 目录结构
 - 生成示例翻译文件（`locales/en.json`、`locales/zh.json`）
 - 创建带类型安全设置的 `i18n.ts` 配置文件
@@ -73,28 +77,28 @@ import type { I18nPath } from './types/i18n-generated.js';
 
 // 自动扫描并导入 locales 目录中的翻译
 const translationModules = import.meta.glob('./locales/*.json', {
-  eager: true,
-  import: 'default'
+	eager: true,
+	import: 'default'
 });
 
 const translations: Record<string, unknown> = {};
 
 // 从文件路径提取语言代码并构建翻译对象
 for (const [path, module] of Object.entries(translationModules)) {
-  const match = path.match(/\/([^/]+)\.json$/);
-  if (match && match[1]) {
-    const langCode = match[1];
-    translations[langCode] = module;
-  }
+	const match = path.match(/\/([^/]+)\.json$/);
+	if (match && match[1]) {
+		const langCode = match[1];
+		translations[langCode] = module;
+	}
 }
 
 // 创建带类型安全的 i18n 实例
 export const i18n = createI18n<I18nPath>({
-  namespace: 'app',
-  isMain: true,
-  translations,
-  defaultLocale: 'en',
-  fallbackLocale: 'en'
+	namespace: 'app',
+	isMain: true,
+	translations,
+	defaultLocale: 'en',
+	fallbackLocale: 'en'
 });
 
 export default i18n;
@@ -111,10 +115,10 @@ import { i18n } from '$src/translations/i18n.js';
 import type { LayoutServerLoad } from './$types';
 
 export const load: LayoutServerLoad = async ({ request }) => {
-  const locale = await loadI18nSSR(i18n, request);
-  return {
-    locale
-  };
+	const locale = await loadI18nSSR(i18n, request);
+	return {
+		locale
+	};
 };
 ```
 
@@ -127,10 +131,10 @@ import { i18n } from '$src/translations/i18n.js';
 import type { LayoutLoad } from './$types';
 
 export const load: LayoutLoad = async ({ data }) => {
-  await loadI18nUniversal(i18n, data?.locale);
-  return {
-    locale: data?.locale
-  };
+	await loadI18nUniversal(i18n, data?.locale);
+	return {
+		locale: data?.locale
+	};
 };
 ```
 
@@ -139,13 +143,13 @@ export const load: LayoutLoad = async ({ data }) => {
 ```svelte
 <!-- src/routes/+layout.svelte -->
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { setupI18nClient } from '@shelchin/svelte-i18n';
-  import { i18n } from '$src/translations/i18n.js';
-  
-  onMount(async () => {
-    await setupI18nClient(i18n);
-  });
+	import { onMount } from 'svelte';
+	import { setupI18nClient } from '@shelchin/svelte-i18n';
+	import { i18n } from '$src/translations/i18n.js';
+
+	onMount(async () => {
+		await setupI18nClient(i18n);
+	});
 </script>
 
 <slot />
@@ -155,14 +159,14 @@ export const load: LayoutLoad = async ({ data }) => {
 
 ```svelte
 <script lang="ts">
-  import { i18n } from '$src/translations/i18n.js';
-  import { LanguageSwitcher } from '@shelchin/svelte-i18n';
-  
-  let name = $state('世界');
-  
-  // 带自动补全的类型安全翻译
-  const welcome = i18n.t('welcome');
-  const hello = i18n.t('hello', { name });
+	import { i18n } from '$src/translations/i18n.js';
+	import { LanguageSwitcher } from '@shelchin/svelte-i18n';
+
+	let name = $state('世界');
+
+	// 带自动补全的类型安全翻译
+	const welcome = i18n.t('welcome');
+	const hello = i18n.t('hello', { name });
 </script>
 
 <h1>{welcome}</h1>
@@ -170,9 +174,9 @@ export const load: LayoutLoad = async ({ data }) => {
 
 <!-- 直接使用 -->
 <nav>
-  <a href="/">{i18n.t('navigation.home')}</a>
-  <a href="/about">{i18n.t('navigation.about')}</a>
-  <a href="/contact">{i18n.t('navigation.contact')}</a>
+	<a href="/">{i18n.t('navigation.home')}</a>
+	<a href="/about">{i18n.t('navigation.about')}</a>
+	<a href="/contact">{i18n.t('navigation.contact')}</a>
 </nav>
 
 <!-- 语言切换器组件 -->
@@ -190,21 +194,21 @@ import type { LibI18nPath } from './types/i18n-generated.js';
 
 // 自动导入翻译
 const translationModules = import.meta.glob('./locales/*.json', {
-  eager: true,
-  import: 'default'
+	eager: true,
+	import: 'default'
 });
 
 const translations: Record<string, unknown> = {};
 for (const [path, module] of Object.entries(translationModules)) {
-  const match = path.match(/\/([^/]+)\.json$/);
-  if (match && match[1]) {
-    translations[match[1]] = module;
-  }
+	const match = path.match(/\/([^/]+)\.json$/);
+	if (match && match[1]) {
+		translations[match[1]] = module;
+	}
 }
 
 export const libI18n = createI18n<LibI18nPath>({
-  namespace: 'my-ui-lib', // 使用您的包名
-  translations
+	namespace: 'my-ui-lib', // 使用您的包名
+	translations
 });
 
 // 在库组件中使用
@@ -248,18 +252,18 @@ pnpm exec svelte-i18n generate-types
 
 ```typescript
 // 在 src/translations/types/i18n-generated.d.ts 中自动生成的类型
-export type I18nPath = 
-  | "welcome"
-  | "hello"
-  | "navigation.home" 
-  | "navigation.about"
-  | "navigation.contact";
+export type I18nPath =
+	| 'welcome'
+	| 'hello'
+	| 'navigation.home'
+	| 'navigation.about'
+	| 'navigation.contact';
 
 // 已在您的 i18n.ts 中配置了类型安全
 import type { I18nPath } from './types/i18n-generated.js';
 
 export const i18n = createI18n<I18nPath>({
-  // ... 配置
+	// ... 配置
 });
 
 // 现在 TypeScript 确保只使用有效的键
@@ -307,20 +311,20 @@ i18n.formatList(['苹果', '香蕉', '橙子']); // "苹果、香蕉和橙子"
 
 ```svelte
 <script>
-  import { LanguageSwitcher } from '@shelchin/svelte-i18n';
-  import { i18n } from '../app/i18n';
+	import { LanguageSwitcher } from '@shelchin/svelte-i18n';
+	import { i18n } from '../app/i18n';
 </script>
 
 <!-- 默认切换器 -->
 <LanguageSwitcher {i18n} />
 
 <!-- 自定义样式和位置 -->
-<LanguageSwitcher 
-  {i18n}
-  class="my-custom-class"
-  position="top-left"
-  showFlags={true}
-  showLabels={true}
+<LanguageSwitcher
+	{i18n}
+	class="my-custom-class"
+	position="top-left"
+	showFlags={true}
+	showLabels={true}
 />
 ```
 
@@ -330,12 +334,12 @@ i18n.formatList(['苹果', '香蕉', '橙子']); // "苹果、香蕉和橙子"
 
 ```svelte
 <script>
-  import { ValidationPopup } from '@shelchin/svelte-i18n';
-  import { i18n } from '../app/i18n';
+	import { ValidationPopup } from '@shelchin/svelte-i18n';
+	import { i18n } from '../app/i18n';
 </script>
 
 {#if import.meta.env.DEV}
-  <ValidationPopup {i18n} />
+	<ValidationPopup {i18n} />
 {/if}
 ```
 
@@ -352,8 +356,8 @@ i18n.formatList(['苹果', '香蕉', '橙子']); // "苹果、香蕉和橙子"
 // /de-DE/contact -> 德语
 
 export const load: LayoutLoad = async ({ data, url }) => {
-  // url 参数启用路径语言检测
-  return await loadI18nUniversal(i18n, data, url);
+	// url 参数启用路径语言检测
+	return await loadI18nUniversal(i18n, data, url);
 };
 ```
 
@@ -364,15 +368,15 @@ export const load: LayoutLoad = async ({ data, url }) => {
 ```typescript
 // 选项 1：动态导入
 async function loadTranslations(locale: string) {
-  const translations = await import(`../translations/${locale}.json`);
-  await i18n.loadLanguage(locale, translations.default);
+	const translations = await import(`../translations/${locale}.json`);
+	await i18n.loadLanguage(locale, translations.default);
 }
 
 // 选项 2：从 API 获取
 async function fetchTranslations(locale: string) {
-  const response = await fetch(`/api/translations/${locale}`);
-  const translations = await response.json();
-  await i18n.loadLanguage(locale, translations);
+	const response = await fetch(`/api/translations/${locale}`);
+	const translations = await response.json();
+	await i18n.loadLanguage(locale, translations);
 }
 ```
 
@@ -383,11 +387,11 @@ async function fetchTranslations(locale: string) {
 ```typescript
 // 在您的库中 (my-ui-lib)
 export const libI18n = createI18n({
-  namespace: 'my-ui-lib',
-  translations: {
-    en: { button: { save: 'Save', cancel: 'Cancel' } },
-    zh: { button: { save: '保存', cancel: '取消' } }
-  }
+	namespace: 'my-ui-lib',
+	translations: {
+		en: { button: { save: 'Save', cancel: 'Cancel' } },
+		zh: { button: { save: '保存', cancel: '取消' } }
+	}
 });
 
 // 库翻译自动添加命名空间
@@ -407,8 +411,8 @@ import type { LayoutServerLoad } from './$types';
 import { loadI18nSSR } from '@shelchin/svelte-i18n';
 
 export const load: LayoutServerLoad = async ({ cookies }) => {
-  const locale = cookies.get('i18n-locale') || 'en';
-  return loadI18nSSR(locale, ['en', 'zh', 'ja']);
+	const locale = cookies.get('i18n-locale') || 'en';
+	return loadI18nSSR(locale, ['en', 'zh', 'ja']);
 };
 ```
 
@@ -440,8 +444,8 @@ i18n.t('welcome', { name: '张三' }); // "欢迎张三！"
 
 // 嵌套值
 "user.greeting": "你好 {user.firstName} {user.lastName}"
-i18n.t('user.greeting', { 
-  user: { firstName: '张', lastName: '三' } 
+i18n.t('user.greeting', {
+  user: { firstName: '张', lastName: '三' }
 }); // "你好张三"
 
 // 自定义插值标记
@@ -460,15 +464,15 @@ const i18n = createI18n({
 
 ```typescript
 const i18n = createI18n({
-  translations,
-  validateInDev: true, // 启用验证
-  validateOptions: {
-    checkInterpolation: true, // 验证 {变量} 匹配
-    checkPluralization: true, // 验证复数形式
-    checkHTML: false,          // 允许翻译中的 HTML
-    checkMissing: true,        // 报告缺失的键
-    checkExtra: true           // 报告多余的键
-  }
+	translations,
+	validateInDev: true, // 启用验证
+	validateOptions: {
+		checkInterpolation: true, // 验证 {变量} 匹配
+		checkPluralization: true, // 验证复数形式
+		checkHTML: false, // 允许翻译中的 HTML
+		checkMissing: true, // 报告缺失的键
+		checkExtra: true // 报告多余的键
+	}
 });
 
 // 在开发时显示带错误的验证弹窗
@@ -485,6 +489,7 @@ npx svelte-i18n init
 ```
 
 这将：
+
 - 创建翻译目录
 - 生成初始配置文件
 - 设置类型定义
@@ -540,24 +545,27 @@ npx svelte-i18n generate-types --no-validate
 ### 核心函数
 
 #### `createI18n<TPath>(config)`
+
 创建类型化的 i18n 实例。
 
 ```typescript
 const i18n = createI18n<TranslationPaths>({
-  translations,          // 翻译数据
-  defaultLocale: 'en',   // 默认语言
-  fallbackLocale: 'en',  // 缺失翻译的回退语言
-  namespace: 'app',      // 命名空间（用于库）
-  isMain: true,          // 是否为主应用实例？
-  validateInDev: true,   // 启用开发验证
-  interpolation: {       // 插值选项
-    prefix: '{',
-    suffix: '}'
-  }
+	translations, // 翻译数据
+	defaultLocale: 'en', // 默认语言
+	fallbackLocale: 'en', // 缺失翻译的回退语言
+	namespace: 'app', // 命名空间（用于库）
+	isMain: true, // 是否为主应用实例？
+	validateInDev: true, // 启用开发验证
+	interpolation: {
+		// 插值选项
+		prefix: '{',
+		suffix: '}'
+	}
 });
 ```
 
 #### `i18n.t(key, params?)`
+
 获取带可选插值的翻译文本。
 
 ```typescript
@@ -566,6 +574,7 @@ i18n.t('items.count', { count: 5 }); // "5 个项目"
 ```
 
 #### `i18n.setLocale(locale)`
+
 更改当前语言（异步）。
 
 ```typescript
@@ -573,6 +582,7 @@ await i18n.setLocale('zh'); // 切换到中文
 ```
 
 #### `i18n.setLocaleSync(locale)`
+
 同步更改语言（用于 SSR）。
 
 ```typescript
@@ -580,6 +590,7 @@ i18n.setLocaleSync('zh'); // 立即切换
 ```
 
 #### `i18n.loadLanguage(locale, translations)`
+
 动态加载翻译。
 
 ```typescript
@@ -589,54 +600,58 @@ await i18n.loadLanguage('ja', japaneseTranslations);
 ### 属性
 
 ```typescript
-i18n.locale;        // 当前语言 ('zh')
-i18n.locales;       // 可用语言 (['en', 'zh', 'ja'])
-i18n.isLoading;     // 加载状态 (true/false)
-i18n.errors;        // 验证错误（仅开发环境）
-i18n.meta;          // 语言元数据（方向、原生名称等）
+i18n.locale; // 当前语言 ('zh')
+i18n.locales; // 可用语言 (['en', 'zh', 'ja'])
+i18n.isLoading; // 加载状态 (true/false)
+i18n.errors; // 验证错误（仅开发环境）
+i18n.meta; // 语言元数据（方向、原生名称等）
 ```
 
 ### SvelteKit 集成
 
 #### `loadI18nUniversal(i18n, data, url?, options?)`
+
 用于 +layout.ts 的通用加载函数。
 
 ```typescript
 await loadI18nUniversal(i18n, data, url, {
-  storageKey: 'i18n-locale',     // localStorage 键
-  cookieName: 'i18n-locale',     // Cookie 名称
-  defaultLocale: 'zh',            // 默认语言
-  detectFromPath: true            // 从 URL 路径检测
+	storageKey: 'i18n-locale', // localStorage 键
+	cookieName: 'i18n-locale', // Cookie 名称
+	defaultLocale: 'zh', // 默认语言
+	detectFromPath: true // 从 URL 路径检测
 });
 ```
 
 #### `loadI18nSSR(locale, locales, options?)`
+
 用于 +layout.server.ts 的服务端加载函数。
 
 ```typescript
 loadI18nSSR('zh', ['en', 'zh'], {
-  cookieName: 'i18n-locale'
+	cookieName: 'i18n-locale'
 });
 ```
 
 #### `setupI18nClient(i18n, data, options?)`
+
 用于 +layout.svelte 的同步客户端设置。
 
 ```typescript
 const result = setupI18nClient(i18n, data, {
-  defaultLocale: 'zh',
-  restoreFromStorage: true
+	defaultLocale: 'zh',
+	restoreFromStorage: true
 });
 ```
 
 #### `initI18nOnMount(i18n, data, options?)`
+
 在 onMount 中的异步初始化。
 
 ```typescript
 await initI18nOnMount(i18n, data, {
-  initFunction: async (i18n) => {
-    // 自定义初始化
-  }
+	initFunction: async (i18n) => {
+		// 自定义初始化
+	}
 });
 ```
 
@@ -678,36 +693,36 @@ isLocaleAvailable(registry, 'zh');
 
 ```typescript
 interface I18nConfig {
-  // 基础
-  defaultLocale?: string;        // 默认：'en'
-  fallbackLocale?: string;       // 默认：与 defaultLocale 相同
-  supportedLocales?: string[];   // 如果未设置则自动检测
-  
-  // 功能
-  validateInDev?: boolean;       // 默认：true
-  loadingDelay?: number;         // 默认：200ms
-  namespace?: string;            // 默认：'app'
-  isMain?: boolean;              // 对于 'app' 默认为 true
-  
-  // 格式化
-  interpolation?: {
-    prefix?: string;            // 默认：'{'
-    suffix?: string;            // 默认：'}'
-    escapeValue?: boolean;      // 默认：false
-  };
-  
-  pluralization?: {
-    separator?: string;         // 默认：'|'
-  };
-  
-  // 验证
-  validateOptions?: {
-    checkInterpolation?: boolean;
-    checkPluralization?: boolean;
-    checkHTML?: boolean;
-    checkMissing?: boolean;
-    checkExtra?: boolean;
-  };
+	// 基础
+	defaultLocale?: string; // 默认：'en'
+	fallbackLocale?: string; // 默认：与 defaultLocale 相同
+	supportedLocales?: string[]; // 如果未设置则自动检测
+
+	// 功能
+	validateInDev?: boolean; // 默认：true
+	loadingDelay?: number; // 默认：200ms
+	namespace?: string; // 默认：'app'
+	isMain?: boolean; // 对于 'app' 默认为 true
+
+	// 格式化
+	interpolation?: {
+		prefix?: string; // 默认：'{'
+		suffix?: string; // 默认：'}'
+		escapeValue?: boolean; // 默认：false
+	};
+
+	pluralization?: {
+		separator?: string; // 默认：'|'
+	};
+
+	// 验证
+	validateOptions?: {
+		checkInterpolation?: boolean;
+		checkPluralization?: boolean;
+		checkHTML?: boolean;
+		checkMissing?: boolean;
+		checkExtra?: boolean;
+	};
 }
 ```
 
@@ -755,9 +770,9 @@ export const i18n = createI18n<I18nPath>({ ... });
 
 ```svelte
 {#if i18n.isLoading}
-  <LoadingSpinner />
+	<LoadingSpinner />
 {:else}
-  <Content />
+	<Content />
 {/if}
 ```
 
@@ -812,6 +827,7 @@ MIT © [Shelchin](https://github.com/atshelchin)
 ## 🙏 致谢
 
 使用以下技术构建 ❤️：
+
 - [Svelte 5](https://svelte.dev) - 神奇的消失框架
 - [SvelteKit](https://kit.svelte.dev) - 构建 Svelte 应用的最快方式
 - [TypeScript](https://www.typescriptlang.org) - 带类型语法的 JavaScript
@@ -823,9 +839,9 @@ MIT © [Shelchin](https://github.com/atshelchin)
 
 <div align="center">
 
-**[文档](https://github.com/atshelchin/svelte-i18n#readme)** • 
-**[在线演示](https://atshelchin.github.io/svelte-i18n/)** • 
-**[示例](https://github.com/atshelchin/svelte-i18n/tree/main/src/routes)** • 
+**[文档](https://github.com/atshelchin/svelte-i18n#readme)** •
+**[在线演示](https://atshelchin.github.io/svelte-i18n/)** •
+**[示例](https://github.com/atshelchin/svelte-i18n/tree/main/src/routes)** •
 **[报告问题](https://github.com/atshelchin/svelte-i18n/issues)**
 
 由 [Shelchin](https://github.com/atshelchin) 用 ❤️ 制作

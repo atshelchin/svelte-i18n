@@ -12,6 +12,7 @@
 ## ✨ Features
 
 ### 🎯 Core Features
+
 - **🔒 Full Type Safety** - Auto-generated TypeScript types for all translation keys
 - **🚀 Zero Configuration** - Works out of the box with sensible defaults
 - **📦 Optimized Bundle Size** - ~35KB gzipped with tree-shaking support
@@ -21,6 +22,7 @@
 - **📱 Smart Locale Detection** - From URL pathname, browser, cookies, or localStorage
 
 ### 🛠️ Developer Experience
+
 - **🤖 Powerful CLI** - Extract keys, validate translations, generate types
 - **🔍 Runtime Validation** - Catch translation errors during development
 - **📚 Namespace Support** - Isolate translations for packages and libraries
@@ -29,6 +31,7 @@
 - **🌍 150+ Languages** - Built-in metadata for all major languages
 
 ### 🏗️ Architecture
+
 - **🧩 Svelte 5 Native** - Built with runes from the ground up
 - **🔌 Unified API** - Same API for both applications and npm packages
 - **📊 Lazy Loading** - Load translations on-demand for better performance
@@ -59,6 +62,7 @@ npx svelte-i18n init
 ```
 
 This will:
+
 - Create `src/translations/` directory structure
 - Generate sample translation files (`locales/en.json`, `locales/zh.json`)
 - Create `i18n.ts` configuration file with type-safe setup
@@ -73,28 +77,28 @@ import type { I18nPath } from './types/i18n-generated.js';
 
 // Auto-scan and import translations from locales directory
 const translationModules = import.meta.glob('./locales/*.json', {
-  eager: true,
-  import: 'default'
+	eager: true,
+	import: 'default'
 });
 
 const translations: Record<string, unknown> = {};
 
 // Extract language code from file path and build translations object
 for (const [path, module] of Object.entries(translationModules)) {
-  const match = path.match(/\/([^/]+)\.json$/);
-  if (match && match[1]) {
-    const langCode = match[1];
-    translations[langCode] = module;
-  }
+	const match = path.match(/\/([^/]+)\.json$/);
+	if (match && match[1]) {
+		const langCode = match[1];
+		translations[langCode] = module;
+	}
 }
 
 // Create i18n instance with type safety
 export const i18n = createI18n<I18nPath>({
-  namespace: 'app',
-  isMain: true,
-  translations,
-  defaultLocale: 'en',
-  fallbackLocale: 'en'
+	namespace: 'app',
+	isMain: true,
+	translations,
+	defaultLocale: 'en',
+	fallbackLocale: 'en'
 });
 
 export default i18n;
@@ -111,10 +115,10 @@ import { i18n } from '$src/translations/i18n.js';
 import type { LayoutServerLoad } from './$types';
 
 export const load: LayoutServerLoad = async ({ request }) => {
-  const locale = await loadI18nSSR(i18n, request);
-  return {
-    locale
-  };
+	const locale = await loadI18nSSR(i18n, request);
+	return {
+		locale
+	};
 };
 ```
 
@@ -127,10 +131,10 @@ import { i18n } from '$src/translations/i18n.js';
 import type { LayoutLoad } from './$types';
 
 export const load: LayoutLoad = async ({ data }) => {
-  await loadI18nUniversal(i18n, data?.locale);
-  return {
-    locale: data?.locale
-  };
+	await loadI18nUniversal(i18n, data?.locale);
+	return {
+		locale: data?.locale
+	};
 };
 ```
 
@@ -139,13 +143,13 @@ export const load: LayoutLoad = async ({ data }) => {
 ```svelte
 <!-- src/routes/+layout.svelte -->
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { setupI18nClient } from '@shelchin/svelte-i18n';
-  import { i18n } from '$src/translations/i18n.js';
-  
-  onMount(async () => {
-    await setupI18nClient(i18n);
-  });
+	import { onMount } from 'svelte';
+	import { setupI18nClient } from '@shelchin/svelte-i18n';
+	import { i18n } from '$src/translations/i18n.js';
+
+	onMount(async () => {
+		await setupI18nClient(i18n);
+	});
 </script>
 
 <slot />
@@ -155,14 +159,14 @@ export const load: LayoutLoad = async ({ data }) => {
 
 ```svelte
 <script lang="ts">
-  import { i18n } from '$src/translations/i18n.js';
-  import { LanguageSwitcher } from '@shelchin/svelte-i18n';
-  
-  let name = $state('World');
-  
-  // Type-safe translations with autocomplete
-  const welcome = i18n.t('welcome');
-  const hello = i18n.t('hello', { name });
+	import { i18n } from '$src/translations/i18n.js';
+	import { LanguageSwitcher } from '@shelchin/svelte-i18n';
+
+	let name = $state('World');
+
+	// Type-safe translations with autocomplete
+	const welcome = i18n.t('welcome');
+	const hello = i18n.t('hello', { name });
 </script>
 
 <h1>{welcome}</h1>
@@ -170,9 +174,9 @@ export const load: LayoutLoad = async ({ data }) => {
 
 <!-- Direct usage -->
 <nav>
-  <a href="/">{i18n.t('navigation.home')}</a>
-  <a href="/about">{i18n.t('navigation.about')}</a>
-  <a href="/contact">{i18n.t('navigation.contact')}</a>
+	<a href="/">{i18n.t('navigation.home')}</a>
+	<a href="/about">{i18n.t('navigation.about')}</a>
+	<a href="/contact">{i18n.t('navigation.contact')}</a>
 </nav>
 
 <!-- Language Switcher Component -->
@@ -190,21 +194,21 @@ import type { LibI18nPath } from './types/i18n-generated.js';
 
 // Auto-import translations
 const translationModules = import.meta.glob('./locales/*.json', {
-  eager: true,
-  import: 'default'
+	eager: true,
+	import: 'default'
 });
 
 const translations: Record<string, unknown> = {};
 for (const [path, module] of Object.entries(translationModules)) {
-  const match = path.match(/\/([^/]+)\.json$/);
-  if (match && match[1]) {
-    translations[match[1]] = module;
-  }
+	const match = path.match(/\/([^/]+)\.json$/);
+	if (match && match[1]) {
+		translations[match[1]] = module;
+	}
 }
 
 export const libI18n = createI18n<LibI18nPath>({
-  namespace: 'my-ui-lib', // Use your package name
-  translations
+	namespace: 'my-ui-lib', // Use your package name
+	translations
 });
 
 // Usage in library component
@@ -248,18 +252,18 @@ This creates type definitions that provide autocomplete for all translation keys
 
 ```typescript
 // Auto-generated types in src/translations/types/i18n-generated.d.ts
-export type I18nPath = 
-  | "welcome"
-  | "hello"
-  | "navigation.home" 
-  | "navigation.about"
-  | "navigation.contact";
+export type I18nPath =
+	| 'welcome'
+	| 'hello'
+	| 'navigation.home'
+	| 'navigation.about'
+	| 'navigation.contact';
 
 // Already configured in your i18n.ts with type safety
 import type { I18nPath } from './types/i18n-generated.js';
 
 export const i18n = createI18n<I18nPath>({
-  // ... config
+	// ... config
 });
 
 // Now TypeScript ensures only valid keys are used
@@ -307,20 +311,20 @@ Pre-built, accessible language switcher component:
 
 ```svelte
 <script>
-  import { LanguageSwitcher } from '@shelchin/svelte-i18n';
-  import { i18n } from '../app/i18n';
+	import { LanguageSwitcher } from '@shelchin/svelte-i18n';
+	import { i18n } from '../app/i18n';
 </script>
 
 <!-- Default switcher -->
 <LanguageSwitcher {i18n} />
 
 <!-- With custom styling and position -->
-<LanguageSwitcher 
-  {i18n}
-  class="my-custom-class"
-  position="top-left"
-  showFlags={true}
-  showLabels={true}
+<LanguageSwitcher
+	{i18n}
+	class="my-custom-class"
+	position="top-left"
+	showFlags={true}
+	showLabels={true}
 />
 ```
 
@@ -330,12 +334,12 @@ Shows translation errors during development:
 
 ```svelte
 <script>
-  import { ValidationPopup } from '@shelchin/svelte-i18n';
-  import { i18n } from '../app/i18n';
+	import { ValidationPopup } from '@shelchin/svelte-i18n';
+	import { i18n } from '../app/i18n';
 </script>
 
 {#if import.meta.env.DEV}
-  <ValidationPopup {i18n} />
+	<ValidationPopup {i18n} />
 {/if}
 ```
 
@@ -352,8 +356,8 @@ Automatically detect locale from URL pathname:
 // /de-DE/contact -> German
 
 export const load: LayoutLoad = async ({ data, url }) => {
-  // The url parameter enables pathname locale detection
-  return await loadI18nUniversal(i18n, data, url);
+	// The url parameter enables pathname locale detection
+	return await loadI18nUniversal(i18n, data, url);
 };
 ```
 
@@ -364,15 +368,15 @@ Load translations dynamically for code splitting:
 ```typescript
 // Option 1: Dynamic imports
 async function loadTranslations(locale: string) {
-  const translations = await import(`../translations/${locale}.json`);
-  await i18n.loadLanguage(locale, translations.default);
+	const translations = await import(`../translations/${locale}.json`);
+	await i18n.loadLanguage(locale, translations.default);
 }
 
 // Option 2: Fetch from API
 async function fetchTranslations(locale: string) {
-  const response = await fetch(`/api/translations/${locale}`);
-  const translations = await response.json();
-  await i18n.loadLanguage(locale, translations);
+	const response = await fetch(`/api/translations/${locale}`);
+	const translations = await response.json();
+	await i18n.loadLanguage(locale, translations);
 }
 ```
 
@@ -383,11 +387,11 @@ Libraries can have isolated translations that don't conflict with the app:
 ```typescript
 // In your library (my-ui-lib)
 export const libI18n = createI18n({
-  namespace: 'my-ui-lib',
-  translations: {
-    en: { button: { save: 'Save', cancel: 'Cancel' } },
-    zh: { button: { save: '保存', cancel: '取消' } }
-  }
+	namespace: 'my-ui-lib',
+	translations: {
+		en: { button: { save: 'Save', cancel: 'Cancel' } },
+		zh: { button: { save: '保存', cancel: '取消' } }
+	}
 });
 
 // Library translations are automatically namespaced
@@ -407,8 +411,8 @@ import type { LayoutServerLoad } from './$types';
 import { loadI18nSSR } from '@shelchin/svelte-i18n';
 
 export const load: LayoutServerLoad = async ({ cookies }) => {
-  const locale = cookies.get('i18n-locale') || 'en';
-  return loadI18nSSR(locale, ['en', 'zh', 'ja']);
+	const locale = cookies.get('i18n-locale') || 'en';
+	return loadI18nSSR(locale, ['en', 'zh', 'ja']);
 };
 ```
 
@@ -440,8 +444,8 @@ i18n.t('welcome', { name: 'John' }); // "Welcome John!"
 
 // Nested values
 "user.greeting": "Hello {user.firstName} {user.lastName}"
-i18n.t('user.greeting', { 
-  user: { firstName: 'John', lastName: 'Doe' } 
+i18n.t('user.greeting', {
+  user: { firstName: 'John', lastName: 'Doe' }
 }); // "Hello John Doe"
 
 // Custom interpolation markers
@@ -460,15 +464,15 @@ Catch translation issues during development:
 
 ```typescript
 const i18n = createI18n({
-  translations,
-  validateInDev: true, // Enable validation
-  validateOptions: {
-    checkInterpolation: true, // Verify {variables} match
-    checkPluralization: true, // Verify plural forms
-    checkHTML: false,          // Allow HTML in translations
-    checkMissing: true,        // Report missing keys
-    checkExtra: true           // Report extra keys
-  }
+	translations,
+	validateInDev: true, // Enable validation
+	validateOptions: {
+		checkInterpolation: true, // Verify {variables} match
+		checkPluralization: true, // Verify plural forms
+		checkHTML: false, // Allow HTML in translations
+		checkMissing: true, // Report missing keys
+		checkExtra: true // Report extra keys
+	}
 });
 
 // Shows validation popup in development with errors
@@ -485,6 +489,7 @@ npx svelte-i18n init
 ```
 
 This will:
+
 - Create translation directories
 - Generate initial config files
 - Set up type definitions
@@ -540,24 +545,27 @@ npx svelte-i18n generate-types --no-validate
 ### Core Functions
 
 #### `createI18n<TPath>(config)`
+
 Creates a typed i18n instance.
 
 ```typescript
 const i18n = createI18n<TranslationPaths>({
-  translations,          // Translation data
-  defaultLocale: 'en',   // Default locale
-  fallbackLocale: 'en',  // Fallback for missing translations
-  namespace: 'app',      // Namespace (for libraries)
-  isMain: true,          // Is main app instance?
-  validateInDev: true,   // Enable dev validation
-  interpolation: {       // Interpolation options
-    prefix: '{',
-    suffix: '}'
-  }
+	translations, // Translation data
+	defaultLocale: 'en', // Default locale
+	fallbackLocale: 'en', // Fallback for missing translations
+	namespace: 'app', // Namespace (for libraries)
+	isMain: true, // Is main app instance?
+	validateInDev: true, // Enable dev validation
+	interpolation: {
+		// Interpolation options
+		prefix: '{',
+		suffix: '}'
+	}
 });
 ```
 
 #### `i18n.t(key, params?)`
+
 Get translated text with optional interpolation.
 
 ```typescript
@@ -566,6 +574,7 @@ i18n.t('items.count', { count: 5 }); // "5 items"
 ```
 
 #### `i18n.setLocale(locale)`
+
 Change the current locale (async).
 
 ```typescript
@@ -573,6 +582,7 @@ await i18n.setLocale('zh'); // Switch to Chinese
 ```
 
 #### `i18n.setLocaleSync(locale)`
+
 Change locale synchronously (for SSR).
 
 ```typescript
@@ -580,6 +590,7 @@ i18n.setLocaleSync('zh'); // Immediate switch
 ```
 
 #### `i18n.loadLanguage(locale, translations)`
+
 Dynamically load translations.
 
 ```typescript
@@ -589,54 +600,58 @@ await i18n.loadLanguage('ja', japaneseTranslations);
 ### Properties
 
 ```typescript
-i18n.locale;        // Current locale ('en')
-i18n.locales;       // Available locales (['en', 'zh', 'ja'])
-i18n.isLoading;     // Loading state (true/false)
-i18n.errors;        // Validation errors (dev only)
-i18n.meta;          // Language metadata (direction, native name, etc.)
+i18n.locale; // Current locale ('en')
+i18n.locales; // Available locales (['en', 'zh', 'ja'])
+i18n.isLoading; // Loading state (true/false)
+i18n.errors; // Validation errors (dev only)
+i18n.meta; // Language metadata (direction, native name, etc.)
 ```
 
 ### SvelteKit Integration
 
 #### `loadI18nUniversal(i18n, data, url?, options?)`
+
 Universal load function for +layout.ts.
 
 ```typescript
 await loadI18nUniversal(i18n, data, url, {
-  storageKey: 'i18n-locale',     // localStorage key
-  cookieName: 'i18n-locale',     // Cookie name  
-  defaultLocale: 'en',            // Default locale
-  detectFromPath: true            // Detect from URL path
+	storageKey: 'i18n-locale', // localStorage key
+	cookieName: 'i18n-locale', // Cookie name
+	defaultLocale: 'en', // Default locale
+	detectFromPath: true // Detect from URL path
 });
 ```
 
 #### `loadI18nSSR(locale, locales, options?)`
+
 Server-side load function for +layout.server.ts.
 
 ```typescript
 loadI18nSSR('en', ['en', 'zh'], {
-  cookieName: 'i18n-locale'
+	cookieName: 'i18n-locale'
 });
 ```
 
 #### `setupI18nClient(i18n, data, options?)`
+
 Synchronous client setup for +layout.svelte.
 
 ```typescript
 const result = setupI18nClient(i18n, data, {
-  defaultLocale: 'en',
-  restoreFromStorage: true
+	defaultLocale: 'en',
+	restoreFromStorage: true
 });
 ```
 
 #### `initI18nOnMount(i18n, data, options?)`
+
 Async initialization in onMount.
 
 ```typescript
 await initI18nOnMount(i18n, data, {
-  initFunction: async (i18n) => {
-    // Custom initialization
-  }
+	initFunction: async (i18n) => {
+		// Custom initialization
+	}
 });
 ```
 
@@ -678,36 +693,36 @@ isLocaleAvailable(registry, 'zh');
 
 ```typescript
 interface I18nConfig {
-  // Basic
-  defaultLocale?: string;        // Default: 'en'
-  fallbackLocale?: string;       // Default: same as defaultLocale
-  supportedLocales?: string[];   // Auto-detected if not set
-  
-  // Features
-  validateInDev?: boolean;       // Default: true
-  loadingDelay?: number;         // Default: 200ms
-  namespace?: string;            // Default: 'app'
-  isMain?: boolean;              // Default: true for 'app'
-  
-  // Formatting
-  interpolation?: {
-    prefix?: string;            // Default: '{'
-    suffix?: string;            // Default: '}'
-    escapeValue?: boolean;      // Default: false
-  };
-  
-  pluralization?: {
-    separator?: string;         // Default: '|'
-  };
-  
-  // Validation
-  validateOptions?: {
-    checkInterpolation?: boolean;
-    checkPluralization?: boolean;
-    checkHTML?: boolean;
-    checkMissing?: boolean;
-    checkExtra?: boolean;
-  };
+	// Basic
+	defaultLocale?: string; // Default: 'en'
+	fallbackLocale?: string; // Default: same as defaultLocale
+	supportedLocales?: string[]; // Auto-detected if not set
+
+	// Features
+	validateInDev?: boolean; // Default: true
+	loadingDelay?: number; // Default: 200ms
+	namespace?: string; // Default: 'app'
+	isMain?: boolean; // Default: true for 'app'
+
+	// Formatting
+	interpolation?: {
+		prefix?: string; // Default: '{'
+		suffix?: string; // Default: '}'
+		escapeValue?: boolean; // Default: false
+	};
+
+	pluralization?: {
+		separator?: string; // Default: '|'
+	};
+
+	// Validation
+	validateOptions?: {
+		checkInterpolation?: boolean;
+		checkPluralization?: boolean;
+		checkHTML?: boolean;
+		checkMissing?: boolean;
+		checkExtra?: boolean;
+	};
 }
 ```
 
@@ -755,9 +770,9 @@ export const i18n = createI18n<I18nPath>({ ... });
 
 ```svelte
 {#if i18n.isLoading}
-  <LoadingSpinner />
+	<LoadingSpinner />
 {:else}
-  <Content />
+	<Content />
 {/if}
 ```
 
@@ -812,6 +827,7 @@ MIT © [Shelchin](https://github.com/atshelchin)
 ## 🙏 Acknowledgments
 
 Built with ❤️ using:
+
 - [Svelte 5](https://svelte.dev) - The magical disappearing framework
 - [SvelteKit](https://kit.svelte.dev) - The fastest way to build Svelte apps
 - [TypeScript](https://www.typescriptlang.org) - JavaScript with syntax for types
@@ -823,9 +839,9 @@ Special thanks to all [contributors](https://github.com/atshelchin/svelte-i18n/g
 
 <div align="center">
 
-**[Documentation](https://github.com/atshelchin/svelte-i18n#readme)** • 
-**[Live Demo](https://atshelchin.github.io/svelte-i18n/)** • 
-**[Examples](https://github.com/atshelchin/svelte-i18n/tree/main/src/routes)** • 
+**[Documentation](https://github.com/atshelchin/svelte-i18n#readme)** •
+**[Live Demo](https://atshelchin.github.io/svelte-i18n/)** •
+**[Examples](https://github.com/atshelchin/svelte-i18n/tree/main/src/routes)** •
 **[Report Bug](https://github.com/atshelchin/svelte-i18n/issues)**
 
 Made with ❤️ by [Shelchin](https://github.com/atshelchin)
